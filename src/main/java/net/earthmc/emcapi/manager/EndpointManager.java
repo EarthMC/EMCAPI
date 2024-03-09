@@ -46,6 +46,9 @@ public class EndpointManager {
 
             ctx.json(locationEndpoint.lookup(x, z));
         });
+
+        DiscordEndpoint discordEndpoint = new DiscordEndpoint();
+        javalin.get(urlPath + "/discord/{query}", ctx -> ctx.json(discordEndpoint.lookup(ctx.pathParam("query"))));
     }
 
     private void loadListEndpoints() {
