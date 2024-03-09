@@ -10,29 +10,34 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DiscordEndpoint {
+    AccountLinkManager alm = DiscordSRV.getPlugin().getAccountLinkManager();
 
-    public String lookup(String query) {
-        AccountLinkManager alm = DiscordSRV.getPlugin().getAccountLinkManager();
+    public String lookupID(String query) {
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(query);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestResponse("Invalid Minecraft UUID provided");
+        }
 
+        String discordId = alm.getDiscordId(uuid);
+
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("id", discordId);
+
+        return jsonObject.toString();
+    }
+
+    public String lookupUUID(String query) {
         Pattern pattern = Pattern.compile("^\\d{17,19}$");
         Matcher matcher = pattern.matcher(query);
 
-        String response;
-        if (matcher.find()) {
-            response = alm.getUuid(query).toString();
-        } else {
-            UUID uuid;
-            try {
-                uuid = UUID.fromString(query);
-            } catch (IllegalArgumentException e) {
-                throw new BadRequestResponse("Invalid Discord ID or Minecraft UUID provided");
-            }
+        if (!matcher.find()) throw new BadRequestResponse("Invalid Discord ID provided");
 
-            response = alm.getDiscordId(uuid);
-        }
+        String uuid = alm.getUuid(query).toString();
 
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("response", response);
+        jsonObject.addProperty("uuid", uuid);
 
         return jsonObject.toString();
     }
