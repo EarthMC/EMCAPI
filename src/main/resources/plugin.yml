@@ -1,0 +1,8 @@
+name: EMCAPI
+version: "${project.version}"
+main: net.earthmc.emcapi.EMCAPI
+api-version: "1.19"
+depend: [Towny, Quarters, Vault]
+authors: [Fruitloopins]
+description: API for EarthMC using Javalin
+website: https://earthmc.net

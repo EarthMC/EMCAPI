@@ -1,0 +1,17 @@
+# EMCAPI
+
+networking:
+
+  # IP the API will listen on
+  host: 127.0.0.1
+
+  # Port the API will listen on
+  port: 8080
+
+  # The URL path, for instance https://example.com/v3/endpointname where v3 is the string written below
+  url_path: v3
+
+behaviour:
+
+  # The maximum entries a player can enter when looking up objects by name
+  max_lookup_size: 100
