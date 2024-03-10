@@ -125,7 +125,7 @@ public class TownsEndpoint {
         for (Resident resident : town.getResidents()) {
             residentsArray.add(resident.getName());
         }
-        townObject.add("residents", residentsArray.isEmpty() ? null : residentsArray);
+        townObject.add("residents", residentsArray);
 
         JsonObject ranksObject = new JsonObject();
         for (String rank : TownyPerms.getTownRanks()) {

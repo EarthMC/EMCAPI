@@ -6,3 +6,4 @@ depend: [Towny, Quarters, Vault, DiscordSRV]
 authors: [Fruitloopins]
 description: API for EarthMC using Javalin
 website: https://earthmc.net
+folia-supported: true
