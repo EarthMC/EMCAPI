@@ -10,9 +10,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DiscordEndpoint {
-    AccountLinkManager alm = DiscordSRV.getPlugin().getAccountLinkManager();
 
     public String lookupID(String query) {
+        AccountLinkManager alm = DiscordSRV.getPlugin().getAccountLinkManager();
+
         UUID uuid;
         try {
             uuid = UUID.fromString(query);
@@ -29,15 +30,17 @@ public class DiscordEndpoint {
     }
 
     public String lookupUUID(String query) {
+        AccountLinkManager alm = DiscordSRV.getPlugin().getAccountLinkManager();
+
         Pattern pattern = Pattern.compile("^\\d{17,19}$");
         Matcher matcher = pattern.matcher(query);
 
         if (!matcher.find()) throw new BadRequestResponse("Invalid Discord ID provided");
 
-        String uuid = alm.getUuid(query).toString();
+        UUID uuid = alm.getUuid(query);
 
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("uuid", uuid);
+        jsonObject.addProperty("uuid", uuid != null ? uuid.toString() : null);
 
         return jsonObject.toString();
     }
