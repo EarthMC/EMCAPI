@@ -2,6 +2,7 @@ package net.earthmc.emcapi.endpoint;
 
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.quarters.api.QuartersAPI;
 import org.bukkit.Bukkit;
@@ -31,7 +32,6 @@ public class ServerEndpoint {
         jsonObject.add("players", playersObject);
 
         JsonObject statsObject = new JsonObject();
-        statsObject.addProperty("version", Bukkit.getMinecraftVersion());
         statsObject.addProperty("numResidents", townyAPI.getResidents().size());
         statsObject.addProperty("numNomads", townyAPI.getResidentsWithoutTown().size());
         statsObject.addProperty("numTowns", townyAPI.getTowns().size());
@@ -39,7 +39,13 @@ public class ServerEndpoint {
         statsObject.addProperty("numNations", townyAPI.getNations().size());
         statsObject.addProperty("numQuarters", quartersAPI.getAllQuarters().size());
         statsObject.addProperty("numCuboids", quartersAPI.getAllQuarters().stream().mapToInt(quarter -> quarter.getCuboids().size()).sum());
+        statsObject.addProperty("version", Bukkit.getMinecraftVersion());
         jsonObject.add("stats", statsObject);
+
+        JsonObject votePartyObject = new JsonObject();
+        votePartyObject.addProperty("target", Integer.parseInt(PlaceholderAPI.setPlaceholders(null, "%voteparty_votes_required_total%")));
+        votePartyObject.addProperty("numRemaining", Integer.parseInt(PlaceholderAPI.setPlaceholders(null, "%voteparty_votes_required_party%")));
+        jsonObject.add("voteParty", votePartyObject);
 
         return jsonObject.toString();
     }
