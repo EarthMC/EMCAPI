@@ -43,10 +43,18 @@ public class ServerEndpoint {
         jsonObject.add("stats", statsObject);
 
         JsonObject votePartyObject = new JsonObject();
-        votePartyObject.addProperty("target", Integer.parseInt(PlaceholderAPI.setPlaceholders(null, "%voteparty_votes_required_total%")));
-        votePartyObject.addProperty("numRemaining", Integer.parseInt(PlaceholderAPI.setPlaceholders(null, "%voteparty_votes_required_party%")));
+        votePartyObject.addProperty("target", parsePlaceholderToIntOrNull("%voteparty_votes_required_total%"));
+        votePartyObject.addProperty("numRemaining", parsePlaceholderToIntOrNull("%voteparty_votes_required_party%"));
         jsonObject.add("voteParty", votePartyObject);
 
         return jsonObject.toString();
+    }
+
+    private Integer parsePlaceholderToIntOrNull(String placeholder) {
+        try {
+            return Integer.parseInt(PlaceholderAPI.setPlaceholders(null, placeholder));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }
