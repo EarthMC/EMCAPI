@@ -6,6 +6,7 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import io.javalin.http.BadRequestResponse;
+import net.earthmc.emcapi.util.EndpointUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
@@ -23,7 +24,7 @@ public class NearbyEndpoint {
     public String lookupNearbyTown(String townString, Integer radius) {
         if (townString == null) throw new BadRequestResponse("Invalid town provided");
 
-        Town town = TownyAPI.getInstance().getTown(townString);
+        Town town = EndpointUtils.getTownOrNull(townString);
         if (town == null) throw new BadRequestResponse(townString + " is not a real town");
 
         if (radius == null || radius < 0) throw new BadRequestResponse("Invalid radius provided");
