@@ -18,7 +18,7 @@ public class NearbyEndpoint {
 
         Location location = new Location(Bukkit.getWorlds().get(0), x, 0, z);
 
-        return getJsonArrayOfNearbyTowns(location, radius).toString();
+        return getJsonArrayOfNearbyTowns(location, radius, null).toString();
     }
 
     public String lookupNearbyTown(String townString, Integer radius) {
@@ -32,20 +32,22 @@ public class NearbyEndpoint {
         TownBlock homeBlock = town.getHomeBlockOrNull();
         if (homeBlock == null) throw new BadRequestResponse("The specified town has no homeblock");
 
-        return getJsonArrayOfNearbyTowns(homeBlock.getWorldCoord().getLowerMostCornerLocation(), radius).toString();
+        return getJsonArrayOfNearbyTowns(homeBlock.getWorldCoord().getLowerMostCornerLocation(), radius, town).toString();
     }
 
-    private JsonArray getJsonArrayOfNearbyTowns(Location location, int radius) {
+    private JsonArray getJsonArrayOfNearbyTowns(Location location, int radius, Town town) {
         JsonArray jsonArray = new JsonArray();
 
-        for (Town town : TownyAPI.getInstance().getTowns()) {
-            TownBlock homeBlock = town.getHomeBlockOrNull();
+        for (Town otherTown : TownyAPI.getInstance().getTowns()) {
+            if (town != null && town == otherTown) continue; // Don't add the town we are looking nearby
+
+            TownBlock homeBlock = otherTown.getHomeBlockOrNull();
             if (homeBlock == null) continue;
 
             if (homeBlock.getWorldCoord().getUpperMostCornerLocation().distance(location) <= radius) {
                 JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("name", town.getName());
-                jsonObject.addProperty("uuid", town.getUUID().toString());
+                jsonObject.addProperty("name", otherTown.getName());
+                jsonObject.addProperty("uuid", otherTown.getUUID().toString());
 
                 jsonArray.add(jsonObject);
             }
