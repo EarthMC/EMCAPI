@@ -89,11 +89,9 @@ public class TownsEndpoint {
             coordinatesObject.add("townBlocks", null);
         }
 
-        JsonArray residentsArray = new JsonArray();
-        for (Resident resident : town.getResidents()) {
-            residentsArray.add(resident.getName());
-        }
-        townObject.add("residents", residentsArray);
+        townObject.add("residents", EndpointUtils.getResidentArray(town.getResidents()));
+        townObject.add("trusted", EndpointUtils.getResidentArray(town.getTrustedResidents().stream().toList()));
+        townObject.add("outlaws", EndpointUtils.getResidentArray(town.getTrustedResidents().stream().toList()));
 
         JsonObject ranksObject = new JsonObject();
         for (String rank : TownyPerms.getTownRanks()) {
@@ -104,18 +102,6 @@ public class TownsEndpoint {
             ranksObject.add(rank, rankArray.isEmpty() ? null : rankArray);
         }
         townObject.add("ranks", ranksObject);
-
-        JsonArray trustedArray = new JsonArray();
-        for (Resident resident : town.getTrustedResidents()) {
-            trustedArray.add(resident.getName());
-        }
-        townObject.add("trusted", trustedArray.isEmpty() ? null : trustedArray);
-
-        JsonArray outlawsArray = new JsonArray();
-        for (Resident resident : town.getOutlaws()) {
-            outlawsArray.add(resident.getName());
-        }
-        townObject.add("outlaws", outlawsArray.isEmpty() ? null : outlawsArray);
 
         List<Quarter> quartersList = QuartersAPI.getInstance().getQuartersTown(town).getQuarters();
         if (quartersList != null) {

@@ -173,4 +173,43 @@ public class EndpointUtils {
 
         return Collections.unmodifiableList(residentsWithRank);
     }
+
+    public static JsonArray getResidentArray(List<Resident> residents) {
+        JsonArray jsonArray = new JsonArray();
+
+        for (Resident resident : residents) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("name", resident.getName());
+            jsonObject.addProperty("uuid", resident.getUUID().toString());
+            jsonArray.add(jsonObject);
+        }
+
+        return jsonArray.isEmpty() ? null : jsonArray;
+    }
+
+    public static JsonArray getTownArray(List<Town> towns) {
+        JsonArray jsonArray = new JsonArray();
+
+        for (Town town : towns) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("name", town.getName());
+            jsonObject.addProperty("uuid", town.getUUID().toString());
+            jsonArray.add(jsonObject);
+        }
+
+        return jsonArray.isEmpty() ? null : jsonArray;
+    }
+
+    public static JsonArray getNationArray(List<Nation> nations) {
+        JsonArray jsonArray = new JsonArray();
+
+        for (Nation nation : nations) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("name", nation.getName());
+            jsonObject.addProperty("uuid", nation.getUUID().toString());
+            jsonArray.add(jsonObject);
+        }
+
+        return jsonArray.isEmpty() ? null : jsonArray;
+    }
 }

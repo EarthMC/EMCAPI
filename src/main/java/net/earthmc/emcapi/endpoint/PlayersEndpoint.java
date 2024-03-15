@@ -9,6 +9,8 @@ import com.palmergames.bukkit.towny.object.Town;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.milkbowl.vault.economy.Economy;
 
+import java.util.List;
+
 public class PlayersEndpoint {
     private static Economy economy = null;
 
@@ -51,32 +53,29 @@ public class PlayersEndpoint {
         playerObject.add("status", statusObject);
 
         JsonObject statsObject = new JsonObject();
-        statsObject.addProperty("balance", resident.getPlayer() != null ? economy.getBalance(resident.getPlayer()) : TownyEconomyHandler.isActive() ? resident.getAccount().getHoldingBalance() : 0.0);
+        statsObject.addProperty("balance", resident.getPlayer() != null ? economy.getBalance(resident.getPlayer()) : TownyEconomyHandler.isActive() ? resident.getAccount().getHoldingBalance() : 0);
         statsObject.addProperty("numFriends", resident.getFriends().size());
         playerObject.add("stats", statsObject);
 
         playerObject.add("perms", EndpointUtils.getPermsObject(resident.getPermissions()));
 
         JsonObject ranksObject = new JsonObject();
-        JsonArray townRanksArray = new JsonArray();
-        for (String rank : resident.getTownRanks()) {
-            townRanksArray.add(rank);
-        }
-        ranksObject.add("townRanks", townRanksArray.isEmpty() ? null : townRanksArray);
-
-        JsonArray nationRanksArray = new JsonArray();
-        for (String rank : resident.getNationRanks()) {
-            nationRanksArray.add(rank);
-        }
-        ranksObject.add("nationRanks", nationRanksArray.isEmpty() ? null : nationRanksArray);
+        ranksObject.add("townRanks", getRankArray(resident.getTownRanks()));
+        ranksObject.add("nationRanks", getRankArray(resident.getNationRanks()));
         playerObject.add("ranks", ranksObject);
 
-        JsonArray friendsArray = new JsonArray();
-        for (Resident friend : resident.getFriends()) {
-            friendsArray.add(friend.getName());
-        }
-        playerObject.add("friends", friendsArray.isEmpty() ? null : friendsArray);
+        playerObject.add("friends", EndpointUtils.getResidentArray(resident.getFriends()));
 
         return playerObject;
+    }
+
+    private static JsonArray getRankArray(List<String> ranks) {
+        JsonArray jsonArray = new JsonArray();
+
+        for (String rank : ranks) {
+            jsonArray.add(rank);
+        }
+
+        return jsonArray.isEmpty() ? null : jsonArray;
     }
 }

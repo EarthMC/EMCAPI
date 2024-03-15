@@ -47,12 +47,10 @@ public class NationsEndpoint {
         nationObject.add("stats", statsObject);
 
         nationObject.add("coordinates", EndpointUtils.getCoordinatesObject(nation.getSpawnOrNull()));
-
-        JsonArray residentsArray = new JsonArray();
-        for (Resident resident : nation.getResidents()) {
-            residentsArray.add(resident.getName());
-        }
-        nationObject.add("residents", residentsArray);
+        nationObject.add("residents", EndpointUtils.getResidentArray(nation.getResidents()));
+        nationObject.add("towns", EndpointUtils.getTownArray(nation.getTowns()));
+        nationObject.add("allies", EndpointUtils.getNationArray(nation.getAllies()));
+        nationObject.add("enemies", EndpointUtils.getNationArray(nation.getEnemies()));
 
         JsonObject ranksObject = new JsonObject();
         for (String rank : TownyPerms.getNationRanks()) {
@@ -63,24 +61,6 @@ public class NationsEndpoint {
             ranksObject.add(rank, rankArray.isEmpty() ? null : rankArray);
         }
         nationObject.add("ranks", ranksObject);
-
-        JsonArray townsArray = new JsonArray();
-        for (Town town : nation.getTowns()) {
-            townsArray.add(town.getName());
-        }
-        nationObject.add("towns", townsArray);
-
-        JsonArray alliesArray = new JsonArray();
-        for (Nation ally : nation.getAllies()) {
-            alliesArray.add(ally.getName());
-        }
-        nationObject.add("allies", alliesArray.isEmpty() ? null : alliesArray);
-
-        JsonArray enemiesArray = new JsonArray();
-        for (Nation enemy : nation.getEnemies()) {
-            enemiesArray.add(enemy.getName());
-        }
-        nationObject.add("enemies", enemiesArray.isEmpty() ? null : enemiesArray);
 
         return nationObject;
     }
