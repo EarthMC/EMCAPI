@@ -2,6 +2,7 @@ package net.earthmc.emcapi.endpoint;
 
 import com.google.gson.JsonArray;
 import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import io.javalin.http.BadRequestResponse;
@@ -46,8 +47,17 @@ public class NearbyEndpoint {
             TownBlock homeBlock = otherTown.getHomeBlockOrNull();
             if (homeBlock == null) continue;
 
-            if (homeBlock.getWorldCoord().getLowerMostCornerLocation().distance(location) <= radius)
-                towns.add(otherTown);
+            // Skip towns that have a homeblock over 64 townblocks away as they are very unlikely to be near enough and not worth checking every townblock
+            // Side effect of this is in very rare cases a nearby "outpost" could be ignored
+            if (homeBlock.getWorldCoord().getLowerMostCornerLocation().distance(location) > radius + (TownySettings.getTownBlockSize() * 64))
+                continue;
+
+            for (TownBlock townBlock : otherTown.getTownBlocks()) {
+                if (townBlock.getWorldCoord().getLowerMostCornerLocation().distance(location) <= radius) {
+                    towns.add(otherTown);
+                    break;
+                }
+            }
         }
 
         if (!towns.isEmpty()) {
