@@ -93,6 +93,15 @@ public class TownsEndpoint {
         townObject.add("trusted", EndpointUtils.getResidentArray(town.getTrustedResidents().stream().toList()));
         townObject.add("outlaws", EndpointUtils.getResidentArray(town.getTrustedResidents().stream().toList()));
 
+        List<Quarter> quartersList = QuartersAPI.getInstance().getQuartersTown(town).getQuarters();
+        if (quartersList != null) {
+            JsonArray quartersArray = new JsonArray();
+            for (Quarter quarter : quartersList) {
+                quartersArray.add(quarter.getUUID().toString());
+            }
+            townObject.add("quarters", quartersArray);
+        }
+
         JsonObject ranksObject = new JsonObject();
         for (String rank : TownyPerms.getTownRanks()) {
             JsonArray rankArray = new JsonArray();
@@ -102,15 +111,6 @@ public class TownsEndpoint {
             ranksObject.add(rank, rankArray.isEmpty() ? null : rankArray);
         }
         townObject.add("ranks", ranksObject);
-
-        List<Quarter> quartersList = QuartersAPI.getInstance().getQuartersTown(town).getQuarters();
-        if (quartersList != null) {
-            JsonArray quartersArray = new JsonArray();
-            for (Quarter quarter : quartersList) {
-                quartersArray.add(quarter.getUUID().toString());
-            }
-            townObject.add("quarters", quartersArray);
-        }
 
         return townObject;
     }

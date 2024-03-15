@@ -10,6 +10,9 @@ import net.earthmc.emcapi.util.EndpointUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NearbyEndpoint {
 
     public String lookupNearbyCoordinate(Integer x, Integer z, Integer radius) {
@@ -36,7 +39,7 @@ public class NearbyEndpoint {
     }
 
     private JsonArray getJsonArrayOfNearbyTowns(Location location, int radius, Town town) {
-        JsonArray jsonArray = new JsonArray();
+        List<Town> towns = new ArrayList<>();
 
         for (Town otherTown : TownyAPI.getInstance().getTowns()) {
             if (town != null && town == otherTown) continue; // Don't add the town we are looking nearby
@@ -45,14 +48,10 @@ public class NearbyEndpoint {
             if (homeBlock == null) continue;
 
             if (homeBlock.getWorldCoord().getUpperMostCornerLocation().distance(location) <= radius) {
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("name", otherTown.getName());
-                jsonObject.addProperty("uuid", otherTown.getUUID().toString());
-
-                jsonArray.add(jsonObject);
+                towns.add(otherTown);
             }
         }
 
-        return jsonArray;
+        return EndpointUtils.getTownArray(towns);
     }
 }
