@@ -19,25 +19,57 @@ public class EndpointManager {
     }
 
     public void loadEndpoints() {
-        loadLookupEndpoints();
-        loadListEndpoints();
-    }
-
-    private void loadLookupEndpoints() {
         ServerEndpoint serverEndpoint = new ServerEndpoint();
         javalin.get(urlPath, ctx -> ctx.json(serverEndpoint.lookup()));
 
+        ListsEndpoint listsEndpoint = new ListsEndpoint();
         PlayersEndpoint playersEndpoint = new PlayersEndpoint(economy);
-        javalin.get(urlPath + "/players/{query}", ctx -> ctx.json(playersEndpoint.lookup(ctx.pathParam("query"))));
+        javalin.get(urlPath + "/players", ctx -> {
+            String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
+
+            if (query == null) {
+                ctx.json(listsEndpoint.listPlayers());
+                return;
+            }
+
+            ctx.json(playersEndpoint.lookup(query));
+        });
 
         TownsEndpoint townsEndpoint = new TownsEndpoint();
-        javalin.get(urlPath + "/towns/{query}", ctx -> ctx.json(townsEndpoint.lookup(ctx.pathParam("query"))));
+        javalin.get(urlPath + "/towns", ctx -> {
+            String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
+
+            if (query == null) {
+                ctx.json(listsEndpoint.listTowns());
+                return;
+            }
+
+            ctx.json(townsEndpoint.lookup(query));
+        });
 
         NationsEndpoint nationsEndpoint = new NationsEndpoint();
-        javalin.get(urlPath + "/nations/{query}", ctx -> ctx.json(nationsEndpoint.lookup(ctx.pathParam("query"))));
+        javalin.get(urlPath + "/nations", ctx -> {
+            String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
+
+            if (query == null) {
+                ctx.json(listsEndpoint.listNations());
+                return;
+            }
+
+            ctx.json(nationsEndpoint.lookup(query));
+        });
 
         QuartersEndpoint quartersEndpoint = new QuartersEndpoint();
-        javalin.get(urlPath + "/quarters/{query}", ctx -> ctx.json(quartersEndpoint.lookup(ctx.pathParam("query"))));
+        javalin.get(urlPath + "/quarters", ctx -> {
+            String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
+
+            if (query == null) {
+                ctx.json(listsEndpoint.listQuarters());
+                return;
+            }
+
+            ctx.json(quartersEndpoint.lookup(query));
+        });
 
         LocationEndpoint locationEndpoint = new LocationEndpoint();
         javalin.get(urlPath + "/location", ctx -> {
@@ -67,13 +99,5 @@ public class EndpointManager {
         javalin.get(urlPath + "/discord/id/{query}", ctx -> ctx.json(discordEndpoint.lookupID(ctx.pathParam("query"))));
 
         javalin.get(urlPath + "/discord/uuid/{query}", ctx -> ctx.json(discordEndpoint.lookupUUID(ctx.pathParam("query"))));
-    }
-
-    private void loadListEndpoints() {
-        ListsEndpoint listsEndpoint = new ListsEndpoint();
-        javalin.get(urlPath + "/players", ctx -> ctx.json(listsEndpoint.listPlayers()));
-        javalin.get(urlPath + "/towns", ctx -> ctx.json(listsEndpoint.listTowns()));
-        javalin.get(urlPath + "/nations", ctx -> ctx.json(listsEndpoint.listNations()));
-        javalin.get(urlPath + "/quarters", ctx -> ctx.json(listsEndpoint.listQuarters()));
     }
 }
