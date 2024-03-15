@@ -1,7 +1,6 @@
 package net.earthmc.emcapi.endpoint;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;

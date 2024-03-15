@@ -88,6 +88,7 @@ public class TownsEndpoint {
         } else {
             coordinatesObject.add("townBlocks", null);
         }
+        townObject.add("coordinates", coordinatesObject);
 
         townObject.add("residents", EndpointUtils.getResidentArray(town.getResidents()));
         townObject.add("trusted", EndpointUtils.getResidentArray(town.getTrustedResidents().stream().toList()));

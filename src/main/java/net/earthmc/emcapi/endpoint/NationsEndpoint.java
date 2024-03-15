@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
-import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
 import net.earthmc.emcapi.manager.NationMetadataManager;
 import net.earthmc.emcapi.util.EndpointUtils;
