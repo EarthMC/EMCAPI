@@ -7,6 +7,14 @@ import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyPermission;
+import io.javalin.http.NotFoundResponse;
+import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.endpoint.NationsEndpoint;
+import net.earthmc.emcapi.endpoint.PlayersEndpoint;
+import net.earthmc.emcapi.endpoint.QuartersEndpoint;
+import net.earthmc.emcapi.endpoint.TownsEndpoint;
+import net.earthmc.quarters.api.QuartersAPI;
+import net.earthmc.quarters.object.Quarter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -16,8 +24,35 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 public class EndpointUtils {
+
+    public static String lookup(String query, Function<String, ?> getObject, String notFoundMessage) {
+        String[] split = query.split(",");
+        JsonArray jsonArray = new JsonArray();
+
+        for (int i = 0; i < Math.min(EMCAPI.instance.getConfig().getInt("behaviour.max_lookup_size"), split.length); i++) {
+            String name = split[i];
+            Object object = getObject.apply(name);
+
+            if (object != null) {
+                if (object instanceof Resident) {
+                    jsonArray.add(PlayersEndpoint.getPlayerObject((Resident) object));
+                } else if (object instanceof Town) {
+                    jsonArray.add(TownsEndpoint.getTownObject((Town) object));
+                } else if (object instanceof Nation) {
+                    jsonArray.add(NationsEndpoint.getNationObject((Nation) object));
+                } else if (object instanceof Quarter) {
+                    jsonArray.add(QuartersEndpoint.getQuarterObject((Quarter) object));
+                }
+            } else {
+                throw new NotFoundResponse(name + " " + notFoundMessage);
+            }
+        }
+
+        return jsonArray.toString();
+    }
 
     public static int getNumOnlineNomads() {
         int numOnlineNomads = 0;
@@ -66,6 +101,18 @@ public class EndpointUtils {
         }
 
         return nation;
+    }
+
+    public static Quarter getQuarterOrNull(String uuidString) {
+        UUID uuid;
+
+        try {
+            uuid = UUID.fromString(uuidString);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+
+        return QuartersAPI.getInstance().getQuarter(uuid);
     }
 
     public static JsonObject getPermsObject(TownyPermission permissions) {

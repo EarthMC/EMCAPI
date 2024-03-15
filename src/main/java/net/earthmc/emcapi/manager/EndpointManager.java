@@ -27,16 +27,16 @@ public class EndpointManager {
         ServerEndpoint serverEndpoint = new ServerEndpoint();
         javalin.get(urlPath, ctx -> ctx.json(serverEndpoint.lookup()));
 
-        PlayersEndpoint playersEndpoint = new PlayersEndpoint(config, economy);
+        PlayersEndpoint playersEndpoint = new PlayersEndpoint(economy);
         javalin.get(urlPath + "/players/{query}", ctx -> ctx.json(playersEndpoint.lookup(ctx.pathParam("query"))));
 
-        TownsEndpoint townsEndpoint = new TownsEndpoint(config);
+        TownsEndpoint townsEndpoint = new TownsEndpoint();
         javalin.get(urlPath + "/towns/{query}", ctx -> ctx.json(townsEndpoint.lookup(ctx.pathParam("query"))));
 
-        NationsEndpoint nationsEndpoint = new NationsEndpoint(config);
+        NationsEndpoint nationsEndpoint = new NationsEndpoint();
         javalin.get(urlPath + "/nations/{query}", ctx -> ctx.json(nationsEndpoint.lookup(ctx.pathParam("query"))));
 
-        QuartersEndpoint quartersEndpoint = new QuartersEndpoint(config);
+        QuartersEndpoint quartersEndpoint = new QuartersEndpoint();
         javalin.get(urlPath + "/quarters/{query}", ctx -> ctx.json(quartersEndpoint.lookup(ctx.pathParam("query"))));
 
         LocationEndpoint locationEndpoint = new LocationEndpoint();

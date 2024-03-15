@@ -7,53 +7,21 @@ import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
-import io.javalin.http.NotFoundResponse;
 import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.quarters.api.QuartersAPI;
 import net.earthmc.quarters.object.Quarter;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.Collection;
 import java.util.List;
 
 public class TownsEndpoint {
-    private final FileConfiguration config;
-
-    public TownsEndpoint(FileConfiguration config) {
-        this.config = config;
-    }
 
     public String lookup(String query) {
-        String[] split = query.split(",");
-
-        if (split.length == 1) {
-            String name = split[0];
-            Town town = EndpointUtils.getTownOrNull(name);
-
-            if (town != null) {
-                return getTownObject(town).toString();
-            } else {
-                throw new NotFoundResponse(name + " is not a real town");
-            }
-        } else {
-            JsonArray jsonArray = new JsonArray();
-            for (int i = 0; i < Math.min(config.getInt("behaviour.max_lookup_size"), split.length); i++) {
-                String name = split[i];
-                Town town = EndpointUtils.getTownOrNull(name);
-
-                if (town != null) {
-                    jsonArray.add(getTownObject(town));
-                } else {
-                    throw new NotFoundResponse(name + " is not a real town");
-                }
-            }
-
-            return jsonArray.toString();
-        }
+        return EndpointUtils.lookup(query, EndpointUtils::getTownOrNull, "is not a real town");
     }
 
-    private JsonObject getTownObject(Town town) {
+    public static JsonObject getTownObject(Town town) {
         JsonObject townObject = new JsonObject();
 
         townObject.addProperty("name", town.getName());

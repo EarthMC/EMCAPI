@@ -2,53 +2,25 @@ package net.earthmc.emcapi.endpoint;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
-import io.javalin.http.NotFoundResponse;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.configuration.file.FileConfiguration;
 
 public class PlayersEndpoint {
-    private final FileConfiguration config;
-    private final Economy economy;
+    private static Economy economy = null;
 
-    public PlayersEndpoint(FileConfiguration config, Economy economy) {
-        this.config = config;
-        this.economy = economy;
+    public PlayersEndpoint(Economy economy) {
+        PlayersEndpoint.economy = economy;
     }
 
     public String lookup(String query) {
-        String[] split = query.split(",");
-
-        if (split.length == 1) {
-            String name = split[0];
-            Resident resident = EndpointUtils.getResidentOrNull(name);
-
-            if (resident != null) {
-                return getPlayerObject(resident).toString();
-            } else {
-                throw new NotFoundResponse(name + " is not a real player");
-            }
-        } else {
-            JsonArray jsonArray = new JsonArray();
-            for (int i = 0; i < Math.min(config.getInt("behaviour.max_lookup_size"), split.length); i++) {
-                String name = split[i];
-                Resident resident = EndpointUtils.getResidentOrNull(name);
-
-                if (resident != null) {
-                    jsonArray.add(getPlayerObject(resident));
-                } else {
-                    throw new NotFoundResponse(name + " is not a real player");
-                }
-            }
-
-            return jsonArray.toString();
-        }
+        return EndpointUtils.lookup(query, EndpointUtils::getResidentOrNull, "is not a real player");
     }
 
-    private JsonObject getPlayerObject(Resident resident) {
+    public static JsonObject getPlayerObject(Resident resident) {
         JsonObject playerObject = new JsonObject();
 
         Town town = resident.getTownOrNull();
@@ -79,7 +51,7 @@ public class PlayersEndpoint {
         playerObject.add("status", statusObject);
 
         JsonObject statsObject = new JsonObject();
-        statsObject.addProperty("balance", economy.getBalance(resident.getPlayer()));
+        statsObject.addProperty("balance", resident.getPlayer() != null ? economy.getBalance(resident.getPlayer()) : TownyEconomyHandler.isActive() ? resident.getAccount().getHoldingBalance() : 0.0);
         statsObject.addProperty("numFriends", resident.getFriends().size());
         playerObject.add("stats", statsObject);
 

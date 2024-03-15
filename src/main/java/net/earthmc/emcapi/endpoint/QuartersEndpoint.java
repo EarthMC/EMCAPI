@@ -3,60 +3,18 @@ package net.earthmc.emcapi.endpoint;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.object.Resident;
-import io.javalin.http.NotFoundResponse;
-import net.earthmc.quarters.api.QuartersAPI;
+import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.quarters.object.Cuboid;
 import net.earthmc.quarters.object.Quarter;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
-
-import java.util.UUID;
 
 public class QuartersEndpoint {
-    private final FileConfiguration config;
-
-    public QuartersEndpoint(FileConfiguration config) {
-        this.config = config;
-    }
 
     public String lookup(String query) {
-        String[] split = query.split(",");
-
-        if (split.length == 1) {
-            String uuidString = split[0];
-            UUID uuid;
-
-            try {
-                uuid = UUID.fromString(uuidString);
-            } catch (IllegalArgumentException e) {
-                throw new NotFoundResponse(uuidString + " is not a real quarter");
-            }
-
-            Quarter quarter = QuartersAPI.getInstance().getQuarter(uuid);
-
-            return getQuarterObject(quarter).toString();
-        } else {
-            JsonArray jsonArray = new JsonArray();
-            for (int i = 0; i < Math.min(config.getInt("behaviour.max_lookup_size"), split.length); i++) {
-                String uuidString = split[i];
-                UUID uuid;
-
-                try {
-                    uuid = UUID.fromString(uuidString);
-                } catch (IllegalArgumentException e) {
-                    throw new NotFoundResponse(uuidString + " is not a real quarter");
-                }
-
-                Quarter quarter = QuartersAPI.getInstance().getQuarter(uuid);
-
-                jsonArray.add(getQuarterObject(quarter));
-            }
-
-            return jsonArray.toString();
-        }
+        return EndpointUtils.lookup(query, EndpointUtils::getQuarterOrNull, "is not a real quarter");
     }
 
-    public JsonObject getQuarterObject(Quarter quarter) {
+    public static JsonObject getQuarterObject(Quarter quarter) {
         JsonObject quarterObject = new JsonObject();
 
         quarterObject.addProperty("uuid", quarter.getUUID().toString());
@@ -103,7 +61,7 @@ public class QuartersEndpoint {
         return quarterObject;
     }
 
-    private JsonObject getCuboidObject(Cuboid cuboid) {
+    private static JsonObject getCuboidObject(Cuboid cuboid) {
         JsonObject cuboidObject = new JsonObject();
 
         JsonArray pos1Array = new JsonArray();
