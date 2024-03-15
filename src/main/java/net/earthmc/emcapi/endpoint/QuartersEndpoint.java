@@ -2,7 +2,6 @@ package net.earthmc.emcapi.endpoint;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.palmergames.bukkit.towny.object.Resident;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.quarters.object.Cuboid;
 import net.earthmc.quarters.object.Quarter;
@@ -44,6 +43,8 @@ public class QuartersEndpoint {
         colourArray.add(rgb[2]);
         quarterObject.add("colour", colourArray);
 
+        quarterObject.add("trusted", EndpointUtils.getResidentArray(quarter.getTrustedResidents()));
+
         JsonArray cuboidsArray = new JsonArray();
         for (Cuboid cuboid : quarter.getCuboids()) {
             JsonObject cuboidObject = getCuboidObject(cuboid);
@@ -51,12 +52,6 @@ public class QuartersEndpoint {
             cuboidsArray.add(cuboidObject);
         }
         quarterObject.add("cuboids", cuboidsArray);
-
-        JsonArray trustedArray = new JsonArray();
-        for (Resident trusted : quarter.getTrustedResidents()) {
-            trustedArray.add(trusted.getName());
-        }
-        quarterObject.add("trusted", trustedArray.isEmpty() ? null : trustedArray);
 
         return quarterObject;
     }
