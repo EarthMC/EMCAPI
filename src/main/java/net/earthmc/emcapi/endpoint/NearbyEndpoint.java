@@ -46,11 +46,14 @@ public class NearbyEndpoint {
             TownBlock homeBlock = otherTown.getHomeBlockOrNull();
             if (homeBlock == null) continue;
 
-            if (homeBlock.getWorldCoord().getUpperMostCornerLocation().distance(location) <= radius) {
+            if (homeBlock.getWorldCoord().getLowerMostCornerLocation().distance(location) <= radius)
                 towns.add(otherTown);
-            }
         }
 
-        return EndpointUtils.getTownArray(towns);
+        if (!towns.isEmpty()) {
+            return EndpointUtils.getTownArray(towns);
+        } else {
+            return new JsonArray();
+        }
     }
 }
