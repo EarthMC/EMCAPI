@@ -1,6 +1,7 @@
 package net.earthmc.emcapi;
 
 import io.javalin.Javalin;
+import io.javalin.util.JavalinLogger;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.earthmc.emcapi.manager.EndpointManager;
@@ -20,6 +21,12 @@ public final class EMCAPI extends JavaPlugin {
     public static EMCAPI instance;
     private Javalin javalin;
     private Economy economy;
+
+    @Override
+    public void onLoad() {
+        JavalinLogger.enabled = getConfig().getBoolean("behaviour.developer_mode");
+        JavalinLogger.startupInfo = false;
+    }
 
     @Override
     public void onEnable() {
