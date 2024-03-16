@@ -178,38 +178,65 @@ public class EndpointUtils {
         JsonArray jsonArray = new JsonArray();
 
         for (Resident resident : residents) {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("name", resident.getName());
-            jsonObject.addProperty("uuid", resident.getUUID().toString());
-            jsonArray.add(jsonObject);
+            if (resident == null) continue;
+            jsonArray.add(getResidentJsonObject(resident));
         }
 
         return jsonArray.isEmpty() ? null : jsonArray;
+    }
+
+    public static JsonObject getResidentJsonObject(Resident resident) {
+        if (resident == null) return null;
+
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("name", resident.getName());
+        jsonObject.addProperty("uuid", resident.getUUID().toString());
+
+        return jsonObject;
     }
 
     public static JsonArray getTownArray(List<Town> towns) {
         JsonArray jsonArray = new JsonArray();
 
         for (Town town : towns) {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("name", town.getName());
-            jsonObject.addProperty("uuid", town.getUUID().toString());
-            jsonArray.add(jsonObject);
+            if (town == null) continue;
+            jsonArray.add(getTownJsonObject(town));
         }
 
         return jsonArray.isEmpty() ? null : jsonArray;
+    }
+
+    public static JsonObject getTownJsonObject(Town town) {
+        if (town == null) return null;
+
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("name", town.getName());
+        jsonObject.addProperty("uuid", town.getUUID().toString());
+
+        return jsonObject;
     }
 
     public static JsonArray getNationArray(List<Nation> nations) {
         JsonArray jsonArray = new JsonArray();
 
         for (Nation nation : nations) {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("name", nation.getName());
-            jsonObject.addProperty("uuid", nation.getUUID().toString());
-            jsonArray.add(jsonObject);
+            if (nation == null) continue;
+            jsonArray.add(getNationJsonObject(nation));
         }
 
         return jsonArray.isEmpty() ? null : jsonArray;
+    }
+
+    public static JsonObject getNationJsonObject(Nation nation) {
+        if (nation == null) return null;
+
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("name", nation.getName());
+        jsonObject.addProperty("uuid", nation.getUUID().toString());
+
+        return jsonObject;
     }
 }

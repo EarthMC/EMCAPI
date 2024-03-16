@@ -2,10 +2,7 @@ package net.earthmc.emcapi.endpoint;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.palmergames.bukkit.towny.TownyEconomyHandler;
-import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
-import com.palmergames.bukkit.towny.object.Town;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -26,17 +23,15 @@ public class PlayersEndpoint {
     public static JsonObject getPlayerObject(Resident resident) {
         JsonObject playerObject = new JsonObject();
 
-        Town town = resident.getTownOrNull();
-        Nation nation = resident.getNationOrNull();
-
         playerObject.addProperty("name", resident.getName());
         playerObject.addProperty("uuid", resident.getUUID().toString());
         playerObject.addProperty("title", resident.getTitle().isEmpty() ? null : resident.getTitle());
         playerObject.addProperty("surname", resident.getSurname().isEmpty() ? null : resident.getSurname());
         playerObject.addProperty("formattedName", resident.getFormattedName());
         playerObject.addProperty("about", resident.getAbout().isEmpty() ? null : resident.getAbout());
-        playerObject.addProperty("town", town == null ? null : town.getName());
-        playerObject.addProperty("nation", nation == null ? null : nation.getName());
+
+        playerObject.add("town", EndpointUtils.getTownJsonObject(resident.getTownOrNull()));
+        playerObject.add("nation", EndpointUtils.getNationJsonObject(resident.getNationOrNull()));
 
         JsonObject timestampsObject = new JsonObject();
         timestampsObject.addProperty("registered", resident.getRegistered());

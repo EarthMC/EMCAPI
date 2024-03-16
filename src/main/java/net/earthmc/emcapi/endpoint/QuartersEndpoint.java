@@ -17,9 +17,10 @@ public class QuartersEndpoint {
         JsonObject quarterObject = new JsonObject();
 
         quarterObject.addProperty("uuid", quarter.getUUID().toString());
-        quarterObject.addProperty("owner", quarter.getOwnerResident() == null ? null : quarter.getOwnerResident().getName());
-        quarterObject.addProperty("town", quarter.getTown().getName());
         quarterObject.addProperty("type", quarter.getType().toString());
+
+        quarterObject.add("owner", EndpointUtils.getResidentJsonObject(quarter.getOwnerResident()));
+        quarterObject.add("town", EndpointUtils.getTownJsonObject(quarter.getTown()));
 
         JsonObject timestampsObject = new JsonObject();
         timestampsObject.addProperty("registered", quarter.getRegistered());

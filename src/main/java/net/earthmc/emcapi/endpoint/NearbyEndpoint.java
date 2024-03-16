@@ -5,8 +5,6 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
-import com.palmergames.bukkit.towny.object.WorldCoord;
-import com.palmergames.util.MathUtil;
 import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.util.EndpointUtils;
 import org.bukkit.Bukkit;

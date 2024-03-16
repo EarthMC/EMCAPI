@@ -26,17 +26,20 @@ public class TownsEndpoint {
 
         townObject.addProperty("name", town.getName());
         townObject.addProperty("uuid", town.getUUID().toString());
-        townObject.addProperty("mayor", town.getMayor().getName());
         townObject.addProperty("board", town.getBoard().isEmpty() ? null : town.getBoard());
         townObject.addProperty("founder", town.getFounder());
-        townObject.addProperty("nation", town.hasNation() ? town.getNationOrNull().getName() : null);
         townObject.addProperty("wiki", TownMetadataManager.getWikiURL(town));
+
+        townObject.add("mayor", EndpointUtils.getResidentJsonObject(town.getMayor()));
+        townObject.add("nation", EndpointUtils.getNationJsonObject(town.getNationOrNull()));
 
         JsonObject timestampsObject = new JsonObject();
         timestampsObject.addProperty("registered", town.getRegistered());
         timestampsObject.addProperty("joinedNationAt", town.hasNation() ? town.getJoinedNationAt() : null);
+        timestampsObject.addProperty("ruinedAt", town.isRuined() ? town.getRuinedTime() : null);
         townObject.add("timestamps", timestampsObject);
 
+        town.findNewMayor();
         JsonObject statusObject = new JsonObject();
         statusObject.addProperty("isPublic", town.isPublic());
         statusObject.addProperty("isOpen", town.isOpen());

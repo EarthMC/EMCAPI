@@ -20,12 +20,13 @@ public class NationsEndpoint {
 
         nationObject.addProperty("name", nation.getName());
         nationObject.addProperty("uuid", nation.getUUID().toString());
-        nationObject.addProperty("king", nation.getKing().getName());
         nationObject.addProperty("board", nation.getBoard().isEmpty() ? null : nation.getBoard());
-        nationObject.addProperty("capital", nation.getCapital().getName());
         nationObject.addProperty("dynmapColour", NationMetadataManager.getDynmapColour(nation));
         nationObject.addProperty("dynmapOutline", NationMetadataManager.getDynmapOutline(nation));
         nationObject.addProperty("wiki", NationMetadataManager.getWikiURL(nation));
+
+        nationObject.add("king", EndpointUtils.getResidentJsonObject(nation.getKing()));
+        nationObject.add("capital", EndpointUtils.getTownJsonObject(nation.getCapital()));
 
         JsonObject timestampsObject = new JsonObject();
         timestampsObject.addProperty("registered", nation.getRegistered());
