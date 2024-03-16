@@ -25,6 +25,7 @@ public class NationsEndpoint {
         nationObject.addProperty("capital", nation.getCapital().getName());
         nationObject.addProperty("dynmapColour", NationMetadataManager.getDynmapColour(nation));
         nationObject.addProperty("dynmapOutline", NationMetadataManager.getDynmapOutline(nation));
+        nationObject.addProperty("wiki", NationMetadataManager.getWikiURL(nation));
 
         JsonObject timestampsObject = new JsonObject();
         timestampsObject.addProperty("registered", nation.getRegistered());
@@ -50,6 +51,7 @@ public class NationsEndpoint {
         nationObject.add("towns", EndpointUtils.getTownArray(nation.getTowns()));
         nationObject.add("allies", EndpointUtils.getNationArray(nation.getAllies()));
         nationObject.add("enemies", EndpointUtils.getNationArray(nation.getEnemies()));
+        nationObject.add("sanctioned", EndpointUtils.getTownArray(nation.getSanctionedTowns()));
 
         JsonObject ranksObject = new JsonObject();
         for (String rank : TownyPerms.getNationRanks()) {

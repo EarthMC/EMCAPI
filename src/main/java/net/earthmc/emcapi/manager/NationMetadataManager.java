@@ -18,4 +18,12 @@ public class NationMetadataManager {
 
         return sdf.getValue();
     }
+
+    public static String getWikiURL(Nation nation) {
+        StringDataField sdf = (StringDataField) nation.getMetadata("wiki_url");
+        if (sdf == null)
+            return null;
+
+        return sdf.getValue();
+    }
 }

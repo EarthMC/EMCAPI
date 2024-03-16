@@ -2,6 +2,7 @@ package net.earthmc.emcapi.manager;
 
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.metadata.BooleanDataField;
+import com.palmergames.bukkit.towny.object.metadata.StringDataField;
 
 public class TownMetadataManager {
 
@@ -11,5 +12,13 @@ public class TownMetadataManager {
             return false;
 
         return bdf.getValue();
+    }
+
+    public static String getWikiURL(Town town) {
+        StringDataField sdf = (StringDataField) town.getMetadata("wiki_url");
+        if (sdf == null)
+            return null;
+
+        return sdf.getValue();
     }
 }

@@ -30,6 +30,7 @@ public class TownsEndpoint {
         townObject.addProperty("board", town.getBoard().isEmpty() ? null : town.getBoard());
         townObject.addProperty("founder", town.getFounder());
         townObject.addProperty("nation", town.hasNation() ? town.getNationOrNull().getName() : null);
+        townObject.addProperty("wiki", TownMetadataManager.getWikiURL(town));
 
         JsonObject timestampsObject = new JsonObject();
         timestampsObject.addProperty("registered", town.getRegistered());
