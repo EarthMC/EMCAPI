@@ -19,8 +19,11 @@ public class EndpointManager {
     }
 
     public void loadEndpoints() {
+        DocumentationEndpoint documentationEndpoint = new DocumentationEndpoint();
+        javalin.get(urlPath, ctx -> ctx.json(documentationEndpoint.lookup()));
+
         ServerEndpoint serverEndpoint = new ServerEndpoint();
-        javalin.get(urlPath, ctx -> ctx.json(serverEndpoint.lookup()));
+        javalin.get(urlPath + "/server", ctx -> ctx.json(serverEndpoint.lookup()));
 
         ListsEndpoint listsEndpoint = new ListsEndpoint();
         PlayersEndpoint playersEndpoint = new PlayersEndpoint(economy);
