@@ -87,17 +87,15 @@ public class EndpointManager {
             Integer x = ctx.queryParamAsClass("x", Integer.class).getOrDefault(null);
             Integer z = ctx.queryParamAsClass("z", Integer.class).getOrDefault(null);
             Integer radius = ctx.queryParamAsClass("radius", Integer.class).getOrDefault(null);
-            Boolean betweenHomeBlocks = ctx.queryParamAsClass("betweenHomeBlocks", Boolean.class).getOrDefault(true);
 
-            ctx.json(nearbyEndpoint.lookupNearbyCoordinate(x, z, radius, betweenHomeBlocks));
+            ctx.json(nearbyEndpoint.lookupNearbyCoordinate(x, z, radius));
         });
 
         javalin.get(urlPath + "/nearby/town", ctx -> {
             String town = ctx.queryParamAsClass("town", String.class).getOrDefault(null);
             Integer radius = ctx.queryParamAsClass("radius", Integer.class).getOrDefault(null);
-            Boolean betweenHomeBlocks = ctx.queryParamAsClass("betweenHomeBlocks", Boolean.class).getOrDefault(true);
 
-            ctx.json(nearbyEndpoint.lookupNearbyTown(town, radius, betweenHomeBlocks));
+            ctx.json(nearbyEndpoint.lookupNearbyTown(town, radius));
         });
 
         DiscordEndpoint discordEndpoint = new DiscordEndpoint();

@@ -62,8 +62,8 @@ public class DocumentationEndpoint {
         examplesObject.add("discord", discordArray);
 
         JsonArray nearbyArray = new JsonArray();
-        nearbyArray.add(url + "nearby/coordinate?x=2304&z=-9743&radius=1000&betweenHomeBlocks=true");
-        nearbyArray.add(url + "nearby/town?town=82a1ecc6-d40c-4ee4-9bff-5b4acecb4e63&radius=1000&betweenHomeBlocks=false");
+        nearbyArray.add(url + "nearby/coordinate?x=2304&z=-9743&radius=1000");
+        nearbyArray.add(url + "nearby/town?town=82a1ecc6-d40c-4ee4-9bff-5b4acecb4e63&radius=1000");
         examplesObject.add("nearby", nearbyArray);
         jsonObject.add("examples", examplesObject);
 
