@@ -15,3 +15,6 @@ behaviour:
 
   # The maximum entries a player can enter when looking up objects by name
   max_lookup_size: 100
+
+  # Setting for testing reasons
+  developer_mode: false

@@ -19,7 +19,7 @@ public class EndpointManager {
     }
 
     public void loadEndpoints() {
-        DocumentationEndpoint documentationEndpoint = new DocumentationEndpoint();
+        DocumentationEndpoint documentationEndpoint = new DocumentationEndpoint(config);
         javalin.get(urlPath, ctx -> ctx.json(documentationEndpoint.lookup()));
 
         ServerEndpoint serverEndpoint = new ServerEndpoint();
