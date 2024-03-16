@@ -8,6 +8,7 @@ import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 
 import java.util.List;
 
@@ -53,7 +54,7 @@ public class PlayersEndpoint {
         playerObject.add("status", statusObject);
 
         JsonObject statsObject = new JsonObject();
-        statsObject.addProperty("balance", resident.getPlayer() != null ? economy.getBalance(resident.getPlayer()) : TownyEconomyHandler.isActive() ? resident.getAccount().getHoldingBalance() : 0);
+        statsObject.addProperty("balance", resident.getPlayer() != null ? economy.getBalance(resident.getPlayer()) : economy.getBalance(Bukkit.getOfflinePlayer(resident.getUUID())));
         statsObject.addProperty("numFriends", resident.getFriends().size());
         playerObject.add("stats", statsObject);
 
