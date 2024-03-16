@@ -27,7 +27,7 @@ public class DocumentationEndpoint {
         authorObject.add("discord", discordObject);
 
         authorObject.addProperty("github", "https://github.com/Fruitloopins");
-        authorObject.addProperty("note", "Feel free to get in contact if you need any help with using the API, or message in the Official API Discussion thread (https://discord.com/channels/219863747248914433/1218363271367622717)");
+        authorObject.addProperty("note", "Feel free to get in contact if you need any help with using the API, or send a message in the Official API Discussion thread (https://discord.com/channels/219863747248914433/1218363271367622717)");
         jsonObject.add("author", authorObject);
 
         jsonObject.addProperty("fish", "><>");
@@ -62,8 +62,8 @@ public class DocumentationEndpoint {
         examplesObject.add("discord", discordArray);
 
         JsonArray nearbyArray = new JsonArray();
-        nearbyArray.add(url + "nearby/coordinate?x=2304&z=-9743&radius=1000");
-        nearbyArray.add(url + "nearby/town?town=82a1ecc6-d40c-4ee4-9bff-5b4acecb4e63&radius=1000");
+        nearbyArray.add(url + "nearby/coordinate?x=2304&z=-9743&radius=1000&betweenHomeBlocks=true");
+        nearbyArray.add(url + "nearby/town?town=82a1ecc6-d40c-4ee4-9bff-5b4acecb4e63&radius=1000&betweenHomeBlocks=false");
         examplesObject.add("nearby", nearbyArray);
         jsonObject.add("examples", examplesObject);
 
