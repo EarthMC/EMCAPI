@@ -2,7 +2,7 @@ package net.earthmc.emcapi.endpoint;
 
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
-import me.clip.placeholderapi.PlaceholderAPI;
+import me.clip.voteparty.VotePartyAPI;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.quarters.api.QuartersAPI;
 import org.bukkit.Bukkit;
@@ -43,18 +43,10 @@ public class ServerEndpoint {
         jsonObject.add("stats", statsObject);
 
         JsonObject votePartyObject = new JsonObject();
-        votePartyObject.addProperty("target", parsePlaceholderToIntOrNull("%voteparty_votes_required_total%"));
-        votePartyObject.addProperty("numRemaining", parsePlaceholderToIntOrNull("%voteparty_votes_required_party%"));
+        votePartyObject.addProperty("target", VotePartyAPI.getTotalVotesNeeded());
+        votePartyObject.addProperty("numRemaining", VotePartyAPI.getCurrentVoteCounter());
         jsonObject.add("voteParty", votePartyObject);
 
         return jsonObject.toString();
-    }
-
-    private Integer parsePlaceholderToIntOrNull(String placeholder) {
-        try {
-            return Integer.parseInt(PlaceholderAPI.setPlaceholders(null, placeholder));
-        } catch (NumberFormatException e) {
-            return null;
-        }
     }
 }
