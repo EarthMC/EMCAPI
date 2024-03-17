@@ -75,20 +75,18 @@ public class TownsEndpoint {
             coordinatesObject.add("homeBlock", null);
         }
 
-        JsonObject townBlocksObject = new JsonObject();
+        JsonArray townBlocksArray = new JsonArray();
         Collection<TownBlock> townBlocks = town.getTownBlocks();
         if (!townBlocks.isEmpty()) {
-            JsonArray xArray = new JsonArray();
-            JsonArray zArray = new JsonArray();
-
             for (TownBlock townBlock : town.getTownBlocks()) {
-                xArray.add(townBlock.getX());
-                zArray.add(townBlock.getZ());
+                JsonArray townBlockArray = new JsonArray();
+                townBlockArray.add(townBlock.getX());
+                townBlockArray.add(townBlock.getZ());
+
+                townBlocksArray.add(townBlockArray);
             }
 
-            townBlocksObject.add("x", xArray);
-            townBlocksObject.add("z", zArray);
-            coordinatesObject.add("townBlocks", townBlocksObject);
+            coordinatesObject.add("townBlocks", townBlocksArray);
         } else {
             coordinatesObject.add("townBlocks", null);
         }
