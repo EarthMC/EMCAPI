@@ -2,7 +2,7 @@ name: EMCAPI
 version: "${project.version}"
 main: net.earthmc.emcapi.EMCAPI
 api-version: "1.19"
-depend: [Towny, Quarters, Vault, DiscordSRV, PlaceholderAPI]
+depend: [Towny, Quarters, Vault, DiscordSRV, VoteParty]
 authors: [Fruitloopins]
 description: API for EarthMC using Javalin
 website: https://earthmc.net
