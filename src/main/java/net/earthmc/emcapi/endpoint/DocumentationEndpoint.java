@@ -57,8 +57,8 @@ public class DocumentationEndpoint {
         examplesObject.add("quarters", quartersArray);
 
         JsonArray discordArray = new JsonArray();
-        discordArray.add(url + "discord/id/fed0ec4a-f1ad-4b97-9443-876391668b34");
-        discordArray.add(url + "discord/uuid/160374716928884736");
+        discordArray.add(url + "discord/id?query=fed0ec4a-f1ad-4b97-9443-876391668b34");
+        discordArray.add(url + "discord/uuid?query=160374716928884736");
         examplesObject.add("discord", discordArray);
 
         JsonArray nearbyArray = new JsonArray();
