@@ -35,6 +35,7 @@ public class DocumentationEndpoint {
         JsonObject examplesObject = new JsonObject();
         examplesObject.addProperty("server", url + "server");
         examplesObject.addProperty("location", url + "location?x=2304&z=-9743");
+        examplesObject.addProperty("discord", "discord?query=fed0ec4a-f1ad-4b97-9443-876391668b34,160374716928884736");
 
         JsonArray playersArray = new JsonArray();
         playersArray.add(url + "players");
@@ -55,11 +56,6 @@ public class DocumentationEndpoint {
         quartersArray.add(url + "quarters");
         quartersArray.add(url + "quarters?query=627d2fc1-d36a-4cf2-8d74-5f456924c47e");
         examplesObject.add("quarters", quartersArray);
-
-        JsonArray discordArray = new JsonArray();
-        discordArray.add(url + "discord/id?query=fed0ec4a-f1ad-4b97-9443-876391668b34");
-        discordArray.add(url + "discord/uuid?query=160374716928884736");
-        examplesObject.add("discord", discordArray);
 
         JsonArray nearbyArray = new JsonArray();
         nearbyArray.add(url + "nearby/coordinate?x=2304&z=-9743&radius=1000");

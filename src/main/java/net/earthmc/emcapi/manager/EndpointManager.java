@@ -99,16 +99,10 @@ public class EndpointManager {
         });
 
         DiscordEndpoint discordEndpoint = new DiscordEndpoint();
-        javalin.get(urlPath + "/discord/id", ctx -> {
+        javalin.get(urlPath + "/discord", ctx -> {
             String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
 
-            ctx.json(discordEndpoint.lookupID(query));
-        });
-
-        javalin.get(urlPath + "/discord/uuid", ctx -> {
-            String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
-
-            ctx.json(discordEndpoint.lookupUUID(query));
+            ctx.json(discordEndpoint.lookup(query));
         });
     }
 }
