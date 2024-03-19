@@ -182,7 +182,7 @@ public class EndpointUtils {
             jsonArray.add(getResidentJsonObject(resident));
         }
 
-        return jsonArray.isEmpty() ? null : jsonArray;
+        return jsonArray;
     }
 
     public static JsonObject getResidentJsonObject(Resident resident) {
@@ -204,7 +204,7 @@ public class EndpointUtils {
             jsonArray.add(getTownJsonObject(town));
         }
 
-        return jsonArray.isEmpty() ? null : jsonArray;
+        return jsonArray;
     }
 
     public static JsonObject getTownJsonObject(Town town) {
@@ -226,7 +226,7 @@ public class EndpointUtils {
             jsonArray.add(getNationJsonObject(nation));
         }
 
-        return jsonArray.isEmpty() ? null : jsonArray;
+        return jsonArray;
     }
 
     public static JsonObject getNationJsonObject(Nation nation) {

@@ -11,19 +11,19 @@ public class ListsEndpoint {
     public String listPlayers() {
         JsonArray jsonArray = EndpointUtils.getResidentArray(TownyAPI.getInstance().getResidents());
 
-        return jsonArray == null ? null : jsonArray.toString();
+        return jsonArray.toString();
     }
 
     public String listTowns() {
         JsonArray jsonArray = EndpointUtils.getTownArray(TownyAPI.getInstance().getTowns());
 
-        return jsonArray == null ? null : jsonArray.toString();
+        return jsonArray.toString();
     }
 
     public String listNations() {
         JsonArray jsonArray = EndpointUtils.getNationArray(TownyAPI.getInstance().getNations());
 
-        return jsonArray == null ? null : jsonArray.toString();
+        return jsonArray.toString();
     }
 
     public String listQuarters() {

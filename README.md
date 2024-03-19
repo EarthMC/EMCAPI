@@ -11,5 +11,5 @@ Reasons you may open a pull request include but are not limited to:
 - Rewriting code to deduplicate repetition or improve performance
 
 ## Design Methodology
-- If data can return as null or empty such as an empty string or list, the JSON element should under most circumstances be set to a null value.
+- If data can return as null or empty such as an empty string, the JSON element should under most circumstances be set to a null value. Arrays are exempted from this and should be returned as an empty array.
 - JSON patterns should be repeated throughout responses. Objects should be in the same order if they are shared between any responses, and keys that represent similar or same things such as mayor and king should be in the same or similar spot. This is to keep working with different response types consistent and easily understandable for developers.

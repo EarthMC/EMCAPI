@@ -111,7 +111,7 @@ public class TownsEndpoint {
             for (Resident resident : town.getRank(rank)) {
                 rankArray.add(resident.getName());
             }
-            ranksObject.add(rank, rankArray.isEmpty() ? null : rankArray);
+            ranksObject.add(rank, rankArray);
         }
         townObject.add("ranks", ranksObject);
 

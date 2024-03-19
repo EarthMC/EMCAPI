@@ -72,6 +72,6 @@ public class PlayersEndpoint {
             jsonArray.add(rank);
         }
 
-        return jsonArray.isEmpty() ? null : jsonArray;
+        return jsonArray;
     }
 }

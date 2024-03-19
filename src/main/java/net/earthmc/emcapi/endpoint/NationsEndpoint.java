@@ -60,7 +60,7 @@ public class NationsEndpoint {
             for (Resident resident : EndpointUtils.getNationRank(nation, rank)) {
                 rankArray.add(resident.getName());
             }
-            ranksObject.add(rank, rankArray.isEmpty() ? null : rankArray);
+            ranksObject.add(rank, rankArray);
         }
         nationObject.add("ranks", ranksObject);
 

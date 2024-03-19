@@ -54,10 +54,6 @@ public class NearbyEndpoint {
             if (MathUtil.distance(worldCoord, homeBlockWorldCoord) * TownySettings.getTownBlockSize() <= radius) towns.add(otherTown);
         }
 
-        if (!towns.isEmpty()) {
-            return EndpointUtils.getTownArray(towns);
-        } else {
-            return new JsonArray();
-        }
+        return EndpointUtils.getTownArray(towns);
     }
 }
