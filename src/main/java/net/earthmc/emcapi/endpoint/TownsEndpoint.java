@@ -12,7 +12,6 @@ import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.quarters.api.QuartersAPI;
 import net.earthmc.quarters.object.Quarter;
 
-import java.util.Collection;
 import java.util.List;
 
 public class TownsEndpoint {
@@ -67,43 +66,34 @@ public class TownsEndpoint {
         JsonObject coordinatesObject = EndpointUtils.getCoordinatesObject(town.getSpawnOrNull());
         JsonArray homeBlockArray = new JsonArray();
         TownBlock homeBlock = town.getHomeBlockOrNull();
-        if (homeBlock != null) {
-            homeBlockArray.add(homeBlock.getX());
-            homeBlockArray.add(homeBlock.getZ());
-            coordinatesObject.add("homeBlock", homeBlockArray);
-        } else {
-            coordinatesObject.add("homeBlock", null);
-        }
+        homeBlockArray.add(homeBlock == null ? null : homeBlock.getX());
+        homeBlockArray.add(homeBlock == null ? null : homeBlock.getZ());
+        coordinatesObject.add("homeBlock", homeBlockArray);
 
         JsonArray townBlocksArray = new JsonArray();
-        Collection<TownBlock> townBlocks = town.getTownBlocks();
-        if (!townBlocks.isEmpty()) {
-            for (TownBlock townBlock : town.getTownBlocks()) {
-                JsonArray townBlockArray = new JsonArray();
-                townBlockArray.add(townBlock.getX());
-                townBlockArray.add(townBlock.getZ());
+        for (TownBlock townBlock : town.getTownBlocks()) {
+            JsonArray townBlockArray = new JsonArray();
+            townBlockArray.add(townBlock.getX());
+            townBlockArray.add(townBlock.getZ());
 
-                townBlocksArray.add(townBlockArray);
-            }
-
-            coordinatesObject.add("townBlocks", townBlocksArray);
-        } else {
-            coordinatesObject.add("townBlocks", null);
+            townBlocksArray.add(townBlockArray);
         }
+        coordinatesObject.add("townBlocks", townBlocksArray);
+
         townObject.add("coordinates", coordinatesObject);
 
         townObject.add("residents", EndpointUtils.getResidentArray(town.getResidents()));
         townObject.add("trusted", EndpointUtils.getResidentArray(town.getTrustedResidents().stream().toList()));
         townObject.add("outlaws", EndpointUtils.getResidentArray(town.getTrustedResidents().stream().toList()));
 
-        List<Quarter> quartersList = QuartersAPI.getInstance().getQuartersTown(town).getQuarters();
+        List<Quarter> quartersList = QuartersAPI.getInstance().getQuartersTown(town).getQuarters(); // TODO: make this fucking API method not return null
+        JsonArray quartersArray = new JsonArray();
         if (quartersList != null) {
-            JsonArray quartersArray = new JsonArray();
             for (Quarter quarter : quartersList) {
                 quartersArray.add(quarter.getUUID().toString());
             }
-            townObject.add("quarters", quartersArray);
         }
+        townObject.add("quarters", quartersArray);
 
         JsonObject ranksObject = new JsonObject();
         for (String rank : TownyPerms.getTownRanks()) {

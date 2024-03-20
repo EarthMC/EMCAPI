@@ -184,7 +184,6 @@ public class EndpointUtils {
         JsonArray jsonArray = new JsonArray();
 
         for (Resident resident : residents) {
-            if (resident == null) continue;
             jsonArray.add(getResidentJsonObject(resident));
         }
 
@@ -192,12 +191,10 @@ public class EndpointUtils {
     }
 
     public static JsonObject getResidentJsonObject(Resident resident) {
-        if (resident == null) return null;
-
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("name", resident.getName());
-        jsonObject.addProperty("uuid", resident.getUUID().toString());
+        jsonObject.addProperty("name", resident == null ? null : resident.getName());
+        jsonObject.addProperty("uuid", resident == null ? null : resident.getUUID().toString());
 
         return jsonObject;
     }
@@ -206,7 +203,6 @@ public class EndpointUtils {
         JsonArray jsonArray = new JsonArray();
 
         for (Town town : towns) {
-            if (town == null) continue;
             jsonArray.add(getTownJsonObject(town));
         }
 
@@ -214,12 +210,10 @@ public class EndpointUtils {
     }
 
     public static JsonObject getTownJsonObject(Town town) {
-        if (town == null) return null;
-
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("name", town.getName());
-        jsonObject.addProperty("uuid", town.getUUID().toString());
+        jsonObject.addProperty("name", town == null ? null : town.getName());
+        jsonObject.addProperty("uuid", town == null ? null : town.getUUID().toString());
 
         return jsonObject;
     }
@@ -228,7 +222,6 @@ public class EndpointUtils {
         JsonArray jsonArray = new JsonArray();
 
         for (Nation nation : nations) {
-            if (nation == null) continue;
             jsonArray.add(getNationJsonObject(nation));
         }
 
@@ -236,12 +229,10 @@ public class EndpointUtils {
     }
 
     public static JsonObject getNationJsonObject(Nation nation) {
-        if (nation == null) return null;
-
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("name", nation.getName());
-        jsonObject.addProperty("uuid", nation.getUUID().toString());
+        jsonObject.addProperty("name", nation == null ? null : nation.getName());
+        jsonObject.addProperty("uuid", nation == null ? null : nation.getUUID().toString());
 
         return jsonObject;
     }
