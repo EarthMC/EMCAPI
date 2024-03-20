@@ -148,21 +148,12 @@ public class EndpointUtils {
         JsonObject coordinatesObject = new JsonObject();
 
         JsonObject spawnObject = new JsonObject();
-        if (location != null) {
-            spawnObject.addProperty("world", location.getWorld().getName());
-            spawnObject.addProperty("x", location.getX());
-            spawnObject.addProperty("y", location.getY());
-            spawnObject.addProperty("z", location.getZ());
-            spawnObject.addProperty("pitch", location.getPitch());
-            spawnObject.addProperty("yaw", location.getYaw());
-        } else {
-            spawnObject.add("world", null);
-            spawnObject.add("x", null);
-            spawnObject.add("y", null);
-            spawnObject.add("z", null);
-            spawnObject.add("pitch", null);
-            spawnObject.add("yaw", null);
-        }
+        spawnObject.addProperty("world", location == null ? null : location.getWorld().getName());
+        spawnObject.addProperty("x", location == null ? null : location.getX());
+        spawnObject.addProperty("y", location == null ? null : location.getY());
+        spawnObject.addProperty("z", location == null ? null : location.getZ());
+        spawnObject.addProperty("pitch", location == null ? null : location.getPitch());
+        spawnObject.addProperty("yaw", location == null ? null : location.getYaw());
 
         coordinatesObject.add("spawn", spawnObject);
 

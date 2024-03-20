@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import io.javalin.http.BadRequestResponse;
+import net.earthmc.emcapi.util.EndpointUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
@@ -20,13 +21,8 @@ public class LocationEndpoint {
 
         jsonObject.addProperty("isWilderness", townyAPI.isWilderness(location));
 
-        if (town != null) {
-            jsonObject.addProperty("town", town.getName());
-            jsonObject.addProperty("nation", town.getNationOrNull() == null ? null : town.getNationOrNull().getName());
-        } else {
-            jsonObject.add("town", null);
-            jsonObject.add("nation", null);
-        }
+        jsonObject.add("town", EndpointUtils.getTownJsonObject(town));
+        jsonObject.add("nation", EndpointUtils.getNationJsonObject(town == null ? null : town.getNationOrNull()));
 
         return jsonObject.toString();
     }
