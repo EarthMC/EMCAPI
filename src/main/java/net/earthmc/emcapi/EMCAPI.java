@@ -38,6 +38,9 @@ public final class EMCAPI extends JavaPlugin {
 
         EndpointManager endpointManager = new EndpointManager(javalin, getConfig(), economy);
         endpointManager.loadEndpoints();
+
+        if (getConfig().getBoolean("behaviour.enable_legacy_endpoints"))
+            endpointManager.loadLegacyEndpoints();
     }
 
     @Override

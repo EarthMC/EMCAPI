@@ -155,10 +155,16 @@ public class EndpointUtils {
             spawnObject.addProperty("z", location.getZ());
             spawnObject.addProperty("pitch", location.getPitch());
             spawnObject.addProperty("yaw", location.getYaw());
-            coordinatesObject.add("spawn", spawnObject);
         } else {
-            coordinatesObject.add("spawn", null);
+            spawnObject.add("world", null);
+            spawnObject.add("x", null);
+            spawnObject.add("y", null);
+            spawnObject.add("z", null);
+            spawnObject.add("pitch", null);
+            spawnObject.add("yaw", null);
         }
+
+        coordinatesObject.add("spawn", spawnObject);
 
         return coordinatesObject;
     }

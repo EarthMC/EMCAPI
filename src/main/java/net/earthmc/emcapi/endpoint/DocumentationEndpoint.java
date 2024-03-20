@@ -9,9 +9,9 @@ public class DocumentationEndpoint {
 
     public DocumentationEndpoint(FileConfiguration config) {
         if (!config.getBoolean("behaviour.developer_mode")) {
-            url = "https://api.earthmc.net/" + config.getString("networking.url_path") + "/";
+            url = "https://api.earthmc.net/" + "v3/" + config.getString("networking.url_path") + "/";
         } else {
-            url = "http://localhost:" + config.getInt("networking.port") + "/" + config.getString("networking.url_path") + "/";
+            url = "http://localhost:" + config.getInt("networking.port") + "/v3/" + config.getString("networking.url_path") + "/";
         }
     }
 

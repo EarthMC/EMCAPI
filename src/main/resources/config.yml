@@ -8,8 +8,8 @@ networking:
   # Port the API will listen on
   port: 8080
 
-  # The URL path, for instance https://example.com/v3/endpointname where v3 is the string written below
-  url_path: v3
+  # The URL path, for instance https://example.com/v3/aurora where aurora is the string written below, version numbers are always present
+  url_path: aurora
 
 behaviour:
 
@@ -18,3 +18,6 @@ behaviour:
 
   # Setting for testing reasons
   developer_mode: false
+
+  # Enable for v1 and v2 endpoints to be enabled
+  enable_legacy_endpoints: true
