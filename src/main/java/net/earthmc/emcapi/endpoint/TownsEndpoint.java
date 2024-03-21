@@ -38,7 +38,6 @@ public class TownsEndpoint {
         timestampsObject.addProperty("ruinedAt", town.isRuined() ? town.getRuinedTime() : null);
         townObject.add("timestamps", timestampsObject);
 
-        town.findNewMayor();
         JsonObject statusObject = new JsonObject();
         statusObject.addProperty("isPublic", town.isPublic());
         statusObject.addProperty("isOpen", town.isOpen());
