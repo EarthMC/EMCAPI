@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 public class DiscordEndpoint {
 
     public String lookup(String query) {
+        if (query == null) throw new BadRequestResponse("No query provided");
+
         AccountLinkManager alm = DiscordSRV.getPlugin().getAccountLinkManager();
         String[] split = query.split(",");
 

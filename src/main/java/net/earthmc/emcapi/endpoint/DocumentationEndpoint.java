@@ -35,7 +35,7 @@ public class DocumentationEndpoint {
         JsonObject examplesObject = new JsonObject();
         examplesObject.addProperty("server", url + "server");
         examplesObject.addProperty("location", url + "location?x=2304&z=-9743");
-        examplesObject.addProperty("discord", "discord?query=fed0ec4a-f1ad-4b97-9443-876391668b34,160374716928884736");
+        examplesObject.addProperty("discord", url + "discord?query=fed0ec4a-f1ad-4b97-9443-876391668b34,160374716928884736");
 
         JsonArray playersArray = new JsonArray();
         playersArray.add(url + "players");
