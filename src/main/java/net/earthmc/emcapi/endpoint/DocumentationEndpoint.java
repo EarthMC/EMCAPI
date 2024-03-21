@@ -1,5 +1,7 @@
 package net.earthmc.emcapi.endpoint;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -63,6 +65,7 @@ public class DocumentationEndpoint {
         examplesObject.add("nearby", nearbyArray);
         jsonObject.add("examples", examplesObject);
 
-        return jsonObject.toString();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(jsonObject);
     }
 }
