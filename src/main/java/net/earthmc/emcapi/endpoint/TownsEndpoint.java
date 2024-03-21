@@ -84,7 +84,7 @@ public class TownsEndpoint {
 
         townObject.add("residents", EndpointUtils.getResidentArray(town.getResidents()));
         townObject.add("trusted", EndpointUtils.getResidentArray(town.getTrustedResidents().stream().toList()));
-        townObject.add("outlaws", EndpointUtils.getResidentArray(town.getTrustedResidents().stream().toList()));
+        townObject.add("outlaws", EndpointUtils.getResidentArray(town.getOutlaws().stream().toList()));
 
         List<Quarter> quartersList = QuartersAPI.getInstance().getQuartersTown(town).getQuarters(); // TODO: make this fucking API method not return null
         JsonArray quartersArray = new JsonArray();
