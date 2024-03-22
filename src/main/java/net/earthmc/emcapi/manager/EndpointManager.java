@@ -82,10 +82,9 @@ public class EndpointManager {
 
         LocationEndpoint locationEndpoint = new LocationEndpoint();
         javalin.get(v3URLPath + "/location", ctx -> {
-            Integer x = ctx.queryParamAsClass("x", Integer.class).getOrDefault(null);
-            Integer z = ctx.queryParamAsClass("z", Integer.class).getOrDefault(null);
+            String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
 
-            ctx.json(locationEndpoint.lookup(x, z));
+            ctx.json(locationEndpoint.lookup(query));
         });
 
         NearbyEndpoint nearbyEndpoint = new NearbyEndpoint();
