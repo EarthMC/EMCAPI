@@ -57,7 +57,7 @@ public class TownsEndpoint {
         statsObject.addProperty("numTrusted", town.getTrustedResidents().size());
         statsObject.addProperty("numOutlaws", town.getOutlaws().size());
         statsObject.addProperty("balance", TownyEconomyHandler.isActive() ? town.getAccount().getHoldingBalance() : 0);
-        statsObject.addProperty("forSalePrice", town.getForSalePrice());
+        statsObject.addProperty("forSalePrice", !town.isForSale() ? null : town.getForSalePrice());
         townObject.add("stats", statsObject);
 
         townObject.add("perms", EndpointUtils.getPermsObject(town.getPermissions()));
