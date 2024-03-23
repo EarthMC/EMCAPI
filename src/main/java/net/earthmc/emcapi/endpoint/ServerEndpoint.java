@@ -16,23 +16,26 @@ public class ServerEndpoint {
 
         TownyAPI townyAPI = TownyAPI.getInstance();
         QuartersAPI quartersAPI = QuartersAPI.getInstance();
-
-        JsonObject worldObject = new JsonObject();
         World overworld = Bukkit.getWorlds().get(0);
-        worldObject.addProperty("hasStorm", overworld.hasStorm());
-        worldObject.addProperty("isThundering", overworld.isThundering());
-        worldObject.addProperty("time", overworld.getTime());
-        worldObject.addProperty("fullTime", overworld.getFullTime());
-        worldObject.addProperty("moonPhase", overworld.getMoonPhase().toString());
-        jsonObject.add("world", worldObject);
 
-        JsonObject playersObject = new JsonObject();
-        playersObject.addProperty("maxPlayers", Bukkit.getMaxPlayers());
-        playersObject.addProperty("numOnlinePlayers", Bukkit.getOnlinePlayers().size());
-        playersObject.addProperty("numOnlineNomads", EndpointUtils.getNumOnlineNomads());
-        jsonObject.add("players", playersObject);
+        jsonObject.addProperty("version", Bukkit.getMinecraftVersion());
+        jsonObject.addProperty("moonPhase", overworld.getMoonPhase().toString());
+
+        JsonObject timestampsObject = new JsonObject();
+        timestampsObject.addProperty("newDayTime", TownySettings.getNewDayTime());
+        jsonObject.add("timestamps", timestampsObject);
+
+        JsonObject statusObject = new JsonObject();
+        statusObject.addProperty("hasStorm", overworld.hasStorm());
+        statusObject.addProperty("isThundering", overworld.hasStorm());
+        jsonObject.add("status", statusObject);
 
         JsonObject statsObject = new JsonObject();
+        statsObject.addProperty("time", overworld.getTime());
+        statsObject.addProperty("fullTime", overworld.getFullTime());
+        statsObject.addProperty("maxPlayers", Bukkit.getMaxPlayers());
+        statsObject.addProperty("numOnlinePlayers", Bukkit.getOnlinePlayers().size());
+        statsObject.addProperty("numOnlineNomads", EndpointUtils.getNumOnlineNomads());
         statsObject.addProperty("numResidents", townyAPI.getResidents().size());
         statsObject.addProperty("numNomads", townyAPI.getResidentsWithoutTown().size());
         statsObject.addProperty("numTowns", townyAPI.getTowns().size());
@@ -40,8 +43,6 @@ public class ServerEndpoint {
         statsObject.addProperty("numNations", townyAPI.getNations().size());
         statsObject.addProperty("numQuarters", quartersAPI.getAllQuarters().size());
         statsObject.addProperty("numCuboids", quartersAPI.getAllQuarters().stream().mapToInt(quarter -> quarter.getCuboids().size()).sum());
-        statsObject.addProperty("newDayTime", TownySettings.getNewDayTime());
-        statsObject.addProperty("version", Bukkit.getMinecraftVersion());
         jsonObject.add("stats", statsObject);
 
         JsonObject votePartyObject = new JsonObject();
