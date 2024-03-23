@@ -2,6 +2,7 @@ package net.earthmc.emcapi.endpoint;
 
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.TownySettings;
 import me.clip.voteparty.VotePartyAPI;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.quarters.api.QuartersAPI;
@@ -39,6 +40,7 @@ public class ServerEndpoint {
         statsObject.addProperty("numNations", townyAPI.getNations().size());
         statsObject.addProperty("numQuarters", quartersAPI.getAllQuarters().size());
         statsObject.addProperty("numCuboids", quartersAPI.getAllQuarters().stream().mapToInt(quarter -> quarter.getCuboids().size()).sum());
+        statsObject.addProperty("newDayTime", TownySettings.getNewDayTime());
         statsObject.addProperty("version", Bukkit.getMinecraftVersion());
         jsonObject.add("stats", statsObject);
 
