@@ -227,4 +227,24 @@ public class EndpointUtils {
 
         return jsonObject;
     }
+
+    public static JsonArray getQuarterArray(List<Quarter> quarters) {
+        JsonArray jsonArray = new JsonArray();
+        if (quarters == null) return jsonArray;
+
+        for (Quarter quarter : quarters) {
+            jsonArray.add(getQuarterObject(quarter));
+        }
+
+        return jsonArray;
+    }
+
+    public static JsonObject getQuarterObject(Quarter quarter) {
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.add("name", null);
+        jsonObject.addProperty("uuid", quarter == null ? null : quarter.getUUID().toString());
+
+        return jsonObject;
+    }
 }
