@@ -10,9 +10,6 @@ import com.palmergames.bukkit.towny.permissions.TownyPerms;
 import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.quarters.api.QuartersAPI;
-import net.earthmc.quarters.object.Quarter;
-
-import java.util.List;
 
 public class TownsEndpoint {
 
@@ -53,6 +50,7 @@ public class TownsEndpoint {
         JsonObject statsObject = new JsonObject();
         statsObject.addProperty("numTownBlocks", town.getNumTownBlocks());
         statsObject.addProperty("maxTownBlocks", town.getMaxTownBlocks());
+        statsObject.addProperty("bonusBlocks", town.getBonusBlocks());
         statsObject.addProperty("numResidents", town.getNumResidents());
         statsObject.addProperty("numTrusted", town.getTrustedResidents().size());
         statsObject.addProperty("numOutlaws", town.getOutlaws().size());
