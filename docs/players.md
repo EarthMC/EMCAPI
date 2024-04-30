@@ -46,7 +46,7 @@ Look up the specified usernames to get player data, for example https://api.eart
       "uuid": "3ce63924-44f9-404a-93e0-2fe87a22edd9"
     },
     "timestamps": {
-      "registered": 1651299304371, // A Unix timestamp representing the time the player joined the 
+      "registered": 1651299304371, // A Unix timestamp representing the time the player joined the server
       "joinedTownAt": 1701704799323, // A Unix timestamp representing when the player joined their town, null if the player has no town
       "lastOnline": 1711116371655 // A Unix timestamp representing when the player was lastOnline, can be null if the player is an NPC
     },
