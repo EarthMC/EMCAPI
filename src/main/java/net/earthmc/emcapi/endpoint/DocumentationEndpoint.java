@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class DocumentationEndpoint {
+
     private final String url;
 
     public DocumentationEndpoint(FileConfiguration config) {

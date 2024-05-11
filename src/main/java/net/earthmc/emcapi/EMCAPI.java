@@ -18,6 +18,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import java.io.IOException;
 
 public final class EMCAPI extends JavaPlugin {
+
     public static EMCAPI instance;
     private Javalin javalin;
     private Economy economy;

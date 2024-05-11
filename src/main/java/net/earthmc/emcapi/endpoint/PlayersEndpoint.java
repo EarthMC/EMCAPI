@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import java.util.List;
 
 public class PlayersEndpoint {
+
     private static Economy economy = null;
 
     public PlayersEndpoint(Economy economy) {

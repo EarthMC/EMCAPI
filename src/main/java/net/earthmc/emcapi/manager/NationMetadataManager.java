@@ -4,6 +4,7 @@ import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.metadata.StringDataField;
 
 public class NationMetadataManager {
+
     private static final String DEFAULT_DYNMAP_COLOUR = "3FB4FF";
 
     public static String getDynmapColour(Nation nation) {

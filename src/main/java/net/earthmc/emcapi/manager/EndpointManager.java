@@ -8,6 +8,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class EndpointManager {
+
     Javalin javalin;
     FileConfiguration config;
     Economy economy;
