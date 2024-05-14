@@ -29,7 +29,7 @@ public class DocumentationEndpoint {
         discordObject.addProperty("id", "160374716928884736");
         authorObject.add("discord", discordObject);
 
-        authorObject.addProperty("github", "https://github.com/Fruitloopins");
+        authorObject.addProperty("github", "https://github.com/jwkerr");
         authorObject.addProperty("note", "Feel free to get in contact if you need any help with using the API, or send a message in the Official API Discussion thread (https://discord.com/channels/219863747248914433/1218363271367622717)");
         jsonObject.add("author", authorObject);
 
