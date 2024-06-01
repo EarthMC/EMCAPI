@@ -9,6 +9,8 @@ import net.earthmc.quarters.api.QuartersAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
+import java.time.LocalTime;
+
 public class ServerEndpoint {
 
     public String lookup() {
@@ -23,6 +25,7 @@ public class ServerEndpoint {
 
         JsonObject timestampsObject = new JsonObject();
         timestampsObject.addProperty("newDayTime", TownySettings.getNewDayTime());
+        timestampsObject.addProperty("serverTimeOfDay", LocalTime.now().toSecondOfDay());
         jsonObject.add("timestamps", timestampsObject);
 
         JsonObject statusObject = new JsonObject();
