@@ -3,7 +3,7 @@ package net.earthmc.emcapi.endpoint;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownySettings;
-import me.clip.voteparty.VotePartyAPI;
+import io.minimum.minecraft.superbvote.SuperbVote;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.quarters.api.QuartersAPI;
 import org.bukkit.Bukkit;
@@ -49,8 +49,8 @@ public class ServerEndpoint {
         jsonObject.add("stats", statsObject);
 
         JsonObject votePartyObject = new JsonObject();
-        votePartyObject.addProperty("target", VotePartyAPI.getTotalVotesNeeded());
-        votePartyObject.addProperty("numRemaining", VotePartyAPI.getCurrentVoteCounter());
+        votePartyObject.addProperty("target", SuperbVote.getPlugin().getVoteParty().votesNeeded());
+        votePartyObject.addProperty("numRemaining", SuperbVote.getPlugin().getVoteParty().getCurrentVotes());
         jsonObject.add("voteParty", votePartyObject);
 
         return jsonObject.toString();
