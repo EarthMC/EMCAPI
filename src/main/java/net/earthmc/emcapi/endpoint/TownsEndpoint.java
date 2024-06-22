@@ -45,6 +45,7 @@ public class TownsEndpoint {
         statusObject.addProperty("isForSale", town.isForSale());
         statusObject.addProperty("hasNation", town.hasNation());
         statusObject.addProperty("hasOverclaimShield", TownMetadataManager.hasOverclaimShield(town));
+        statusObject.addProperty("outsidersCanSpawn", TownMetadataManager.getOutsidersCanSpawn(town));
         townObject.add("status", statusObject);
 
         JsonObject statsObject = new JsonObject();

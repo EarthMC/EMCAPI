@@ -14,6 +14,14 @@ public class TownMetadataManager {
         return bdf.getValue();
     }
 
+    public static boolean getOutsidersCanSpawn(Town town) {
+        BooleanDataField bdf = (BooleanDataField) town.getMetadata("bspawn_canoutsidersspawn");
+        if (bdf == null)
+            return false;
+
+        return bdf.getValue();
+    }
+
     public static String getWikiURL(Town town) {
         StringDataField sdf = (StringDataField) town.getMetadata("wiki_url");
         if (sdf == null)
