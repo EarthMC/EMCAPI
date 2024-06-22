@@ -37,6 +37,7 @@ public class TownsEndpoint {
 
         JsonObject statusObject = new JsonObject();
         statusObject.addProperty("isPublic", town.isPublic());
+        statusObject.addProperty("outsidersCanSpawn", TownMetadataManager.getOutsidersCanSpawn(town));
         statusObject.addProperty("isOpen", town.isOpen());
         statusObject.addProperty("isNeutral", town.isNeutral());
         statusObject.addProperty("isCapital", town.isCapital());
