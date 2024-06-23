@@ -6,7 +6,8 @@ Accessed at https://api.earthmc.net/v3/aurora/
   "version": "1.19.4", // The server's current version as a string
   "moonPhase": "LAST_QUARTER", // The moon's current phase (https://jd.papermc.io/paper/1.20/io/papermc/paper/world/MoonPhase.html)
   "timestamps": {
-    "newDayTime": 43200 // Time the new day occurs at
+    "newDayTime": 43200, // Time the new day occurs at
+    "serverTimeOfDay": 15235 // The time of day in seconds in the server's timezone
   },
   "status": {
     "hasStorm": true, // True if the server is currently raining
