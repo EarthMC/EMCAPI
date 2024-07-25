@@ -1,23 +1,42 @@
-package net.earthmc.emcapi.endpoint;
+package net.earthmc.emcapi.endpoint.towny;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
+import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.manager.TownMetadataManager;
+import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
+import net.earthmc.emcapi.util.JSONUtil;
 import net.earthmc.quarters.api.QuartersAPI;
 
-public class TownsEndpoint {
+import java.util.UUID;
 
-    public String lookup(String query) {
-        return EndpointUtils.lookup(query, EndpointUtils::getTownOrNull, "is not a real town");
+public class TownsEndpoint extends PostEndpoint<Town> {
+
+    @Override
+    public Town getObjectOrNull(JsonElement element) {
+        String string = JSONUtil.getJsonElementAsStringOrNull(element);
+        if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
+
+        Town town;
+        try {
+            town = TownyAPI.getInstance().getTown(UUID.fromString(string));
+        } catch (IllegalArgumentException e) {
+            town = TownyAPI.getInstance().getTown(string);
+        }
+
+        return town;
     }
 
-    public static JsonObject getTownObject(Town town) {
+    @Override
+    public JsonElement getJsonElement(Town town) {
         JsonObject townObject = new JsonObject();
 
         townObject.addProperty("name", town.getName());
@@ -45,6 +64,7 @@ public class TownsEndpoint {
         statusObject.addProperty("isForSale", town.isForSale());
         statusObject.addProperty("hasNation", town.hasNation());
         statusObject.addProperty("hasOverclaimShield", TownMetadataManager.hasOverclaimShield(town));
+        statusObject.addProperty("outsidersCanSpawn", TownMetadataManager.getOutsidersCanSpawn(town));
         townObject.add("status", statusObject);
 
         JsonObject statsObject = new JsonObject();

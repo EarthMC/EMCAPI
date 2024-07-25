@@ -1,24 +1,29 @@
 package net.earthmc.emcapi.manager;
 
+import com.google.gson.*;
 import io.javalin.Javalin;
 import net.earthmc.emcapi.endpoint.*;
 import net.earthmc.emcapi.endpoint.legacy.v1.*;
 import net.earthmc.emcapi.endpoint.legacy.v2.*;
+import net.earthmc.emcapi.endpoint.towny.*;
+import net.earthmc.emcapi.endpoint.towny.list.NationsListEndpoint;
+import net.earthmc.emcapi.endpoint.towny.list.PlayersListEndpoint;
+import net.earthmc.emcapi.endpoint.towny.list.QuartersListEndpoint;
+import net.earthmc.emcapi.endpoint.towny.list.TownsListEndpoint;
+import net.earthmc.emcapi.util.JSONUtil;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class EndpointManager {
 
-    Javalin javalin;
-    FileConfiguration config;
-    Economy economy;
-    String v1URLPath;
-    String v2URLPath;
-    String v3URLPath;
+    private final Javalin javalin;
+    private final Economy economy;
+    private final String v1URLPath;
+    private final String v2URLPath;
+    private final String v3URLPath;
 
     public EndpointManager(Javalin javalin, FileConfiguration config, Economy economy) {
         this.javalin = javalin;
-        this.config = config;
         this.economy = economy;
         this.v1URLPath = "v1/" + config.getString("networking.url_path");
         this.v2URLPath = "v2/" + config.getString("networking.url_path");
@@ -26,89 +31,113 @@ public class EndpointManager {
     }
 
     public void loadEndpoints() {
-        DocumentationEndpoint documentationEndpoint = new DocumentationEndpoint(config);
+        DocumentationEndpoint documentationEndpoint = new DocumentationEndpoint();
         javalin.get("/", ctx -> ctx.json(documentationEndpoint.lookup()));
 
         ServerEndpoint serverEndpoint = new ServerEndpoint();
         javalin.get(v3URLPath, ctx -> ctx.json(serverEndpoint.lookup()));
 
-        ListsEndpoint listsEndpoint = new ListsEndpoint();
-        PlayersEndpoint playersEndpoint = new PlayersEndpoint(economy);
-        javalin.get(v3URLPath + "/players", ctx -> {
-            String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
-
-            if (query == null) {
-                ctx.json(listsEndpoint.listPlayers());
-                return;
-            }
-
-            ctx.json(playersEndpoint.lookup(query));
+        MudkipEndpoint mudkipEndpoint = new MudkipEndpoint();
+        javalin.get("/mudkip", ctx -> {
+            ctx.contentType("text/plain; charset=UTF-8");
+            ctx.result(mudkipEndpoint.lookup());
         });
+
+        loadPlayersEndpoint();
+        loadTownsEndpoint();
+        loadNationsEndpoint();
+        loadQuartersEndpoint();
+        loadLocationEndpoint();
+        loadNearbyEndpoint();
+        loadDiscordEndpoint();
+    }
+
+    private void loadPlayersEndpoint() {
+        PlayersListEndpoint ple = new PlayersListEndpoint();
+        javalin.get(v3URLPath + "/players", ctx -> ctx.json(ple.lookup()));
+
+        PlayersEndpoint playersEndpoint = new PlayersEndpoint(economy);
+        javalin.post(v3URLPath + "/players", ctx -> {
+            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
+
+            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
+
+            ctx.json(playersEndpoint.lookup(queryArray));
+        });
+    }
+
+    private void loadTownsEndpoint() {
+        TownsListEndpoint tle = new TownsListEndpoint();
+        javalin.get(v3URLPath + "/towns", ctx -> ctx.json(tle.lookup()));
 
         TownsEndpoint townsEndpoint = new TownsEndpoint();
-        javalin.get(v3URLPath + "/towns", ctx -> {
-            String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
+        javalin.post(v3URLPath + "/towns", ctx -> {
+            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
 
-            if (query == null) {
-                ctx.json(listsEndpoint.listTowns());
-                return;
-            }
+            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
 
-            ctx.json(townsEndpoint.lookup(query));
+            ctx.json(townsEndpoint.lookup(queryArray));
         });
+    }
+
+    private void loadNationsEndpoint() {
+        NationsListEndpoint nle = new NationsListEndpoint();
+        javalin.get(v3URLPath + "/nations", ctx -> ctx.json(nle.lookup()));
 
         NationsEndpoint nationsEndpoint = new NationsEndpoint();
-        javalin.get(v3URLPath + "/nations", ctx -> {
-            String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
+        javalin.post(v3URLPath + "/nations", ctx -> {
+            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
 
-            if (query == null) {
-                ctx.json(listsEndpoint.listNations());
-                return;
-            }
+            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
 
-            ctx.json(nationsEndpoint.lookup(query));
+            ctx.json(nationsEndpoint.lookup(queryArray));
         });
+    }
+
+    private void loadQuartersEndpoint() {
+        QuartersListEndpoint qle = new QuartersListEndpoint();
+        javalin.get(v3URLPath + "/quarters", ctx -> ctx.json(qle.lookup()));
 
         QuartersEndpoint quartersEndpoint = new QuartersEndpoint();
-        javalin.get(v3URLPath + "/quarters", ctx -> {
-            String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
+        javalin.post(v3URLPath + "/quarters", ctx -> {
+            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
 
-            if (query == null) {
-                ctx.json(listsEndpoint.listQuarters());
-                return;
-            }
+            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
 
-            ctx.json(quartersEndpoint.lookup(query));
+            ctx.json(quartersEndpoint.lookup(queryArray));
         });
+    }
 
+    private void loadLocationEndpoint() {
         LocationEndpoint locationEndpoint = new LocationEndpoint();
         javalin.get(v3URLPath + "/location", ctx -> {
-            String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
+            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
 
-            ctx.json(locationEndpoint.lookup(query));
+            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
+
+            ctx.json(locationEndpoint.lookup(queryArray));
         });
+    }
 
+    private void loadNearbyEndpoint() {
         NearbyEndpoint nearbyEndpoint = new NearbyEndpoint();
-        javalin.get(v3URLPath + "/nearby/coordinate", ctx -> {
-            Integer x = ctx.queryParamAsClass("x", Integer.class).getOrDefault(null);
-            Integer z = ctx.queryParamAsClass("z", Integer.class).getOrDefault(null);
-            Integer radius = ctx.queryParamAsClass("radius", Integer.class).getOrDefault(null);
+        javalin.post(v3URLPath + "/nearby", ctx -> {
+            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
 
-            ctx.json(nearbyEndpoint.lookupNearbyCoordinate(x, z, radius));
+            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
+
+            ctx.json(nearbyEndpoint.lookup(queryArray));
         });
+    }
 
-        javalin.get(v3URLPath + "/nearby/town", ctx -> {
-            String town = ctx.queryParamAsClass("town", String.class).getOrDefault(null);
-            Integer radius = ctx.queryParamAsClass("radius", Integer.class).getOrDefault(null);
-
-            ctx.json(nearbyEndpoint.lookupNearbyTown(town, radius));
-        });
-
+    private void loadDiscordEndpoint() {
         DiscordEndpoint discordEndpoint = new DiscordEndpoint();
-        javalin.get(v3URLPath + "/discord", ctx -> {
-            String query = ctx.queryParamAsClass("query", String.class).getOrDefault(null);
+        javalin.post(v3URLPath + "/discord", ctx -> {
+            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
 
-            ctx.json(discordEndpoint.lookup(query));
+            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
+
+            ctx.json(discordEndpoint.lookup(queryArray));
         });
     }
 

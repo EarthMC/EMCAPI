@@ -1,19 +1,38 @@
-package net.earthmc.emcapi.endpoint;
+package net.earthmc.emcapi.endpoint.towny;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.javalin.http.BadRequestResponse;
+import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
+import net.earthmc.emcapi.util.JSONUtil;
+import net.earthmc.quarters.api.QuartersAPI;
 import net.earthmc.quarters.object.Cuboid;
 import net.earthmc.quarters.object.Quarter;
 import org.bukkit.Location;
 
-public class QuartersEndpoint {
+import java.util.UUID;
 
-    public String lookup(String query) {
-        return EndpointUtils.lookup(query, EndpointUtils::getQuarterOrNull, "is not a real quarter");
+public class QuartersEndpoint extends PostEndpoint<Quarter> {
+
+    @Override
+    public Quarter getObjectOrNull(JsonElement element) {
+        String string = JSONUtil.getJsonElementAsStringOrNull(element);
+        if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
+
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(string);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+
+        return QuartersAPI.getInstance().getQuarter(uuid);
     }
 
-    public static JsonObject getQuarterObject(Quarter quarter) {
+    @Override
+    public JsonElement getJsonElement(Quarter quarter) {
         JsonObject quarterObject = new JsonObject();
 
         quarterObject.addProperty("uuid", quarter.getUUID().toString());

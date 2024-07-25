@@ -1,21 +1,40 @@
-package net.earthmc.emcapi.endpoint;
+package net.earthmc.emcapi.endpoint.towny;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
+import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.manager.NationMetadataManager;
+import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
+import net.earthmc.emcapi.util.JSONUtil;
 
-public class NationsEndpoint {
+import java.util.UUID;
 
-    public String lookup(String query) {
-        return EndpointUtils.lookup(query, EndpointUtils::getNationOrNull, "is not a real nation");
+public class NationsEndpoint extends PostEndpoint<Nation> {
+
+    @Override
+    public Nation getObjectOrNull(JsonElement element) {
+        String string = JSONUtil.getJsonElementAsStringOrNull(element);
+        if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
+
+        Nation nation;
+        try {
+            nation = TownyAPI.getInstance().getNation(UUID.fromString(string));
+        } catch (IllegalArgumentException e) {
+            nation = TownyAPI.getInstance().getNation(string);
+        }
+
+        return nation;
     }
 
-    public static JsonObject getNationObject(Nation nation) {
+    @Override
+    public JsonElement getJsonElement(Nation nation) {
         JsonObject nationObject = new JsonObject();
 
         nationObject.addProperty("name", nation.getName());

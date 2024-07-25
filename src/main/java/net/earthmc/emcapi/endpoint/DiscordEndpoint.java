@@ -1,50 +1,68 @@
 package net.earthmc.emcapi.endpoint;
 
-import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.objects.managers.AccountLinkManager;
 import io.javalin.http.BadRequestResponse;
-import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.object.endpoint.PostEndpoint;
+import net.earthmc.emcapi.object.nearby.DiscordContext;
+import net.earthmc.emcapi.object.nearby.DiscordType;
+import net.earthmc.emcapi.util.JSONUtil;
 
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DiscordEndpoint {
+public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
 
-    public String lookup(String query) {
-        if (query == null) throw new BadRequestResponse("No query provided");
+    private final AccountLinkManager alm = DiscordSRV.getPlugin().getAccountLinkManager();
 
-        AccountLinkManager alm = DiscordSRV.getPlugin().getAccountLinkManager();
-        String[] split = query.split(",");
+    @Override
+    public DiscordContext getObjectOrNull(JsonElement element) {
+        JsonObject jsonObject = JSONUtil.getJsonElementAsJsonObjectOrNull(element);
+        if (jsonObject == null) throw new BadRequestResponse("Your query contains a value that is not a JSON object");
 
-        JsonArray jsonArray = new JsonArray();
-        for (int i = 0; i < Math.min(EMCAPI.instance.getConfig().getInt("behaviour.max_lookup_size"), split.length); i++) {
-            String string = split[i];
+        JsonElement typeElement = jsonObject.get("type");
+        JsonElement targetElement = jsonObject.get("target");
+        if (JSONUtil.getJsonElementAsStringOrNull(typeElement) == null || JSONUtil.getJsonElementAsStringOrNull(targetElement) == null) throw new BadRequestResponse("");
+
+        DiscordType type = DiscordType.valueOf(typeElement.getAsString());
+        String target = jsonObject.get("target").getAsString();
+
+        return new DiscordContext(type, target);
+    }
+
+    @Override
+    public JsonElement getJsonElement(DiscordContext context) {
+        DiscordType type = context.getType();
+        String target = context.getTarget();
+
+        JsonObject discordObject = new JsonObject();
+        if (type == DiscordType.DISCORD) {
+            Pattern pattern = Pattern.compile("^\\d{17,19}$");
+            Matcher matcher = pattern.matcher(target);
+
+            if (!matcher.find()) throw new BadRequestResponse(target + " is not a valid Discord ID");
+
+            JsonObject innerObject = new JsonObject();
+
+            UUID uuid = alm.getUuid(target);
+            innerObject.addProperty("uuid", uuid == null ? null : uuid.toString());
+            discordObject.add(target, innerObject);
+        } else if (type == DiscordType.MINECRAFT) {
             UUID uuid;
-            String discordId;
-
             try {
-                uuid = UUID.fromString(string);
-                discordId = alm.getDiscordId(uuid);
+                uuid = UUID.fromString(target);
             } catch (IllegalArgumentException e) {
-                Pattern pattern = Pattern.compile("^\\d{17,19}$");
-                Matcher matcher = pattern.matcher(string);
-
-                if (!matcher.find()) throw new BadRequestResponse(string + " is not a valid UUID or Discord ID");
-
-                uuid = alm.getUuid(string);
-                discordId = string;
+                throw new BadRequestResponse(target + " is not a valid Minecraft UUID");
             }
 
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("uuid", uuid == null ? null : uuid.toString());
-            jsonObject.addProperty("id", discordId);
-
-            jsonArray.add(jsonObject);
+            JsonObject innerObject = new JsonObject();
+            innerObject.addProperty("id", alm.getDiscordId(uuid));
+            discordObject.add(uuid.toString(), innerObject);
         }
 
-        return jsonArray.toString();
+        return discordObject;
     }
 }
