@@ -58,7 +58,8 @@ Look up the specified town names to get town data, for example https://api.earth
       "isRuined": false, // True if the town is ruined
       "isForSale": false, // True if the town is for sale
       "hasNation": true, // True if the town has a nation
-      "hasOverclaimShield": false // True if the town currently has an overclaim shield
+      "hasOverclaimShield": false, // True if the town currently has an overclaim shield
+      "outsidersCanSpawn": false, // True if the town allows outsiders to teleport.
     },
     "stats": {
       "numTownBlocks": 473, // The total number of town blocks the town has
