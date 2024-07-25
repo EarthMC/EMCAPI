@@ -13,10 +13,9 @@
 
     <description>API for EarthMC using Javalin</description>
     <properties>
-    <java.version>17</java.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <voteparty.path>${project.basedir}/libs/VoteParty-1.14.0.jar</voteparty.path>
-  </properties>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <url>https://earthmc.net</url>
 
     <build>
@@ -103,7 +102,7 @@
       <dependency>
           <groupId>com.github.MilkBowl</groupId>
           <artifactId>VaultAPI</artifactId>
-          <version>1.7</version>
+          <version>1.7.1</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
@@ -117,12 +116,13 @@
           <version>1.27.0</version>
           <scope>provided</scope>
       </dependency>
+      <!-- our fork of superbvote, used for getting vote party count -->
+      <!-- not published currently, clone https://github.com/EarthMC/SuperbVote and mvn install -->
       <dependency>
-          <groupId>me.clip</groupId>
-          <artifactId>voteparty</artifactId>
-          <version>1.14.0</version>
-          <scope>system</scope>
-          <systemPath>${voteparty.path}</systemPath>
+          <groupId>io.minimum.minecraft</groupId>
+          <artifactId>SuperbVote</artifactId>
+          <version>0.6.0</version>
+          <scope>provided</scope>
       </dependency>
   </dependencies>
 </project>
