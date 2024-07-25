@@ -1,15 +1,21 @@
-package net.earthmc.emcapi.endpoint;
+package net.earthmc.emcapi.endpoint.towny;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
+import io.javalin.http.BadRequestResponse;
+import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
+import net.earthmc.emcapi.util.JSONUtil;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 
 import java.util.List;
+import java.util.UUID;
 
-public class PlayersEndpoint {
+public class PlayersEndpoint extends PostEndpoint<Resident> {
 
     private static Economy economy = null;
 
@@ -17,11 +23,23 @@ public class PlayersEndpoint {
         PlayersEndpoint.economy = economy;
     }
 
-    public String lookup(String query) {
-        return EndpointUtils.lookup(query, EndpointUtils::getResidentOrNull, "is not a real player");
+    @Override
+    public Resident getObjectOrNull(JsonElement element) {
+        String string = JSONUtil.getJsonElementAsStringOrNull(element);
+        if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
+
+        Resident resident;
+        try {
+            resident = TownyAPI.getInstance().getResident(UUID.fromString(string));
+        } catch (IllegalArgumentException e) {
+            resident = TownyAPI.getInstance().getResident(string);
+        }
+
+        return resident;
     }
 
-    public static JsonObject getPlayerObject(Resident resident) {
+    @Override
+    public JsonElement getJsonElement(Resident resident) {
         JsonObject playerObject = new JsonObject();
 
         playerObject.addProperty("name", resident.getName());
@@ -66,7 +84,7 @@ public class PlayersEndpoint {
         return playerObject;
     }
 
-    private static JsonArray getRankArray(List<String> ranks) {
+    private JsonArray getRankArray(List<String> ranks) {
         JsonArray jsonArray = new JsonArray();
 
         for (String rank : ranks) {
