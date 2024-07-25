@@ -55,10 +55,13 @@ public class ServerEndpoint extends GetEndpoint {
         statsObject.addProperty("numCuboids", quartersAPI.getAllQuarters().stream().mapToInt(quarter -> quarter.getCuboids().size()).sum());
         serverObject.add("stats", statsObject);
 
+        int target = SuperbVote.getPlugin().getVoteParty().votesNeeded();
+        int currentVotes = SuperbVote.getPlugin().getVoteParty().getCurrentVotes();
+
         JsonObject votePartyObject = new JsonObject();
-        votePartyObject.addProperty("target", SuperbVote.getPlugin().getVoteParty().votesNeeded());
-        votePartyObject.addProperty("numRemaining", SuperbVote.getPlugin().getVoteParty().getCurrentVotes());
-        jsonObject.add("voteParty", votePartyObject);
+        votePartyObject.addProperty("target", target);
+        votePartyObject.addProperty("numRemaining", target - currentVotes);
+        serverObject.add("voteParty", votePartyObject);
 
         return serverObject;
     }
