@@ -4,6 +4,7 @@ main: net.earthmc.emcapi.EMCAPI
 api-version: "1.19"
 depend: [Towny, Quarters, Vault, DiscordSRV, SuperbVote]
 authors: [Fruitloopins]
+contributors: [Warriorrr, Yoditi]
 description: API for EarthMC using Javalin
 website: https://earthmc.net
 folia-supported: true
