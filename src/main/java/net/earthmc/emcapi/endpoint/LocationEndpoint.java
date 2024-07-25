@@ -1,53 +1,65 @@
 package net.earthmc.emcapi.endpoint;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import io.javalin.http.BadRequestResponse;
-import net.earthmc.emcapi.EMCAPI;
+import kotlin.Pair;
+import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
+import net.earthmc.emcapi.util.JSONUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
-public class LocationEndpoint {
+public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
 
-    public String lookup(String query) {
-        if (query == null) throw new BadRequestResponse("No query provided");
+    @Override
+    public Pair<Integer, Integer> getObjectOrNull(JsonElement element) {
+        // TODO: test this endpoint
+        JsonArray jsonArray = JSONUtil.getJsonElementAsJsonArrayOrNull(element);
+        if (jsonArray == null) throw new BadRequestResponse("Your query contains a value that is not a JSON array");
 
-        String[] split = query.split(",");
+        int x;
+        int z;
+        try {
+            JsonElement xElement = jsonArray.get(0);
+            JsonElement zElement = jsonArray.get(1);
 
-        JsonArray jsonArray = new JsonArray();
-        for (int i = 0; i < Math.min(EMCAPI.instance.getConfig().getInt("behaviour.max_lookup_size"), split.length); i++) {
-            String[] coordinateSplit = split[i].split(";");
+            Integer xInner = JSONUtil.getJsonElementAsIntegerOrNull(xElement);
+            Integer zInner = JSONUtil.getJsonElementAsIntegerOrNull(zElement);
+            if (xInner == null || zInner == null) throw new BadRequestResponse("A JSON array in your query contained a value that was not an int");
 
-            int x, z;
-            try {
-                x = Integer.parseInt(coordinateSplit[0]);
-                z = Integer.parseInt(coordinateSplit[1]);
-            } catch (NumberFormatException nfe) {
-                throw new BadRequestResponse("Invalid integer at index " + i);
-            } catch (IndexOutOfBoundsException ioobe) {
-                throw new BadRequestResponse("Coordinate at index " + i + " only contains one value");
-            }
-
-            Location location = new Location(Bukkit.getWorlds().get(0), x, 0, z);
-            TownyAPI townyAPI = TownyAPI.getInstance();
-            Town town = townyAPI.getTown(location);
-
-            JsonObject jsonObject = new JsonObject();
-            JsonObject locationObject = new JsonObject();
-            locationObject.addProperty("x", x);
-            locationObject.addProperty("z", z);
-            jsonObject.add("location", locationObject);
-
-            jsonObject.addProperty("isWilderness", townyAPI.isWilderness(location));
-
-            jsonObject.add("town", EndpointUtils.getTownJsonObject(town));
-            jsonObject.add("nation", EndpointUtils.getNationJsonObject(town == null ? null : town.getNationOrNull()));
-            jsonArray.add(jsonObject);
+            x = xInner;
+            z = zInner;
+        } catch (IndexOutOfBoundsException oobe) {
+            throw new BadRequestResponse("A JSON array in your query did not contain two values");
         }
 
-        return jsonArray.toString();
+        return new Pair<>(x, z);
+    }
+
+    @Override
+    public JsonElement getJsonElement(Pair<Integer, Integer> pair) {
+        int x = pair.getFirst();
+        int z = pair.getSecond();
+
+        Location location = new Location(Bukkit.getWorlds().get(0), x, 0, z);
+        TownyAPI townyAPI = TownyAPI.getInstance();
+        Town town = townyAPI.getTown(location);
+
+        JsonObject jsonObject = new JsonObject();
+        JsonObject locationObject = new JsonObject();
+        locationObject.addProperty("x", x);
+        locationObject.addProperty("z", z);
+        jsonObject.add("location", locationObject);
+
+        jsonObject.addProperty("isWilderness", townyAPI.isWilderness(location));
+
+        jsonObject.add("town", EndpointUtils.getTownJsonObject(town));
+        jsonObject.add("nation", EndpointUtils.getNationJsonObject(town == null ? null : town.getNationOrNull()));
+
+        return jsonObject;
     }
 }
