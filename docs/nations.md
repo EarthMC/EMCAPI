@@ -27,7 +27,17 @@ The following is an abridged version of the response from the above URL which co
 ]
 ```
 
-Look up the specified nation names to get nation data, for example https://api.earthmc.net/v3/aurora/nations?query=f8553418-202f-431a-8127-6e4eb0bb258e,6a458663-16ff-49c9-a27e-3ad5b3b9caf5
+Example POST request
+```json5
+{
+  "query": [
+    "b1d39d3f-8723-4d8b-916f-3de0d2492e4d",
+    "ceff7448-5b6d-4494-a91d-b555a97a96e9"
+  ]
+}
+```
+
+Example POST response
 ```json5
 [
   {

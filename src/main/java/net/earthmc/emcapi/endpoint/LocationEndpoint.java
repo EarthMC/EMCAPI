@@ -17,7 +17,6 @@ public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
 
     @Override
     public Pair<Integer, Integer> getObjectOrNull(JsonElement element) {
-        // TODO: test this endpoint
         JsonArray jsonArray = JSONUtil.getJsonElementAsJsonArrayOrNull(element);
         if (jsonArray == null) throw new BadRequestResponse("Your query contains a value that is not a JSON array");
 

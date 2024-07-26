@@ -1,4 +1,39 @@
 # Location Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/location?query=1337;1337,0;0,100;25,22354;-4356
+Accessed at https://api.earthmc.net/v3/aurora/location
 
-Returns a JSON array listing all the towns and nations at the specified locations, values can be null
+Example POST request
+```json5
+{
+  "query": [
+    [
+      0,
+      0
+    ],
+    [
+      100,
+      100
+    ]
+  ]
+}
+```
+
+Example POST response
+```json5
+[
+  {
+    "location": {
+      "x":0,
+      "z":0
+    },
+    "isWilderness":false,
+    "town": {
+      "name":"Jyväskylä",
+      "uuid":"0b69c00d-c112-4ca0-a16c-ce551120e464"
+    },
+    "nation": {
+      "name":"Finland",
+      "uuid":"ae16c3c0-f8ab-4715-8553-019168008c49"
+    }
+  }
+]
+```

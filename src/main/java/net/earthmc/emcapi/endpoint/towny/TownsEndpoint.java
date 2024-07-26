@@ -64,7 +64,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         statusObject.addProperty("isForSale", town.isForSale());
         statusObject.addProperty("hasNation", town.hasNation());
         statusObject.addProperty("hasOverclaimShield", TownMetadataManager.hasOverclaimShield(town));
-        statusObject.addProperty("outsidersCanSpawn", TownMetadataManager.getOutsidersCanSpawn(town));
+        statusObject.addProperty("canOutsidersSpawn", TownMetadataManager.getCanOutsidersSpawn(town));
         townObject.add("status", statusObject);
 
         JsonObject statsObject = new JsonObject();

@@ -1,4 +1,4 @@
-# Players Endpoint
+# Towns Endpoint
 Accessed at https://api.earthmc.net/v3/aurora/towns
 
 The following is an abridged version of the response from the above URL which contains every currently registered Towny town within a JSON array
@@ -27,7 +27,17 @@ The following is an abridged version of the response from the above URL which co
 ]
 ```
 
-Look up the specified town names to get town data, for example https://api.earthmc.net/v3/aurora/towns?query=c891767e-2992-419c-a748-7df00a25b781,51c2dc6d-9a41-4091-a7ce-ece008c178fa
+Example POST request
+```json5
+{
+  "query": [
+    "51c2dc6d-9a41-4091-a7ce-ece008c178fa",
+    "582d0ff1-10da-4ca6-99f8-97946cc776e8"
+  ]
+}
+```
+
+Example POST response
 ```json5
 [
   {
@@ -59,7 +69,7 @@ Look up the specified town names to get town data, for example https://api.earth
       "isForSale": false, // True if the town is for sale
       "hasNation": true, // True if the town has a nation
       "hasOverclaimShield": false, // True if the town currently has an overclaim shield
-      "outsidersCanSpawn": false, // True if the town allows outsiders to teleport.
+      "canOutsidersSpawn": false, // True if the town allows outsiders to teleport
     },
     "stats": {
       "numTownBlocks": 473, // The total number of town blocks the town has

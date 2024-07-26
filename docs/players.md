@@ -27,7 +27,18 @@ The following is an abridged version of the response from the above URL which co
 ]
 ```
 
-Look up the specified usernames to get player data, for example https://api.earthmc.net/v3/aurora/players?query=eca37341-fb75-4776-a7c6-b5b785e736a8,9ac5f867-59a4-485e-b239-51da7155e367
+
+Example POST request
+```json5
+{
+  "query": [
+    "eca37341-fb75-4776-a7c6-b5b785e736a8",
+    "9c5a1c2e-76e9-4e09-81ff-e975f0ea1b3c"
+  ]
+}
+```
+
+Example POST response
 ```json5
 [
   {

@@ -4,15 +4,40 @@ Accessed at https://api.earthmc.net/v3/aurora/quarters
 The following is an abridged version of the response from the above URL which contains every currently registered quarter within a JSON array
 ```json5
 [
-  "5fb3b17a-c67e-476e-b8ad-f030955ef8ea",
-  "8c30b12d-ede6-41bb-9bfa-31d0523b9e80",
-  "92f36e1d-1f31-4f4f-8a58-5f22a0c92c29",
-  "3a30a7dc-4892-4de4-b3ed-d2768ae5ae26",
-  "0b0dc879-2fee-45eb-a73f-30463ec92677"
+  {
+    "name":null,
+    "uuid":"412c7c07-eaa4-4870-bbb0-a8eaa205f925"
+  },
+  {
+    "name":null,
+    "uuid":"4399a284-ded4-4fd8-8966-126d6e489c84"
+  },
+  {
+    "name":null,
+    "uuid":"cc3189e3-87d1-4d42-81c6-e9033cf644b3"
+  },
+  {
+    "name":null,
+    "uuid":"5572325c-9716-48ae-ab16-7294282e50f0"
+  },
+  {
+    "name":null,
+    "uuid":"8fd1f7be-f0fb-4da5-b82c-d4dcdd6644ec"
+  }
 ]
 ```
 
-Look up the specified quarter UUIDs to get quarter data, for example https://api.earthmc.net/v3/aurora/quarters?query=5fb3b17a-c67e-476e-b8ad-f030955ef8ea,8c30b12d-ede6-41bb-9bfa-31d0523b9e80
+Example POST request
+```json5
+{
+  "query": [
+    "5fb3b17a-c67e-476e-b8ad-f030955ef8ea",
+    "3a30a7dc-4892-4de4-b3ed-d2768ae5ae26"
+  ]
+}
+```
+
+Example POST response
 ```json5
 [
   {

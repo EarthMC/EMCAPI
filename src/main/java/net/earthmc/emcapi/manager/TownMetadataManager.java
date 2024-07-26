@@ -14,7 +14,7 @@ public class TownMetadataManager {
         return bdf.getValue();
     }
 
-    public static boolean getOutsidersCanSpawn(Town town) {
+    public static boolean getCanOutsidersSpawn(Town town) {
         BooleanDataField bdf = (BooleanDataField) town.getMetadata("bspawn_canoutsidersspawn");
         if (bdf == null)
             return false;

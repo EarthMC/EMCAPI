@@ -25,12 +25,18 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
 
         JsonElement typeElement = jsonObject.get("type");
         JsonElement targetElement = jsonObject.get("target");
-        if (JSONUtil.getJsonElementAsStringOrNull(typeElement) == null || JSONUtil.getJsonElementAsStringOrNull(targetElement) == null) throw new BadRequestResponse("");
+        if (typeElement == null || targetElement == null) throw new BadRequestResponse("Your JSON query is missing a type or target");
 
-        DiscordType type = DiscordType.valueOf(typeElement.getAsString());
-        String target = jsonObject.get("target").getAsString();
+        String typeString = JSONUtil.getJsonElementAsStringOrNull(typeElement);
+        String target = JSONUtil.getJsonElementAsStringOrNull(targetElement);
+        if (typeString == null || target == null) throw new BadRequestResponse("Your JSON query has an invalid type or target");
 
-        return new DiscordContext(type, target);
+        try {
+            DiscordType type = DiscordType.valueOf(typeString.toUpperCase());
+            return new DiscordContext(type, target);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestResponse("Specified type is not valid");
+        }
     }
 
     @Override

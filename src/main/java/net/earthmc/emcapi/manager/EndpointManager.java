@@ -104,7 +104,7 @@ public class EndpointManager {
 
     private void loadLocationEndpoint() {
         LocationEndpoint locationEndpoint = new LocationEndpoint();
-        javalin.get(v3URLPath + "/location", ctx -> {
+        javalin.post(v3URLPath + "/location", ctx -> {
             ctx.json(locationEndpoint.lookup(parseBody(ctx.body())));
         });
     }

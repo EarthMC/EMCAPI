@@ -1,6 +1,48 @@
 # Nearby Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/nearby/town?town=Teslin&radius=1000 or https://api.earthmc.net/v3/aurora/nearby/coordinate?x=20000&z=-5230&radius=3500
+Accessed at https://api.earthmc.net/v3/aurora/nearby
 
-Returns a JSON array of all the towns within the specified radius around the specified town or coordinate, empty if none are present.
+Example POST request
+```json5
+{
+  "query": [
+    {
+      "target_type": "town",
+      "target": "melbourne",
+      "search_type": "town",
+      "radius": 100
+    }
+  ]
+}
+```
 
-This is measured town block to town block. For example, from the town block at the specified coordinate to the home block of the town being checked. This can result in "outposts" being skipped
+Example POST request
+```json5
+{
+  "query": [
+    {
+      "target_type": "coordinate",
+      "target": [
+        2000,
+        10000
+      ],
+      "search_type": "town",
+      "radius": 10000
+    }
+  ]
+}
+```
+
+Example POST response
+```json5
+[
+  [
+    {
+      "name":"Jyväskylä",
+      "uuid":"0b69c00d-c112-4ca0-a16c-ce551120e464"},
+    {
+      "name":"Watson",
+      "uuid":"5851f859-0c4e-49bb-9e5c-5a2f9121585c"
+    }
+  ]
+]
+```
