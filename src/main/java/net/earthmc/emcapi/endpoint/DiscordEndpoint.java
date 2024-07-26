@@ -51,11 +51,9 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
 
             if (!matcher.find()) throw new BadRequestResponse(target + " is not a valid Discord ID");
 
-            JsonObject innerObject = new JsonObject();
-
             UUID uuid = alm.getUuid(target);
-            innerObject.addProperty("uuid", uuid == null ? null : uuid.toString());
-            discordObject.add(target, innerObject);
+            discordObject.addProperty("id", target);
+            discordObject.addProperty("uuid", uuid == null ? null : uuid.toString());
         } else if (type == DiscordType.MINECRAFT) {
             UUID uuid;
             try {
@@ -64,9 +62,8 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
                 throw new BadRequestResponse(target + " is not a valid Minecraft UUID");
             }
 
-            JsonObject innerObject = new JsonObject();
-            innerObject.addProperty("id", alm.getDiscordId(uuid));
-            discordObject.add(uuid.toString(), innerObject);
+            discordObject.addProperty("id", alm.getDiscordId(uuid));
+            discordObject.addProperty("uuid", uuid.toString());
         }
 
         return discordObject;
