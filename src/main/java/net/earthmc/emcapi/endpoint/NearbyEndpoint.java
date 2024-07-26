@@ -44,7 +44,7 @@ public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
                 return new NearbyContext(targetType, jsonObject.get("target").getAsString(), searchType, radius);
             }
         } catch (Exception e) {
-            throw new BadRequestResponse("Your query contains an invalid JSON object " + element.getAsString());
+            throw new BadRequestResponse("Your query contains an invalid JSON object");
         }
 
         return null;
