@@ -6,11 +6,9 @@ import io.javalin.http.BadRequestResponse;
 public class JSONUtil {
 
     public static JsonObject getJsonObjectFromString(String string) {
-        Gson gson = new Gson();
-
         try {
-            return gson.fromJson(string, JsonObject.class);
-        } catch (JsonSyntaxException e) {
+            return JsonParser.parseString(string).getAsJsonObject();
+        } catch (Exception e) {
             throw new BadRequestResponse("Invalid JSON body provided");
         }
     }

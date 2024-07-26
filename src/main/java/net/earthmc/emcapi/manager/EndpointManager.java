@@ -2,6 +2,7 @@ package net.earthmc.emcapi.manager;
 
 import com.google.gson.*;
 import io.javalin.Javalin;
+import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.endpoint.*;
 import net.earthmc.emcapi.endpoint.legacy.v1.*;
 import net.earthmc.emcapi.endpoint.legacy.v2.*;
@@ -52,17 +53,22 @@ public class EndpointManager {
         loadDiscordEndpoint();
     }
 
+    private JsonArray parseBody(String body) {
+        JsonObject jsonObject = JSONUtil.getJsonObjectFromString(body);
+
+        JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
+        if (queryArray == null) throw new BadRequestResponse("Invalid query array provided");
+
+        return queryArray;
+    }
+
     private void loadPlayersEndpoint() {
         PlayersListEndpoint ple = new PlayersListEndpoint();
         javalin.get(v3URLPath + "/players", ctx -> ctx.json(ple.lookup()));
 
         PlayersEndpoint playersEndpoint = new PlayersEndpoint(economy);
         javalin.post(v3URLPath + "/players", ctx -> {
-            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
-
-            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
-
-            ctx.json(playersEndpoint.lookup(queryArray));
+            ctx.json(playersEndpoint.lookup(parseBody(ctx.body())));
         });
     }
 
@@ -72,11 +78,7 @@ public class EndpointManager {
 
         TownsEndpoint townsEndpoint = new TownsEndpoint();
         javalin.post(v3URLPath + "/towns", ctx -> {
-            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
-
-            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
-
-            ctx.json(townsEndpoint.lookup(queryArray));
+            ctx.json(townsEndpoint.lookup(parseBody(ctx.body())));
         });
     }
 
@@ -86,11 +88,7 @@ public class EndpointManager {
 
         NationsEndpoint nationsEndpoint = new NationsEndpoint();
         javalin.post(v3URLPath + "/nations", ctx -> {
-            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
-
-            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
-
-            ctx.json(nationsEndpoint.lookup(queryArray));
+            ctx.json(nationsEndpoint.lookup(parseBody(ctx.body())));
         });
     }
 
@@ -100,44 +98,28 @@ public class EndpointManager {
 
         QuartersEndpoint quartersEndpoint = new QuartersEndpoint();
         javalin.post(v3URLPath + "/quarters", ctx -> {
-            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
-
-            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
-
-            ctx.json(quartersEndpoint.lookup(queryArray));
+            ctx.json(quartersEndpoint.lookup(parseBody(ctx.body())));
         });
     }
 
     private void loadLocationEndpoint() {
         LocationEndpoint locationEndpoint = new LocationEndpoint();
         javalin.get(v3URLPath + "/location", ctx -> {
-            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
-
-            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
-
-            ctx.json(locationEndpoint.lookup(queryArray));
+            ctx.json(locationEndpoint.lookup(parseBody(ctx.body())));
         });
     }
 
     private void loadNearbyEndpoint() {
         NearbyEndpoint nearbyEndpoint = new NearbyEndpoint();
         javalin.post(v3URLPath + "/nearby", ctx -> {
-            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
-
-            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
-
-            ctx.json(nearbyEndpoint.lookup(queryArray));
+            ctx.json(nearbyEndpoint.lookup(parseBody(ctx.body())));
         });
     }
 
     private void loadDiscordEndpoint() {
         DiscordEndpoint discordEndpoint = new DiscordEndpoint();
         javalin.post(v3URLPath + "/discord", ctx -> {
-            JsonObject jsonObject = JSONUtil.getJsonObjectFromString(ctx.body());
-
-            JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
-
-            ctx.json(discordEndpoint.lookup(queryArray));
+            ctx.json(discordEndpoint.lookup(parseBody(ctx.body())));
         });
     }
 
