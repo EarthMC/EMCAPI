@@ -29,25 +29,35 @@ public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
         JsonObject jsonObject = JSONUtil.getJsonElementAsJsonObjectOrNull(element);
         if (jsonObject == null) throw new BadRequestResponse("Your query contains a value that is not a JSON object");
 
+        String targetTypeString = JSONUtil.getJsonElementAsStringOrNull(jsonObject.get("target_type"));
+        String searchTypeString = JSONUtil.getJsonElementAsStringOrNull(jsonObject.get("search_type"));
+        if (targetTypeString == null || searchTypeString == null) throw new BadRequestResponse("You did not specify a target or search type");
+
+        NearbyType targetType;
+        NearbyType searchType;
         try {
-            NearbyType targetType = NearbyType.valueOf(jsonObject.get("target_type").getAsString().toUpperCase());
-            NearbyType searchType = NearbyType.valueOf(jsonObject.get("search_type").getAsString().toUpperCase());
+            targetType = NearbyType.valueOf(targetTypeString);
+            searchType = NearbyType.valueOf(searchTypeString);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestResponse("Your target or search type is invalid");
+        }
 
-            JsonElement targetElement = jsonObject.get("target");
-            int radius = jsonObject.get("radius").getAsInt();
-            if (targetType.equals(NearbyType.COORDINATE)) {
-                JsonArray jsonArray = JSONUtil.getJsonElementAsJsonArrayOrNull(targetElement);
-                if (jsonArray == null) throw new BadRequestResponse("Your target is not a valid JSON array");
+        Integer radius = JSONUtil.getJsonElementAsIntegerOrNull(jsonObject.get("radius"));
+        if (radius == null) throw new BadRequestResponse("You did not specify a radius");
 
-                Pair<Integer, Integer> pair = new Pair<>(jsonArray.get(0).getAsInt(), jsonArray.get(1).getAsInt());
+        JsonElement targetElement = jsonObject.get("target");
+        if (targetType.equals(NearbyType.COORDINATE)) {
+            JsonArray jsonArray = JSONUtil.getJsonElementAsJsonArrayOrNull(targetElement);
+            if (jsonArray == null) throw new BadRequestResponse("Your target is not a valid JSON array");
 
-                return new NearbyContext(targetType, pair, searchType, radius);
-            } else if (targetType.equals(NearbyType.TOWN)) {
-                String target = JSONUtil.getJsonElementAsStringOrNull(targetElement);
-                return new NearbyContext(targetType, target, searchType, radius);
-            }
-        } catch (Exception e) {
-            throw new BadRequestResponse("Your query contains an invalid JSON object");
+            Pair<Integer, Integer> pair = new Pair<>(jsonArray.get(0).getAsInt(), jsonArray.get(1).getAsInt());
+
+            return new NearbyContext(targetType, pair, searchType, radius);
+        } else if (targetType.equals(NearbyType.TOWN)) {
+            String target = JSONUtil.getJsonElementAsStringOrNull(targetElement);
+            if (target == null) throw new BadRequestResponse("Your target is not a valid string");
+
+            return new NearbyContext(targetType, target, searchType, radius);
         }
 
         return null;

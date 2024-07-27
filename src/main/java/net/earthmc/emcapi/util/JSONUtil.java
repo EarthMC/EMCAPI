@@ -14,6 +14,8 @@ public class JSONUtil {
     }
 
     public static String getJsonElementAsStringOrNull(JsonElement element) {
+        if (element == null) return null;
+
         if (!element.isJsonPrimitive()) return null;
 
         JsonPrimitive primitive = element.getAsJsonPrimitive();
@@ -23,6 +25,8 @@ public class JSONUtil {
     }
 
     public static Integer getJsonElementAsIntegerOrNull(JsonElement element) {
+        if (element == null) return null;
+
         if (!element.isJsonPrimitive()) return null;
 
         JsonPrimitive primitive = element.getAsJsonPrimitive();
@@ -32,11 +36,15 @@ public class JSONUtil {
     }
 
     public static JsonArray getJsonElementAsJsonArrayOrNull(JsonElement element) {
+        if (element == null) return null;
+
         if (!element.isJsonArray()) return null;
         return element.getAsJsonArray();
     }
 
     public static JsonObject getJsonElementAsJsonObjectOrNull(JsonElement element) {
+        if (element == null) return null;
+
         if (!element.isJsonObject()) return null;
         return element.getAsJsonObject();
     }
