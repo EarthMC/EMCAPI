@@ -32,16 +32,19 @@ public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
         try {
             NearbyType targetType = NearbyType.valueOf(jsonObject.get("target_type").getAsString().toUpperCase());
             NearbyType searchType = NearbyType.valueOf(jsonObject.get("search_type").getAsString().toUpperCase());
+
+            JsonElement targetElement = jsonObject.get("target");
             int radius = jsonObject.get("radius").getAsInt();
             if (targetType.equals(NearbyType.COORDINATE)) {
-                JsonArray jsonArray = JSONUtil.getJsonElementAsJsonArrayOrNull(jsonObject.get("target"));
-                if (jsonArray == null) throw new BadRequestResponse();
+                JsonArray jsonArray = JSONUtil.getJsonElementAsJsonArrayOrNull(targetElement);
+                if (jsonArray == null) throw new BadRequestResponse("Your target is not a valid JSON array");
 
                 Pair<Integer, Integer> pair = new Pair<>(jsonArray.get(0).getAsInt(), jsonArray.get(1).getAsInt());
 
                 return new NearbyContext(targetType, pair, searchType, radius);
             } else if (targetType.equals(NearbyType.TOWN)) {
-                return new NearbyContext(targetType, jsonObject.get("target").getAsString(), searchType, radius);
+                String target = JSONUtil.getJsonElementAsStringOrNull(targetElement);
+                return new NearbyContext(targetType, target, searchType, radius);
             }
         } catch (Exception e) {
             throw new BadRequestResponse("Your query contains an invalid JSON object");
