@@ -4,7 +4,9 @@ import io.javalin.Javalin;
 import io.javalin.util.JavalinLogger;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import net.earthmc.emcapi.listeners.TownyListeners;
 import net.earthmc.emcapi.manager.EndpointManager;
+import net.earthmc.emcapi.manager.SSEManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -42,13 +44,20 @@ public final class EMCAPI extends JavaPlugin {
 
         if (getConfig().getBoolean("behaviour.enable_legacy_endpoints"))
             endpointManager.loadLegacyEndpoints();
+
+        SSEManager sseManager = new SSEManager(javalin, economy);
+        sseManager.loadSSE();
+
+        getServer().getPluginManager().registerEvents(new TownyListeners(), this);
+
     }
 
     @Override
     public void onDisable() {
+        //sseManager.stop();    Should I add this or is it enough to simply shut down javalin?
         javalin.stop();
     }
-    
+
     private void initialiseJavalin() {
         javalin = Javalin.create(config -> {
             config.jetty.modifyServer(server -> {
