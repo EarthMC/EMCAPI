@@ -4,6 +4,7 @@ import io.javalin.Javalin;
 import io.javalin.util.JavalinLogger;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import net.earthmc.emcapi.listeners.PlayerConnectionListener;
 import net.earthmc.emcapi.listeners.TownyListeners;
 import net.earthmc.emcapi.manager.EndpointManager;
 import net.earthmc.emcapi.manager.SSEManager;
@@ -45,10 +46,11 @@ public final class EMCAPI extends JavaPlugin {
         if (getConfig().getBoolean("behaviour.enable_legacy_endpoints"))
             endpointManager.loadLegacyEndpoints();
 
-        SSEManager sseManager = new SSEManager(javalin, economy);
+        SSEManager sseManager = new SSEManager(javalin);
         sseManager.loadSSE();
 
         getServer().getPluginManager().registerEvents(new TownyListeners(), this);
+        getServer().getPluginManager().registerEvents(new PlayerConnectionListener(), this);
 
     }
 

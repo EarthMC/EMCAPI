@@ -1,5 +1,5 @@
 # Discord Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/discord?query=
+Accessed at https://api.earthmc.net/v3/aurora/discord
 
 Example POST request
 ```json5
