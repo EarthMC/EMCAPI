@@ -6,7 +6,7 @@ import com.palmergames.bukkit.towny.TownySettings;
 import io.minimum.minecraft.superbvote.SuperbVote;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
-import net.earthmc.quarters.api.QuartersAPI;
+import au.lupine.quarters.api.manager.QuarterManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
@@ -24,7 +24,7 @@ public class ServerEndpoint extends GetEndpoint {
         JsonObject serverObject = new JsonObject();
 
         TownyAPI townyAPI = TownyAPI.getInstance();
-        QuartersAPI quartersAPI = QuartersAPI.getInstance();
+        QuarterManager quartersAPI = QuarterManager.getInstance();
         World overworld = Bukkit.getWorlds().get(0);
 
         serverObject.addProperty("version", Bukkit.getMinecraftVersion());

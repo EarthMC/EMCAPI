@@ -7,11 +7,12 @@ import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
-import net.earthmc.quarters.api.QuartersAPI;
-import net.earthmc.quarters.object.Cuboid;
-import net.earthmc.quarters.object.Quarter;
+import au.lupine.quarters.api.manager.QuarterManager;
+import au.lupine.quarters.object.entity.Cuboid;
+import au.lupine.quarters.object.entity.Quarter;
 import org.bukkit.Location;
 
+import java.awt.Color;
 import java.util.UUID;
 
 public class QuartersEndpoint extends PostEndpoint<Quarter> {
@@ -28,7 +29,7 @@ public class QuartersEndpoint extends PostEndpoint<Quarter> {
             return null;
         }
 
-        return QuartersAPI.getInstance().getQuarter(uuid);
+        return QuarterManager.getInstance().getQuarter(uuid);
     }
 
     @Override
@@ -57,10 +58,10 @@ public class QuartersEndpoint extends PostEndpoint<Quarter> {
         quarterObject.add("stats", statsObject);
 
         JsonArray colourArray = new JsonArray();
-        int[] rgb = quarter.getRGB();
-        colourArray.add(rgb[0]);
-        colourArray.add(rgb[1]);
-        colourArray.add(rgb[2]);
+        Color color = quarter.getColour();
+        colourArray.add(color.getRed());
+        colourArray.add(color.getGreen());
+        colourArray.add(color.getBlue());
         quarterObject.add("colour", colourArray);
 
         quarterObject.add("trusted", EndpointUtils.getResidentArray(quarter.getTrustedResidents()));
@@ -79,20 +80,20 @@ public class QuartersEndpoint extends PostEndpoint<Quarter> {
     private static JsonObject getCuboidObject(Cuboid cuboid) {
         JsonObject cuboidObject = new JsonObject();
 
-        JsonArray pos1Array = new JsonArray();
-        Location pos1 = cuboid.getPos1();
-        pos1Array.add(pos1.getBlockX());
-        pos1Array.add(pos1.getBlockY());
-        pos1Array.add(pos1.getBlockZ());
+        JsonArray cornerOne = new JsonArray();
+        Location pos1 = cuboid.getCornerOne();
+        cornerOne.add(pos1.getBlockX());
+        cornerOne.add(pos1.getBlockY());
+        cornerOne.add(pos1.getBlockZ());
 
-        JsonArray pos2Array = new JsonArray();
-        Location pos2 = cuboid.getPos2();
-        pos2Array.add(pos2.getBlockX());
-        pos2Array.add(pos2.getBlockY());
-        pos2Array.add(pos2.getBlockZ());
+        JsonArray cornerTwo = new JsonArray();
+        Location pos2 = cuboid.getCornerTwo();
+        cornerTwo.add(pos2.getBlockX());
+        cornerTwo.add(pos2.getBlockY());
+        cornerTwo.add(pos2.getBlockZ());
 
-        cuboidObject.add("pos1", pos1Array);
-        cuboidObject.add("pos2", pos2Array);
+        cuboidObject.add("pos1", cornerOne);
+        cuboidObject.add("pos2", cornerTwo);
 
         return cuboidObject;
     }

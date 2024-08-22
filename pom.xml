@@ -94,9 +94,9 @@
           <version>6.0.0</version>
       </dependency>
       <dependency>
-          <groupId>com.github.Fruitloopins</groupId>
+          <groupId>com.github.jwkerr</groupId>
           <artifactId>Quarters</artifactId>
-          <version>1c2719a957</version>
+          <version>48301decf1</version> <!-- Quarters version 1.0.3 -->
           <scope>provided</scope>
       </dependency>
       <dependency>
