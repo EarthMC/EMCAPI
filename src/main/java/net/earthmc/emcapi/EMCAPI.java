@@ -51,12 +51,10 @@ public final class EMCAPI extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new TownyListeners(), this);
         getServer().getPluginManager().registerEvents(new PlayerConnectionListener(), this);
-
     }
 
     @Override
     public void onDisable() {
-        //sseManager.stop();    Should I add this or is it enough to simply shut down javalin?
         javalin.stop();
     }
 

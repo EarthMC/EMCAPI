@@ -55,6 +55,10 @@ public class TownyListeners implements Listener {
         message.add("newKing", EndpointUtils.getResidentJsonObject(event.getNewKing()));
         message.add("oldKing", EndpointUtils.getResidentJsonObject(event.getOldKing()));
         message.addProperty("isCapitalChange", event.isCapitalChange());
+        if (event.isCapitalChange()) {
+            message.add("newCapital", EndpointUtils.getTownJsonObject(event.getNewKing().getTownOrNull()));
+            message.add("oldCapital", EndpointUtils.getTownJsonObject(event.getOldKing().getTownOrNull()));
+        }
         SSEManager.broadcastMessage("NationKingChange", message);
     }
 
@@ -110,10 +114,10 @@ public class TownyListeners implements Listener {
     }
 
     @EventHandler
-    public void onTownRuined(TownRuinedEvent event) {
+    public void onTownRuined(TownPreRuinedEvent event) {
         JsonObject message = new JsonObject();
         message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
-        message.addProperty("oldMayor", event.getOldMayorName());
+        message.add("oldMayor", EndpointUtils.getResidentJsonObject(event.getTown().getMayor()));
         SSEManager.broadcastMessage("TownRuined", message);
     }
 

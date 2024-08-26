@@ -24,15 +24,6 @@ public class SSEManager {
             client.onClose(() -> clients.remove(client));
             clients.add(client);
         });
-
-        // Testing purposes
-        javalin.get("/broadcast", ctx -> {
-            JsonObject message = new JsonObject();
-            message.addProperty("text", "Hello to all connected clients!");
-            broadcastMessage("Hello", message);
-            ctx.result("Message broadcasted to all %s clients".formatted(clients.size()));
-        });
-        // Testing purposes
     }
 
     public static void broadcastMessage(String event, JsonObject data) {
