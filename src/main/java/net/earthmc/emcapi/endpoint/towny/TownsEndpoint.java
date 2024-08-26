@@ -1,5 +1,6 @@
 package net.earthmc.emcapi.endpoint.towny;
 
+import au.lupine.quarters.api.manager.QuarterManager;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,7 +15,6 @@ import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
-import net.earthmc.quarters.api.QuartersAPI;
 
 import java.util.UUID;
 
@@ -103,7 +103,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         townObject.add("trusted", EndpointUtils.getResidentArray(town.getTrustedResidents().stream().toList()));
         townObject.add("outlaws", EndpointUtils.getResidentArray(town.getOutlaws().stream().toList()));
 
-        JsonArray quartersArray = EndpointUtils.getQuarterArray(QuartersAPI.getInstance().getQuartersTown(town).getQuarters());
+        JsonArray quartersArray = EndpointUtils.getQuarterArray(QuarterManager.getInstance().getQuarters(town));
         townObject.add("quarters", quartersArray);
 
         JsonObject ranksObject = new JsonObject();
