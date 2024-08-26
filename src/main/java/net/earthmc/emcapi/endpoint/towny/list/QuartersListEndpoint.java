@@ -1,9 +1,9 @@
 package net.earthmc.emcapi.endpoint.towny.list;
 
+import au.lupine.quarters.api.manager.QuarterManager;
 import com.google.gson.JsonArray;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
-import net.earthmc.quarters.api.QuartersAPI;
 
 public class QuartersListEndpoint extends GetEndpoint {
 
@@ -14,6 +14,6 @@ public class QuartersListEndpoint extends GetEndpoint {
 
     @Override
     public JsonArray getJsonElement() {
-        return EndpointUtils.getQuarterArray(QuartersAPI.getInstance().getAllQuarters());
+        return EndpointUtils.getQuarterArray(QuarterManager.getInstance().getAllQuarters());
     }
 }
