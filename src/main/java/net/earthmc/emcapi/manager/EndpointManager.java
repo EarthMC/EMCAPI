@@ -3,6 +3,7 @@ package net.earthmc.emcapi.manager;
 import com.google.gson.*;
 import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
+import kotlin.Pair;
 import net.earthmc.emcapi.endpoint.*;
 import net.earthmc.emcapi.endpoint.legacy.v1.*;
 import net.earthmc.emcapi.endpoint.legacy.v2.*;
@@ -53,13 +54,20 @@ public class EndpointManager {
         loadDiscordEndpoint();
     }
 
-    private JsonArray parseBody(String body) {
+    private Pair<JsonArray, JsonObject> parseBody(String body) {
         JsonObject jsonObject = JSONUtil.getJsonObjectFromString(body);
 
-        JsonArray queryArray = jsonObject.get("query").getAsJsonArray();
-        if (queryArray == null) throw new BadRequestResponse("Invalid query array provided");
+        JsonElement queryElement = jsonObject.get("query");
+        if (queryElement == null) throw new BadRequestResponse("No query array provided");
+        if (!queryElement.isJsonArray()) throw new BadRequestResponse("Provided query is not an array");
+        JsonArray queryArray = queryElement.getAsJsonArray();
 
-        return queryArray;
+        JsonElement templateElement = jsonObject.get("template");
+        JsonObject templateObject = templateElement != null && templateElement.isJsonObject()
+                ? templateElement.getAsJsonObject()
+                : null;
+
+        return new Pair<>(queryArray, templateObject);
     }
 
     private void loadPlayersEndpoint() {
@@ -68,7 +76,8 @@ public class EndpointManager {
 
         PlayersEndpoint playersEndpoint = new PlayersEndpoint(economy);
         javalin.post(v3URLPath + "/players", ctx -> {
-            ctx.json(playersEndpoint.lookup(parseBody(ctx.body())));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(playersEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
     }
 
@@ -78,7 +87,8 @@ public class EndpointManager {
 
         TownsEndpoint townsEndpoint = new TownsEndpoint();
         javalin.post(v3URLPath + "/towns", ctx -> {
-            ctx.json(townsEndpoint.lookup(parseBody(ctx.body())));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(townsEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
     }
 
@@ -88,7 +98,8 @@ public class EndpointManager {
 
         NationsEndpoint nationsEndpoint = new NationsEndpoint();
         javalin.post(v3URLPath + "/nations", ctx -> {
-            ctx.json(nationsEndpoint.lookup(parseBody(ctx.body())));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(nationsEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
     }
 
@@ -98,28 +109,32 @@ public class EndpointManager {
 
         QuartersEndpoint quartersEndpoint = new QuartersEndpoint();
         javalin.post(v3URLPath + "/quarters", ctx -> {
-            ctx.json(quartersEndpoint.lookup(parseBody(ctx.body())));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(quartersEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
     }
 
     private void loadLocationEndpoint() {
         LocationEndpoint locationEndpoint = new LocationEndpoint();
         javalin.post(v3URLPath + "/location", ctx -> {
-            ctx.json(locationEndpoint.lookup(parseBody(ctx.body())));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(locationEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
     }
 
     private void loadNearbyEndpoint() {
         NearbyEndpoint nearbyEndpoint = new NearbyEndpoint();
         javalin.post(v3URLPath + "/nearby", ctx -> {
-            ctx.json(nearbyEndpoint.lookup(parseBody(ctx.body())));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(nearbyEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
     }
 
     private void loadDiscordEndpoint() {
         DiscordEndpoint discordEndpoint = new DiscordEndpoint();
         javalin.post(v3URLPath + "/discord", ctx -> {
-            ctx.json(discordEndpoint.lookup(parseBody(ctx.body())));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(discordEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
     }
 

@@ -6,9 +6,9 @@ Example POST request
 {
   "query": [
     {
-      "target_type": "town",
+      "target_type": "TOWN",
       "target": "melbourne",
-      "search_type": "town",
+      "search_type": "TOWN",
       "radius": 100
     }
   ]
@@ -20,12 +20,12 @@ Example POST request
 {
   "query": [
     {
-      "target_type": "coordinate",
+      "target_type": "COORDINATE",
       "target": [
         2000,
         10000
       ],
-      "search_type": "town",
+      "search_type": "TOWN",
       "radius": 10000
     }
   ]

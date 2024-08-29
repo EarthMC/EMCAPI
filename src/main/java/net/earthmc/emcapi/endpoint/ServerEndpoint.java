@@ -6,7 +6,7 @@ import com.palmergames.bukkit.towny.TownySettings;
 import io.minimum.minecraft.superbvote.SuperbVote;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
-import net.earthmc.quarters.api.QuartersAPI;
+import au.lupine.quarters.api.manager.QuarterManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
@@ -24,7 +24,7 @@ public class ServerEndpoint extends GetEndpoint {
         JsonObject serverObject = new JsonObject();
 
         TownyAPI townyAPI = TownyAPI.getInstance();
-        QuartersAPI quartersAPI = QuartersAPI.getInstance();
+        QuarterManager quarterManager = QuarterManager.getInstance();
         World overworld = Bukkit.getWorlds().get(0);
 
         serverObject.addProperty("version", Bukkit.getMinecraftVersion());
@@ -51,8 +51,8 @@ public class ServerEndpoint extends GetEndpoint {
         statsObject.addProperty("numTowns", townyAPI.getTowns().size());
         statsObject.addProperty("numTownBlocks", townyAPI.getTownBlocks().size());
         statsObject.addProperty("numNations", townyAPI.getNations().size());
-        statsObject.addProperty("numQuarters", quartersAPI.getAllQuarters().size());
-        statsObject.addProperty("numCuboids", quartersAPI.getAllQuarters().stream().mapToInt(quarter -> quarter.getCuboids().size()).sum());
+        statsObject.addProperty("numQuarters", quarterManager.getAllQuarters().size());
+        statsObject.addProperty("numCuboids", quarterManager.getAllQuarters().stream().mapToInt(quarter -> quarter.getCuboids().size()).sum());
         serverObject.add("stats", statsObject);
 
         int target = SuperbVote.getPlugin().getVoteParty().votesNeeded();
