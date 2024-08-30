@@ -1,7 +1,7 @@
 # Nations Endpoint
 Accessed at https://api.earthmc.net/v3/aurora/nations
 
-The following is an abridged version of the response from the above URL which contains every currently registered Towny nation within a JSON array
+The following is an abridged version of the response to a **GET** request to the above URL which contains every currently registered Towny nation within a JSON array.
 ```json5
 [
   {
@@ -26,18 +26,21 @@ The following is an abridged version of the response from the above URL which co
   }
 ]
 ```
+<br>
 
-Example POST request
+To query specific nations (with more data), you can use a **POST** request, and specify an array of nations to query in the body.
+
+Example **POST** request
 ```json5
 {
-  "query": [
+  "query": [  // You can use both UUIDs and names
     "b1d39d3f-8723-4d8b-916f-3de0d2492e4d",
-    "ceff7448-5b6d-4494-a91d-b555a97a96e9"
+    "Yukon"
   ]
 }
 ```
 
-Example POST response
+Example **POST** response
 ```json5
 [
   {

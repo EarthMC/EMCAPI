@@ -1,7 +1,7 @@
 # Players Endpoint
 Accessed at https://api.earthmc.net/v3/aurora/players
 
-The following is an abridged version of the response from the above URL which contains every currently registered Towny resident within a JSON array
+The following is an abridged version of the response to a **GET** request to the above URL which contains every currently registered Towny resident within a JSON array.
 ```json5
 [
   {
@@ -26,19 +26,21 @@ The following is an abridged version of the response from the above URL which co
   }
 ]
 ```
+<br>
 
+To query specific players (with more data), you can use a **POST** request, and specify an array of players to query in the body.
 
-Example POST request
+Example **POST** request
 ```json5
 {
-  "query": [
+  "query": [  // You can use both UUIDs and names
     "eca37341-fb75-4776-a7c6-b5b785e736a8",
-    "9c5a1c2e-76e9-4e09-81ff-e975f0ea1b3c"
+    "Fruitloopins"
   ]
 }
 ```
 
-Example POST response
+Example **POST** response
 ```json5
 [
   {

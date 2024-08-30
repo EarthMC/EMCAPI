@@ -1,7 +1,7 @@
 # Towns Endpoint
 Accessed at https://api.earthmc.net/v3/aurora/towns
 
-The following is an abridged version of the response from the above URL which contains every currently registered Towny town within a JSON array
+The following is an abridged version of the response to a **GET** request to the above URL which contains every currently registered Towny town within a JSON array.
 ```json5
 [
   {
@@ -26,18 +26,21 @@ The following is an abridged version of the response from the above URL which co
   }
 ]
 ```
+<br>
 
-Example POST request
+To query specific towns (with more data), you can use a **POST** request, and specify an array of towns to query in the body.
+
+Example **POST** request
 ```json5
 {
-  "query": [
+  "query": [  // You can use both UUIDs and names
     "51c2dc6d-9a41-4091-a7ce-ece008c178fa",
-    "582d0ff1-10da-4ca6-99f8-97946cc776e8"
+    "Teslin"
   ]
 }
 ```
 
-Example POST response
+Example **POST** response
 ```json5
 [
   {
