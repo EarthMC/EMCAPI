@@ -1,6 +1,7 @@
 # Server Endpoint
 Accessed at https://api.earthmc.net/v3/aurora/
 
+The following is an example of the response to a **GET** request to the above URL. 
 ```json5
 {
   "version": "1.19.4", // The server's current version as a string
