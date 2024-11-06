@@ -39,6 +39,9 @@ public class EndpointManager {
         ServerEndpoint serverEndpoint = new ServerEndpoint();
         javalin.get(v3URLPath, ctx -> ctx.json(serverEndpoint.lookup()));
 
+        MysteryMasterEndpoint mysteryMasterEndpoint = new MysteryMasterEndpoint();
+        javalin.get(v3URLPath + "/mm", ctx -> ctx.json(mysteryMasterEndpoint.lookup()));
+
         MudkipEndpoint mudkipEndpoint = new MudkipEndpoint();
         javalin.get("/mudkip", ctx -> {
             ctx.contentType("text/plain; charset=UTF-8");
