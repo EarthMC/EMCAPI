@@ -14,6 +14,8 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -37,7 +39,7 @@ public final class EMCAPI extends JavaPlugin {
         setupEconomy();
         initialiseJavalin();
 
-        EndpointManager endpointManager = new EndpointManager(javalin, getConfig(), economy);
+        EndpointManager endpointManager = new EndpointManager(this);
         endpointManager.loadEndpoints();
 
         if (getConfig().getBoolean("behaviour.enable_legacy_endpoints"))
@@ -98,5 +100,15 @@ public final class EMCAPI extends JavaPlugin {
                     .append(String.valueOf(response.getStatus()))
                     .append("\"}");
         }
+    }
+
+    @Nullable
+    public Economy getEconomy() {
+        return economy;
+    }
+
+    @NotNull
+    public Javalin getJavalin() {
+        return javalin;
     }
 }
