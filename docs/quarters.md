@@ -1,7 +1,7 @@
 # Quarters Endpoint
 Accessed at https://api.earthmc.net/v3/aurora/quarters
 
-The following is an abridged version of the response from the above URL which contains every currently registered quarter within a JSON array
+The following is an abridged version of the response to a **GET** request to the above URL which contains every currently registered quarter within a JSON array.
 ```json5
 [
   {
@@ -26,8 +26,11 @@ The following is an abridged version of the response from the above URL which co
   }
 ]
 ```
+<br>
 
-Example POST request
+To query specific quarters (with more data), you can use a **POST** request, and specify an array of quarters to query in the body.
+
+Example **POST** request
 ```json5
 {
   "query": [
@@ -37,7 +40,7 @@ Example POST request
 }
 ```
 
-Example POST response
+Example **POST** response
 ```json5
 [
   {
