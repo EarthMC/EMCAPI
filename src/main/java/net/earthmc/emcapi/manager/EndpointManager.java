@@ -4,6 +4,7 @@ import com.google.gson.*;
 import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
 import kotlin.Pair;
+import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.endpoint.*;
 import net.earthmc.emcapi.endpoint.legacy.v1.*;
 import net.earthmc.emcapi.endpoint.legacy.v2.*;
@@ -14,22 +15,23 @@ import net.earthmc.emcapi.endpoint.towny.list.QuartersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.TownsListEndpoint;
 import net.earthmc.emcapi.util.JSONUtil;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.configuration.file.FileConfiguration;
 
 public class EndpointManager {
 
+    private final EMCAPI plugin;
     private final Javalin javalin;
     private final Economy economy;
     private final String v1URLPath;
     private final String v2URLPath;
     private final String v3URLPath;
 
-    public EndpointManager(Javalin javalin, FileConfiguration config, Economy economy) {
-        this.javalin = javalin;
-        this.economy = economy;
-        this.v1URLPath = "v1/" + config.getString("networking.url_path");
-        this.v2URLPath = "v2/" + config.getString("networking.url_path");
-        this.v3URLPath = "v3/" + config.getString("networking.url_path");
+    public EndpointManager(EMCAPI plugin) {
+        this.plugin = plugin;
+        this.javalin = plugin.getJavalin();
+        this.economy = plugin.getEconomy();
+        this.v1URLPath = "v1/" + plugin.getConfig().getString("networking.url_path");
+        this.v2URLPath = "v2/" + plugin.getConfig().getString("networking.url_path");
+        this.v3URLPath = "v3/" + plugin.getConfig().getString("networking.url_path");
     }
 
     public void loadEndpoints() {
@@ -55,6 +57,7 @@ public class EndpointManager {
         loadLocationEndpoint();
         loadNearbyEndpoint();
         loadDiscordEndpoint();
+        loadPlayerStatsEndpoint();
     }
 
     private Pair<JsonArray, JsonObject> parseBody(String body) {
@@ -138,6 +141,14 @@ public class EndpointManager {
         javalin.post(v3URLPath + "/discord", ctx -> {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(discordEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
+        });
+    }
+
+    private void loadPlayerStatsEndpoint() {
+        PlayerStatsEndpoint playerStatsEndpoint = new PlayerStatsEndpoint(this.plugin);
+        playerStatsEndpoint.initialize();
+        javalin.get(v3URLPath + "/player-stats", ctx -> {
+            ctx.json(playerStatsEndpoint.latestCachedStatistics());
         });
     }
 
