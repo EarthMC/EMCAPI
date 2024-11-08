@@ -1,5 +1,5 @@
 # Server-Sent Events (SSE) Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/events
+Accessed at https://api.earthmc.net/v3/events
 
 > **Server-Sent Events** (SSEs) are a simple, one-way communication method where a server can push real-time updates to clients over HTTP. Unlike WebSockets, SSEs use a persistent HTTP connection, making them ideal for continuous data streams, such as live notifications.
 > [[MDN Reference]](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)
