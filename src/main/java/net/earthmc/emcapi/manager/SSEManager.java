@@ -19,7 +19,7 @@ public class SSEManager {
     }
 
     public void loadSSE() {
-        javalin.sse("/events", client -> {
+        javalin.sse("v3/events", client -> {
             client.keepAlive();
             client.sendEvent("open", "Connected to the EarthMC API.");
             client.onClose(() -> clients.remove(client));
