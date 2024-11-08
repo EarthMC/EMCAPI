@@ -1,19 +1,64 @@
 # Server-Sent Events (SSE) Endpoint
 Accessed at https://api.earthmc.net/v3/aurora/events
 
-Use this endpoint as an [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) to receive live events.   
+> **Server-Sent Events** (SSEs) are a simple, one-way communication method where a server can push real-time updates to clients over HTTP. Unlike WebSockets, SSEs use a persistent HTTP connection, making them ideal for continuous data streams, such as live notifications.
+> [[MDN Reference]](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)
 
 You can easily connect to the event stream from your terminal using
 
 ````bash
-curl -H "Accept:text/event-steam" "https://api.earthmc.net/v3/aurora/events"
+curl -H "Accept:text/event-steam" "https://api.earthmc.net/events"
 ````
 
-<br>
+If the connection was successful, you will receive a `open` event from the server.
 
-### Here is a list of all the events and their JSON structure:
-*(Each event carries a UNIX timestamp)*
+---
 
+### Example usage (in JavaScript)
+Use the endpoint as an [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) to receive live events.
+```javascript
+const sse = new EventSource('https://api.earthmc.net/events');
+
+/*
+ * This will listen only for events
+ * similar to the following:
+ *
+ * event: NewNation
+ * data: Event data (see below)
+ */
+ 
+sse.addEventListener('NewNation', (e) => {
+  console.log(e.data);
+});
+```
+<br>Example `NewNation` event
+```json5
+{
+  "event": "NewNation",
+  
+  "data": {
+    "nation": {
+      "name": "Egypt",
+      "uuid": "e82b84fb-d3fd-4065-a43b-013d53416162"
+    },
+    
+    "king": {
+      "name": "Lumpeeh",
+      "uuid": "a03f71f9-625e-419f-9d16-0e5ab50414e4"
+    },
+    
+    "timestamp": "1651592417137"
+    }
+}
+```
+
+---
+
+### Event data
+Below is a list of all the events and the JSON structure of their `data` field.
+<br>*(Each `data` object additionally carries a UNIX timestamp)*
+
+**Player Connections**
 - PlayerJoin (aurora)
 ```yaml
 {
@@ -33,17 +78,17 @@ curl -H "Accept:text/event-steam" "https://api.earthmc.net/v3/aurora/events"
 }
 ```
 
-<br>
+<br>**Newday**
 
 - NewDay
 ```yaml
 {
-  fallenTowns: str[]
-  fallenNations: str[]
+  fallenTowns: str[]    // Names
+  fallenNations: str[]  // Names
 }
 ```
 
-<br>
+<br>**Nation**
 
 - NewNation
 ```yaml
@@ -136,7 +181,7 @@ curl -H "Accept:text/event-steam" "https://api.earthmc.net/v3/aurora/events"
 }
 ```
 
-<br>
+<br>**Town**
 
 - NewTown
 ```yaml
@@ -241,28 +286,5 @@ curl -H "Accept:text/event-steam" "https://api.earthmc.net/v3/aurora/events"
     name: str
     uuid: str
   }
-}
-```
-
-<br>
-
-Example `NewNation` event
-```json5
-{
-  "event": "NewNation",
-  
-  "data": {
-    "nation": {
-      "name": "Guinea",
-      "uuid": "6a458663-16ff-49c9-a27e-3ad5b3b9caf5"
-    },
-    
-    "king": {
-      "name": "Czipsu35",
-      "uuid": "12a19eee-6539-4634-89bc-4398ab8de870"
-    },
-    
-    "timestamp": "1656352097939"
-    }
 }
 ```
