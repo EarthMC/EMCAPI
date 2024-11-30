@@ -25,7 +25,7 @@ public class MysteryMasterEndpoint extends GetEndpoint {
     public JsonElement getJsonElement() {
         JsonArray jsonArray = new JsonArray();
 
-        List<MysteryPlayer> players = service.getCurrentTopPlayers();
+        List<? extends MysteryPlayer> players = service.getCurrentTopPlayers();
         for (int i = 0; i < Math.min(50, players.size()); i++) {
             MysteryPlayer player = players.get(i);
             JsonObject jsonObject = new JsonObject();
