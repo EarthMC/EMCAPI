@@ -37,7 +37,7 @@ public class ServerEndpoint extends GetEndpoint {
 
         JsonObject statusObject = new JsonObject();
         statusObject.addProperty("hasStorm", overworld.hasStorm());
-        statusObject.addProperty("isThundering", overworld.hasStorm());
+        statusObject.addProperty("isThundering", overworld.isThundering());
         serverObject.add("status", statusObject);
 
         JsonObject statsObject = new JsonObject();
@@ -51,12 +51,16 @@ public class ServerEndpoint extends GetEndpoint {
         statsObject.addProperty("numTowns", townyAPI.getTowns().size());
         statsObject.addProperty("numTownBlocks", townyAPI.getTownBlocks().size());
         statsObject.addProperty("numNations", townyAPI.getNations().size());
-        statsObject.addProperty("numQuarters", quarterManager.getAllQuarters().size());
-        statsObject.addProperty("numCuboids", quarterManager.getAllQuarters().stream().mapToInt(quarter -> quarter.getCuboids().size()).sum());
+
+        var quarters = quarterManager.getAllQuarters();
+        statsObject.addProperty("numQuarters", quarters.size());
+        statsObject.addProperty("numCuboids", quarters.parallelStream().mapToInt(quarter -> quarter.getCuboids().size()).sum());
+
         serverObject.add("stats", statsObject);
 
-        int target = SuperbVote.getPlugin().getVoteParty().votesNeeded();
-        int currentVotes = SuperbVote.getPlugin().getVoteParty().getCurrentVotes();
+        var voteParty = SuperbVote.getPlugin().getVoteParty();
+        int target = voteParty.votesNeeded();
+        int currentVotes = voteParty.getCurrentVotes();
 
         JsonObject votePartyObject = new JsonObject();
         votePartyObject.addProperty("target", target);
