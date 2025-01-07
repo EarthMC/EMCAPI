@@ -4,13 +4,16 @@ import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownySettings;
 import io.minimum.minecraft.superbvote.SuperbVote;
+import io.minimum.minecraft.superbvote.votes.VoteParty;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
+import au.lupine.quarters.object.entity.Quarter;
 import au.lupine.quarters.api.manager.QuarterManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 import java.time.LocalTime;
+import java.util.List;
 
 public class ServerEndpoint extends GetEndpoint {
 
@@ -52,13 +55,13 @@ public class ServerEndpoint extends GetEndpoint {
         statsObject.addProperty("numTownBlocks", townyAPI.getTownBlocks().size());
         statsObject.addProperty("numNations", townyAPI.getNations().size());
 
-        var quarters = quarterManager.getAllQuarters();
+        List<Quarter> quarters = quarterManager.getAllQuarters();
         statsObject.addProperty("numQuarters", quarters.size());
-        statsObject.addProperty("numCuboids", quarters.parallelStream().mapToInt(quarter -> quarter.getCuboids().size()).sum());
+        statsObject.addProperty("numCuboids", quarters.parallelStream().mapToInt(q -> q.getCuboids().size()).sum());
 
         serverObject.add("stats", statsObject);
 
-        var voteParty = SuperbVote.getPlugin().getVoteParty();
+        VoteParty voteParty = SuperbVote.getPlugin().getVoteParty();
         int target = voteParty.votesNeeded();
         int currentVotes = voteParty.getCurrentVotes();
 
