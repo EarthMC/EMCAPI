@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class EndpointUtils {
 
@@ -161,6 +162,13 @@ public class EndpointUtils {
         jsonObject.addProperty("name", quarter.getName());
         jsonObject.addProperty("uuid", quarter.getUUID().toString());
 
+        return jsonObject;
+    }
+
+    public static JsonObject generateNameUUIDJsonObject(String name, UUID uuid) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("name", name);
+        jsonObject.addProperty("uuid", uuid.toString());
         return jsonObject;
     }
 }
