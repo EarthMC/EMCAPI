@@ -75,11 +75,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
 
         JsonObject ranksObject = new JsonObject();
         for (String rank : TownyPerms.getNationRanks()) {
-            JsonArray rankArray = new JsonArray();
-            for (Resident resident : EndpointUtils.getNationRank(nation, rank)) {
-                rankArray.add(resident.getName());
-            }
-            ranksObject.add(rank, rankArray);
+            ranksObject.add(rank, EndpointUtils.getResidentArray(EndpointUtils.getNationRank(nation, rank)));
         }
         nationObject.add("ranks", ranksObject);
 
