@@ -1,12 +1,12 @@
 package net.earthmc.emcapi.endpoint;
 
+import au.lupine.quarters.api.manager.QuarterManager;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownySettings;
 import io.minimum.minecraft.superbvote.SuperbVote;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
-import au.lupine.quarters.api.manager.QuarterManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 

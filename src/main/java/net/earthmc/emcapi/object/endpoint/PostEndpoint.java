@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.earthmc.emcapi.EMCAPI;
+
 import java.util.Map;
 
 public abstract class PostEndpoint<T> {
