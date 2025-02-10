@@ -1,12 +1,10 @@
 package net.earthmc.emcapi.endpoint.towny;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.object.Nation;
-import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
 import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.manager.NationMetadataManager;
@@ -75,11 +73,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
 
         JsonObject ranksObject = new JsonObject();
         for (String rank : TownyPerms.getNationRanks()) {
-            JsonArray rankArray = new JsonArray();
-            for (Resident resident : EndpointUtils.getNationRank(nation, rank)) {
-                rankArray.add(resident.getName());
-            }
-            ranksObject.add(rank, rankArray);
+            ranksObject.add(rank, EndpointUtils.getResidentArray(EndpointUtils.getNationRank(nation, rank)));
         }
         nationObject.add("ranks", ranksObject);
 

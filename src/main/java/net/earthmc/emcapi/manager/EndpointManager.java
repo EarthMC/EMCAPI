@@ -1,6 +1,8 @@
 package net.earthmc.emcapi.manager;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
 import kotlin.Pair;
@@ -8,7 +10,10 @@ import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.endpoint.*;
 import net.earthmc.emcapi.endpoint.legacy.v1.*;
 import net.earthmc.emcapi.endpoint.legacy.v2.*;
-import net.earthmc.emcapi.endpoint.towny.*;
+import net.earthmc.emcapi.endpoint.towny.NationsEndpoint;
+import net.earthmc.emcapi.endpoint.towny.PlayersEndpoint;
+import net.earthmc.emcapi.endpoint.towny.QuartersEndpoint;
+import net.earthmc.emcapi.endpoint.towny.TownsEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.NationsListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.PlayersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.QuartersListEndpoint;

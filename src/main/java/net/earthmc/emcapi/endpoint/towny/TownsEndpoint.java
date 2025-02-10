@@ -6,7 +6,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
-import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
@@ -108,11 +107,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
 
         JsonObject ranksObject = new JsonObject();
         for (String rank : TownyPerms.getTownRanks()) {
-            JsonArray rankArray = new JsonArray();
-            for (Resident resident : town.getRank(rank)) {
-                rankArray.add(resident.getName());
-            }
-            ranksObject.add(rank, rankArray);
+            ranksObject.add(rank, EndpointUtils.getResidentArray(town.getRank(rank)));
         }
         townObject.add("ranks", ranksObject);
 

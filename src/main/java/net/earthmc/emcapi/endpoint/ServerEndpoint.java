@@ -1,5 +1,6 @@
 package net.earthmc.emcapi.endpoint;
 
+import au.lupine.quarters.api.manager.QuarterManager;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownySettings;
