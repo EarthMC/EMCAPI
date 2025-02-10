@@ -4,33 +4,38 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.javalin.http.ServiceUnavailableResponse;
-import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
-import net.earthmc.mysterymaster.MysteryMasterPlugin;
-import net.earthmc.mysterymaster.data.MysteryPlayer;
+import net.earthmc.emcapi.service.mysterymaster.MysteryMasterService;
+import net.earthmc.emcapi.service.mysterymaster.MysteryPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 
 import java.util.List;
+import java.util.ServiceLoader;
 
 public class MysteryMasterEndpoint extends GetEndpoint {
 
-    private static MysteryMasterPlugin mmp;
+    private final MysteryMasterService service;
 
     public MysteryMasterEndpoint() {
-        PluginManager pm = EMCAPI.instance.getServer().getPluginManager();
+        final Plugin mm = Bukkit.getPluginManager().getPlugin("MysteryMaster");
+        if (mm == null) {
+            service = null;
+            return;
+        }
 
-        Plugin plugin = pm.getPlugin("MysteryMaster");
-        if (plugin == null) {
-            mmp = null;
-        } else {
-            mmp = (MysteryMasterPlugin) plugin;
+        final ClassLoader original = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(mm.getClass().getClassLoader());
+            service = ServiceLoader.load(MysteryMasterService.class).findFirst().orElse(null);
+        } finally {
+            Thread.currentThread().setContextClassLoader(original);
         }
     }
 
     @Override
     public String lookup() {
-        if (mmp == null) throw new ServiceUnavailableResponse("Mystery Master details are not available currently");
+        if (service == null) throw new ServiceUnavailableResponse("Mystery Master details are not available currently");
         return getJsonElement().toString();
     }
 
@@ -38,7 +43,7 @@ public class MysteryMasterEndpoint extends GetEndpoint {
     public JsonElement getJsonElement() {
         JsonArray jsonArray = new JsonArray();
 
-        List<MysteryPlayer> players = mmp.getRewardTask().getCurrentTopPlayers();
+        List<? extends MysteryPlayer> players = service.getCurrentTopPlayers();
         for (int i = 0; i < Math.min(50, players.size()); i++) {
             MysteryPlayer player = players.get(i);
             JsonObject jsonObject = new JsonObject();
@@ -54,10 +59,9 @@ public class MysteryMasterEndpoint extends GetEndpoint {
     }
 
     private String getChange(int indexChange) {
-        return switch (indexChange) {
-            case -1 -> "UP";
-            case 1 -> "DOWN";
-            default -> "UNCHANGED";
-        };
+        if (indexChange == 0) return "UNCHANGED";
+
+        // positive change means down, negative up
+        return indexChange > 0 ? "DOWN" : "UP";
     }
 }

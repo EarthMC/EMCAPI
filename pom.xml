@@ -6,7 +6,7 @@
 
   <groupId>net.earthmc</groupId>
   <artifactId>EMCAPI</artifactId>
-  <version>3</version>
+  <version>3.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>EMCAPI</name>
@@ -73,13 +73,28 @@
           <id>placeholderapi</id>
           <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
       </repository>
+      <repository>
+          <id>earthmc</id>
+          <url>https://repo.earthmc.net/releases/</url>
+      </repository>
   </repositories>
+
+  <distributionManagement>
+    <repository>
+        <id>earthmc</id>
+        <url>https://repo.earthmc.net/releases</url>
+    </repository>
+    <snapshotRepository>
+        <id>earthmc</id>
+        <url>https://repo.earthmc.net/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <dependencies>
       <dependency>
           <groupId>io.papermc.paper</groupId>
           <artifactId>paper-api</artifactId>
-          <version>1.19.4-R0.1-SNAPSHOT</version>
+          <version>1.20.4-R0.1-SNAPSHOT</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
@@ -91,7 +106,7 @@
       <dependency>
           <groupId>io.javalin</groupId>
           <artifactId>javalin</artifactId>
-          <version>6.0.0</version>
+          <version>6.3.0</version>
       </dependency>
       <dependency>
           <groupId>com.github.jwkerr</groupId>
@@ -116,18 +131,10 @@
           <version>1.27.0</version>
           <scope>provided</scope>
       </dependency>
-      <!-- our fork of superbvote, used for getting vote party count -->
-      <!-- not published currently, clone https://github.com/EarthMC/SuperbVote and mvn install -->
       <dependency>
-          <groupId>io.minimum.minecraft</groupId>
+          <groupId>net.earthmc.superbvote</groupId>
           <artifactId>SuperbVote</artifactId>
           <version>0.6.0</version>
-          <scope>provided</scope>
-      </dependency>
-      <dependency>
-          <groupId>net.earthmc</groupId>
-          <artifactId>MysteryMaster</artifactId>
-          <version>1.0-SNAPSHOT</version>
           <scope>provided</scope>
       </dependency>
   </dependencies>
