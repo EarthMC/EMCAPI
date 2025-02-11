@@ -274,13 +274,24 @@ Example **POST** response
       "02cad4e4-00fc-4f8e-a3fb-9d9981f25ae1",
       "ff737a85-24c6-4abf-a656-c2c01a4ebe70"
     ],
-    "ranks": { // Arrays of everyone in every rank in the town, ranks with no players are empty
+    "ranks": {
       "Councillor": [
-        "Fruitloopins",
-        "tuzzzie"
+        {
+          "name": "tuzzzie",
+          "uuid": "8391474f-4b57-412a-a835-96bd2c253219"
+        }
       ],
       "Builder": [],
-      "Recruiter": [],
+      "Recruiter": [
+        {
+          "name": "Golden_Horizon",
+          "uuid": "1fd49c80-8ab7-4adf-a3b9-879932bddca8"
+        },
+        {
+          "name": "SkidgeV",
+          "uuid": "9dfbd591-d86d-44a2-9eb4-22deaa88656e"
+        }
+      ],
       "Police": [],
       "Tax-exempt": [],
       "Treasurer": [],

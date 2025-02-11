@@ -161,10 +161,12 @@ Example **POST** response
       }
     ],
     "sanctioned": [], // A JSON array representing all the town's this nation has sanctioned, empty if the nation has sanctioned no towns
-    "ranks": { // Arrays of everyone in every rank in the nation, ranks with no players are empty
+    "ranks": {
       "Chancellor": [
-        "Fruitloopins",
-        "tuzzzie"
+        {
+          "name": "tuzzzie",
+          "uuid": "8391474f-4b57-412a-a835-96bd2c253219"
+        }
       ],
       "Colonist": [],
       "Diplomat": []
