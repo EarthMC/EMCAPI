@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.javalin.http.ServiceUnavailableResponse;
+import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 import net.earthmc.emcapi.service.mysterymaster.MysteryMasterService;
 import net.earthmc.emcapi.service.mysterymaster.MysteryPlayer;
@@ -11,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
+import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
 public class MysteryMasterEndpoint extends GetEndpoint {
@@ -20,17 +22,20 @@ public class MysteryMasterEndpoint extends GetEndpoint {
     public MysteryMasterEndpoint() {
         final Plugin mm = Bukkit.getPluginManager().getPlugin("MysteryMaster");
         if (mm == null) {
+            EMCAPI.instance.getLogger().warning("Not loading mystery master endpoint due to the plugin not being present");
             service = null;
             return;
         }
 
-        final ClassLoader original = Thread.currentThread().getContextClassLoader();
+        MysteryMasterService loaded = null;
+
         try {
-            Thread.currentThread().setContextClassLoader(mm.getClass().getClassLoader());
-            service = ServiceLoader.load(MysteryMasterService.class).findFirst().orElse(null);
-        } finally {
-            Thread.currentThread().setContextClassLoader(original);
+            loaded = ServiceLoader.load(MysteryMasterService.class, mm.getClass().getClassLoader()).findFirst().orElseThrow(() -> new IllegalStateException("Could not find MysteryMasterService"));
+        } catch (ServiceConfigurationError | IllegalArgumentException e) {
+            EMCAPI.instance.getSLF4JLogger().warn("Failed to load mystery master service", e);
         }
+
+        service = loaded;
     }
 
     @Override
