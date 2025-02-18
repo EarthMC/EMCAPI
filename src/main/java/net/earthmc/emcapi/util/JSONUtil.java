@@ -3,6 +3,8 @@ package net.earthmc.emcapi.util;
 import com.google.gson.*;
 import io.javalin.http.BadRequestResponse;
 
+import java.util.List;
+
 public class JSONUtil {
 
     public static JsonObject getJsonObjectFromString(String string) {
@@ -11,6 +13,16 @@ public class JSONUtil {
         } catch (Exception e) {
             throw new BadRequestResponse("Invalid JSON body provided");
         }
+    }
+
+    public static JsonArray getJsonArrayFromStringList(List<String> stringList) {
+        JsonArray jsonArray = new JsonArray();
+        if (stringList == null) return jsonArray;
+
+        for (String item : stringList) {
+            jsonArray.add(item);
+        }
+        return jsonArray;
     }
 
     public static String getJsonElementAsStringOrNull(JsonElement element) {
