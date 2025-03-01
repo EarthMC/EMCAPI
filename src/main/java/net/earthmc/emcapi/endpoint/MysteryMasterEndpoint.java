@@ -31,7 +31,7 @@ public class MysteryMasterEndpoint extends GetEndpoint {
 
         try {
             loaded = ServiceLoader.load(MysteryMasterService.class, mm.getClass().getClassLoader()).findFirst().orElseThrow(() -> new IllegalStateException("Could not find MysteryMasterService"));
-        } catch (ServiceConfigurationError | IllegalArgumentException e) {
+        } catch (ServiceConfigurationError | IllegalArgumentException | IllegalStateException e) {
             EMCAPI.instance.getSLF4JLogger().warn("Failed to load mystery master service", e);
         }
 
