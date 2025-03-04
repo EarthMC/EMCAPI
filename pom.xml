@@ -141,6 +141,7 @@
           <groupId>net.earthmc.mysterymaster</groupId>
           <artifactId>mysterymaster-api</artifactId>
           <version>1.0.0</version>
+          <scope>provided</scope>
       </dependency>
   </dependencies>
 </project>
