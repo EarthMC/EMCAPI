@@ -13,15 +13,11 @@ public abstract class PostEndpoint<T> {
         int numLoops = Math.min(EMCAPI.instance.getConfig().getInt("behaviour.max_lookup_size"), queryArray.size());
         for (int i = 0; i < numLoops; i++) {
             JsonElement element = queryArray.get(i);
+
             T object = getObjectOrNull(element);
-
-            JsonElement innerObject;
-            if (object == null) {
-                continue;
-            } else {
-                innerObject = getTemplateJsonElement(object, template);
-            }
-
+            if (object == null) continue;
+            
+            JsonElement innerObject = getTemplateJsonElement(object, template);
             jsonArray.add(innerObject);
         }
 
