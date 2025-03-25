@@ -35,9 +35,9 @@ public abstract class PostEndpoint<T> {
     public JsonElement getTemplateJsonElement(T object, JsonObject template) {
         JsonElement fullJson = getJsonElement(object);
         
-        // Just return the full element in both cases.
-        if (!(fullJson instanceof JsonObject)) return fullJson;
-        if (!templateMissingOrEmpty(template)) return fullJson;
+        // Just return the full, unaltered element in both cases.
+        if (!fullJson.isJsonObject()) return fullJson;
+        if (templateMissingOrEmpty(template)) return fullJson;
 
         JsonObject fullJsonObject = fullJson.getAsJsonObject();
         JsonObject filteredJson = new JsonObject();
