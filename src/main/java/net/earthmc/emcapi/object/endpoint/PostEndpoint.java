@@ -53,6 +53,6 @@ public abstract class PostEndpoint<T> {
     }
     
     public final boolean templateMissingOrEmpty(JsonObject template) {
-        return template == null || template.entrySet().isEmpty();
+        return template == null || template.asMap().isEmpty();
     }
 }
