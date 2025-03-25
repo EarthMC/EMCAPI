@@ -5,24 +5,24 @@ The following is an abridged version of the response to a **GET** request to the
 ```json5
 [
   {
-    "name":null,
-    "uuid":"412c7c07-eaa4-4870-bbb0-a8eaa205f925"
+    "name": null,
+    "uuid": "412c7c07-eaa4-4870-bbb0-a8eaa205f925"
   },
   {
-    "name":null,
-    "uuid":"4399a284-ded4-4fd8-8966-126d6e489c84"
+    "name": null,
+    "uuid": "4399a284-ded4-4fd8-8966-126d6e489c84"
   },
   {
-    "name":null,
-    "uuid":"cc3189e3-87d1-4d42-81c6-e9033cf644b3"
+    "name": null,
+    "uuid": "cc3189e3-87d1-4d42-81c6-e9033cf644b3"
   },
   {
-    "name":null,
-    "uuid":"5572325c-9716-48ae-ab16-7294282e50f0"
+    "name": null,
+    "uuid": "5572325c-9716-48ae-ab16-7294282e50f0"
   },
   {
-    "name":null,
-    "uuid":"8fd1f7be-f0fb-4da5-b82c-d4dcdd6644ec"
+    "name": null,
+    "uuid": "8fd1f7be-f0fb-4da5-b82c-d4dcdd6644ec"
   }
 ]
 ```

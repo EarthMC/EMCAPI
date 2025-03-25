@@ -22,10 +22,10 @@ Example **POST** response
 [
   {
     "location": {
-      "x":0,
-      "z":0
+      "x": 0,
+      "z": 0
     },
-    "isWilderness":false,
+    "isWilderness": false,
     "town": {
       "name": "Jyväskylä",
       "uuid": "0b69c00d-c112-4ca0-a16c-ce551120e464"
