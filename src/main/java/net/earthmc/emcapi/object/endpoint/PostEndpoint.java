@@ -36,21 +36,25 @@ public abstract class PostEndpoint<T> {
 
     public JsonElement getTemplateJsonElement(T object, JsonObject template) {
         JsonElement fullJson = getJsonElement(object);
-
-        if (!(fullJson instanceof JsonObject) || template == null || template.entrySet().isEmpty()) {
-            return fullJson;
-        }
+        
+        // Just return the full element in both cases.
+        if (!(fullJson instanceof JsonObject)) return fullJson;
+        if (!templateMissingOrEmpty(template)) return fullJson;
 
         JsonObject fullJsonObject = fullJson.getAsJsonObject();
         JsonObject filteredJson = new JsonObject();
-
-        for (Map.Entry<String, JsonElement> entry : template.entrySet()) {
-            String key = entry.getKey();
-            if (entry.getValue().getAsBoolean() && fullJsonObject.has(key)) {
-                filteredJson.add(key, fullJsonObject.get(key));
+        
+        template.asMap().forEach((key, value) -> {
+            JsonElement el = fullJsonObject.get(key);
+            if (value.getAsBoolean() && el != null) {
+                filteredJson.add(key, el);
             }
-        }
+        });
 
         return filteredJson;
+    }
+    
+    public final boolean templateMissingOrEmpty(JsonObject template) {
+        return template == null || template.entrySet().isEmpty();
     }
 }
