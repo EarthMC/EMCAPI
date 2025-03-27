@@ -77,6 +77,7 @@ Example **POST** response
     "stats": {
       "numTownBlocks": 473, // The total number of town blocks the town has
       "maxTownBlocks": 114, // The maximum town blocks the town can claim
+      "bonusBlocks": 0, // The amount of bonus blocks the town can claim
       "numResidents": 7, // The current number of residents in the town
       "numTrusted": 5, // The total number of trusted residents in the town
       "numOutlaws": 3, // The total number of players that are outlawed in the town
