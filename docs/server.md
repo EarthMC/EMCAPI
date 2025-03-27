@@ -4,7 +4,7 @@ Accessed at https://api.earthmc.net/v3/aurora/
 The following is an example of the response to a **GET** request to the above URL. 
 ```json5
 {
-  "version": "1.19.4", // The server's current version as a string
+  "version": "1.21.4", // The server's current version as a string
   "moonPhase": "LAST_QUARTER", // The moon's current phase (https://jd.papermc.io/paper/1.20/io/papermc/paper/world/MoonPhase.html)
   "timestamps": {
     "newDayTime": 43200, // Time the new day occurs at

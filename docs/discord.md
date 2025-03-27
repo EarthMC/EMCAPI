@@ -1,5 +1,5 @@
 # Discord Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/discord?query=
+Accessed at https://api.earthmc.net/v3/aurora/discord
 
 Determine a player's Discord ID from their Minecraft UUID and vice versa using DiscordSRV's link feature.
 The player needs to have linked their account beforehand (`/discord link` in game).

@@ -43,12 +43,12 @@ Example **POST** response for a nearby query with `search_type` set to `TOWN` (t
 [
   [
     {
-      "name":"Jyväskylä",
-      "uuid":"0b69c00d-c112-4ca0-a16c-ce551120e464"
+      "name": "Jyväskylä",
+      "uuid": "0b69c00d-c112-4ca0-a16c-ce551120e464"
     },
     {
-      "name":"Watson",
-      "uuid":"5851f859-0c4e-49bb-9e5c-5a2f9121585c"
+      "name": "Watson",
+      "uuid": "5851f859-0c4e-49bb-9e5c-5a2f9121585c"
     }
   ]
 ]
