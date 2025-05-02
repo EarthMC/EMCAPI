@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>net.earthmc</groupId>
+  <groupId>net.earthmc.emcapi</groupId>
   <artifactId>EMCAPI</artifactId>
   <version>3.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
@@ -135,6 +135,12 @@
           <groupId>net.earthmc.superbvote</groupId>
           <artifactId>SuperbVote</artifactId>
           <version>0.6.0</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>net.earthmc.mysterymaster</groupId>
+          <artifactId>mysterymaster-api</artifactId>
+          <version>1.0.0</version>
           <scope>provided</scope>
       </dependency>
   </dependencies>
