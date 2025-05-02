@@ -14,12 +14,14 @@ import java.util.List;
 
 public class MysteryMasterEndpoint extends GetEndpoint {
 
-    private final MysteryMasterAPI api = MysteryMasterProvider.api();
+    private MysteryMasterAPI api = null;
     private final ServiceUnavailableResponse UNAVAILABLE = new ServiceUnavailableResponse("Mystery Master details are not available currently");
 
-    public MysteryMasterEndpoint() {
-        if (api == null) {
-            EMCAPI.instance.getLogger().warning("Not loading mystery master endpoint due to the plugin not being present");
+    public MysteryMasterEndpoint(final EMCAPI plugin) {
+        try {
+            api = MysteryMasterProvider.api();
+        } catch (NoClassDefFoundError e) {
+            plugin.getLogger().warning("Not loading mystery master endpoint due to the plugin not being present");
         }
     }
 

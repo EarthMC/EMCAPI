@@ -48,7 +48,7 @@ public class EndpointManager {
 
         // The endpoint class won't load without the plugin present
         if (plugin.getServer().getPluginManager().getPlugin("MysteryMaster") != null) {
-            MysteryMasterEndpoint mysteryMasterEndpoint = new MysteryMasterEndpoint();
+            MysteryMasterEndpoint mysteryMasterEndpoint = new MysteryMasterEndpoint(plugin);
             javalin.get(v3URLPath + "/mm", ctx -> ctx.json(mysteryMasterEndpoint.lookup()));
         }
 
