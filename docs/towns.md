@@ -225,55 +225,28 @@ Example **POST** response
         "uuid": "8391474f-4b57-412a-a835-96bd2c253219"
       }
     ],
-    "quarters": [ // The UUID of every quarter in this town, can be looked up in the quarter's endpoint, empty if none are present
-      "8a7c56d1-d45a-4f5f-ac42-751c2e8c1b3d",
-      "aeac5e83-62e5-421d-9737-9f33825479ec",
-      "49a4da60-4589-45ff-a0ba-0fd54c45ba9f",
-      "54177617-694d-43b1-b2d9-2bb553fd8775",
-      "fc8a7c21-2992-4584-970c-e0b98c2233cd",
-      "47cf0463-dd50-4b2b-b533-5b57b3a51c09",
-      "853908a4-2d76-4055-b83a-cee9cda714ce",
-      "95d00017-845f-4ccd-883a-9104aabc1391",
-      "473c2da9-e0b1-467a-87c8-98a59b62e386",
-      "7645cc85-0d54-4ce0-800e-d358ae647aac",
-      "0253c695-15aa-48a6-9592-d558224dcff7",
-      "66ec664a-7eb9-47a6-aa53-1b692ef37e5e",
-      "3c130442-4521-47f2-9eb9-2f61db1c3b58",
-      "7fc3351c-42b0-4d55-b309-5ea7325519d4",
-      "0624ab20-19c8-4277-a900-5f336417ad67",
-      "93bd12da-9854-41eb-ad35-fb7789e47811",
-      "c5190a18-2001-475a-a9cc-b584998e6d91",
-      "9d966cc2-61c4-45e6-a792-45cd6a5affb6",
-      "fed851f7-09f7-49c4-9a12-51b22834145f",
-      "e8e594bd-2651-4559-a717-dbd75c125de6",
-      "439b01d5-a2b7-4a3c-8cb5-3e8389e1215e",
-      "f244d142-a0e0-4bf5-bb28-d497024203a1",
-      "d9fbef25-ce0e-4675-91ea-4b1e969a80c2",
-      "12303d82-e59d-4f5e-bdfe-20e8c5f8b758",
-      "738ed341-b3c8-4f60-b1dc-daee44adcb96",
-      "283feb0d-9db9-404e-bb4e-139377502d25",
-      "93a839ea-0f69-4e36-adcc-869439b22070",
-      "7f139395-5117-4937-80b2-3e3ab6c8aa11",
-      "bf765fbc-c41c-4dd5-b796-51dd1ebd0d6b",
-      "a112b649-e104-4aab-930b-5ef186eeed18",
-      "8ab5df2e-0201-47de-b342-c013cc14b0d2",
-      "0ef3bab8-e78f-4527-a0b6-2a1fa192a7d8",
-      "1717528c-4b1e-4e9e-8775-47def673a192",
-      "12de6b21-7376-4d5b-9fa3-1c95a693ccbc",
-      "41372449-d667-4567-97a3-7fe769ddb82f",
-      "74b89914-f80e-41f5-918c-8961767caff4",
-      "c50e1d12-a125-46a2-b6bb-a88972a017b7",
-      "0ba51d36-57d7-4a6a-b3fb-a3127c2fb3da",
-      "609fc31e-2e54-480e-aa7f-313c8eee351b",
-      "f0248886-ebad-4dcc-bc22-53e3b3ef6a92",
-      "e54aa634-0939-43b7-b0ec-9486d5d2c12d",
-      "da15b4bd-1182-41a0-8ff1-c6ca3c04508f",
-      "998dc903-8605-4be0-bc75-46cc4438b1f2",
-      "32157422-7b06-4299-9e04-0668c2b18b7b",
-      "f29944ef-4b60-4145-a848-27d7fb879e1c",
-      "02cad4e4-00fc-4f8e-a3fb-9d9981f25ae1",
-      "ff737a85-24c6-4abf-a656-c2c01a4ebe70"
-    ],
+  "quarters": [ // The Name & UUID of every quarter in this town, can be looked up in the quarter's endpoint, empty if none are present
+    {
+      "name": "Quarter",
+      "uuid": "b201dac7-4b7b-414a-84c6-9dd14ae69975"
+    },
+    {
+      "name": "Quarter",
+      "uuid": "2fed290a-64cc-48e1-b06d-b8bfccce0437"
+    },
+    {
+      "name": "Inviting Suite",
+      "uuid": "85335da5-fc23-41a5-b7a5-e921da99dc09"
+    },
+    {
+      "name": "Quarter",
+      "uuid": "1db79f17-9688-429c-a5a8-1d2b03ceb947"
+    },
+    {
+      "name": "Dull Tenement",
+      "uuid": "9e734449-9692-4502-96a1-51895f3a32b6"
+    }
+  ],
     "ranks": {
       "Councillor": [
         {
