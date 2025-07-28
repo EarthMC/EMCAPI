@@ -44,9 +44,9 @@ public class PlayerStatsEndpoint {
     }
 
     public void startGatherStatisticsTask() {
-        this.task = Bukkit.getServer().getAsyncScheduler().runAtFixedRate(plugin, task -> {
+        /*this.task = Bukkit.getServer().getAsyncScheduler().runAtFixedRate(plugin, task -> {
             gatherStatistics();
-        }, 15L, 30L, TimeUnit.MINUTES);
+        }, 15L, 30L, TimeUnit.MINUTES);*/
     }
 
     private void gatherStatistics() {
