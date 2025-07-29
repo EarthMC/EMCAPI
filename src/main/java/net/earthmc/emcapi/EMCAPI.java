@@ -5,8 +5,6 @@ import io.javalin.util.JavalinLogger;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.earthmc.emcapi.manager.EndpointManager;
-import net.milkbowl.vault.economy.Economy;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -23,7 +21,6 @@ public final class EMCAPI extends JavaPlugin {
 
     public static EMCAPI instance;
     private Javalin javalin;
-    private Economy economy;
 
     @Override
     public void onLoad() {
@@ -36,7 +33,6 @@ public final class EMCAPI extends JavaPlugin {
         instance = this;
 
         loadConfig();
-        setupEconomy();
         initialiseJavalin();
 
         EndpointManager endpointManager = new EndpointManager(this);
@@ -71,15 +67,6 @@ public final class EMCAPI extends JavaPlugin {
     private void loadConfig() {
         saveDefaultConfig();
         reloadConfig();
-    }
-
-    private void setupEconomy() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) return;
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-
-        if (rsp == null) return;
-
-        economy = rsp.getProvider();
     }
 
     private void disableServerVersionHeader(final Server server) {

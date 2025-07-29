@@ -19,13 +19,11 @@ import net.earthmc.emcapi.endpoint.towny.list.PlayersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.QuartersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.TownsListEndpoint;
 import net.earthmc.emcapi.util.JSONUtil;
-import net.milkbowl.vault.economy.Economy;
 
 public class EndpointManager {
 
     private final EMCAPI plugin;
     private final Javalin javalin;
-    private final Economy economy;
     private final String v1URLPath;
     private final String v2URLPath;
     private final String v3URLPath;
@@ -33,7 +31,6 @@ public class EndpointManager {
     public EndpointManager(EMCAPI plugin) {
         this.plugin = plugin;
         this.javalin = plugin.getJavalin();
-        this.economy = plugin.getEconomy();
         this.v1URLPath = "v1/" + plugin.getConfig().getString("networking.url_path");
         this.v2URLPath = "v2/" + plugin.getConfig().getString("networking.url_path");
         this.v3URLPath = "v3/" + plugin.getConfig().getString("networking.url_path");

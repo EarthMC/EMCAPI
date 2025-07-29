@@ -4,24 +4,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.object.Resident;
 import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
-import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
 
 import java.util.List;
 import java.util.UUID;
 
 public class PlayersEndpoint extends PostEndpoint<Resident> {
-
-    private static Economy economy = null;
-
-    public PlayersEndpoint(Economy economy) {
-        PlayersEndpoint.economy = economy;
-    }
 
     @Override
     public Resident getObjectOrNull(JsonElement element) {
@@ -68,7 +61,7 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
         playerObject.add("status", statusObject);
 
         JsonObject statsObject = new JsonObject();
-        statsObject.addProperty("balance", resident.getPlayer() != null ? economy.getBalance(resident.getPlayer()) : economy.getBalance(Bukkit.getOfflinePlayer(resident.getUUID())));
+        statsObject.addProperty("balance", TownyEconomyHandler.isActive() ? (resident.isOnline() ? resident.getAccount().getHoldingBalance() : resident.getAccount().getCachedBalance()) : 0);
         statsObject.addProperty("numFriends", resident.getFriends().size());
         playerObject.add("stats", statsObject);
 

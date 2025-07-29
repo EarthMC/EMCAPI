@@ -2,7 +2,7 @@ name: EMCAPI
 version: "${project.version}"
 main: net.earthmc.emcapi.EMCAPI
 api-version: "1.20"
-depend: [Towny, Quarters, Vault, DiscordSRV, SuperbVote]
+depend: [Towny, Quarters, DiscordSRV, SuperbVote]
 softdepend: [MysteryMaster]
 authors: [Fruitloopins]
 contributors: [Warriorrr, Yoditi]
