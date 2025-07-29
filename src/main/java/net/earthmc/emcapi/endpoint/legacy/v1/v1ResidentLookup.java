@@ -51,7 +51,7 @@ public class v1ResidentLookup {
             json.add("status", statusObject);
 
             JsonObject statsObject = new JsonObject();
-            statsObject.addProperty("balance", TownyEconomyHandler.isActive() ? resident.getAccount().getHoldingBalance() : 0);
+            statsObject.addProperty("balance", TownyEconomyHandler.isActive() ? (resident.isOnline() ? resident.getAccount().getHoldingBalance() : resident.getAccount().getCachedBalance()) : 0);
             json.add("stats", statsObject);
 
             JsonObject permsObject = new JsonObject();

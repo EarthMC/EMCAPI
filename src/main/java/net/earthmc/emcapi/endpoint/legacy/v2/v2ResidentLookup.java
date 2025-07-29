@@ -50,7 +50,7 @@ public class v2ResidentLookup {
 
         JsonObject statsObject = new JsonObject();
         if (TownyEconomyHandler.isActive()) {
-            statsObject.addProperty("balance", useCache ? resident.getAccount().getCachedBalance() : resident.getAccount().getHoldingBalance());
+            statsObject.addProperty("balance", resident.isOnline() && !useCache ? resident.getAccount().getHoldingBalance() : resident.getAccount().getCachedBalance());
         } else {
             statsObject.addProperty("balance", 0);
         }
