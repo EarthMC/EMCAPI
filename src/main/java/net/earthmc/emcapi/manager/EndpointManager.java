@@ -82,7 +82,7 @@ public class EndpointManager {
         PlayersListEndpoint ple = new PlayersListEndpoint();
         javalin.get(v3URLPath + "/players", ctx -> ctx.json(ple.lookup()));
 
-        PlayersEndpoint playersEndpoint = new PlayersEndpoint(economy);
+        PlayersEndpoint playersEndpoint = new PlayersEndpoint();
         javalin.post(v3URLPath + "/players", ctx -> {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(playersEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
