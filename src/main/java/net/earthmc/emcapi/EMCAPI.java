@@ -13,7 +13,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -87,11 +86,6 @@ public final class EMCAPI extends JavaPlugin {
                     .append(String.valueOf(response.getStatus()))
                     .append("\"}");
         }
-    }
-
-    @Nullable
-    public Economy getEconomy() {
-        return economy;
     }
 
     @NotNull

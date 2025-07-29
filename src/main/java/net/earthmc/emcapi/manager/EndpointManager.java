@@ -40,7 +40,7 @@ public class EndpointManager {
         DocumentationEndpoint documentationEndpoint = new DocumentationEndpoint();
         javalin.get("/", ctx -> ctx.json(documentationEndpoint.lookup()));
 
-        ServerEndpoint serverEndpoint = new ServerEndpoint();
+        ServerEndpoint serverEndpoint = new ServerEndpoint(plugin);
         javalin.get(v3URLPath, ctx -> ctx.json(serverEndpoint.lookup()));
 
         MysteryMasterEndpoint mysteryMasterEndpoint = new MysteryMasterEndpoint(plugin);

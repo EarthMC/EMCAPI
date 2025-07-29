@@ -6,6 +6,7 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownySettings;
 import io.minimum.minecraft.superbvote.SuperbVote;
 import io.minimum.minecraft.superbvote.votes.VoteParty;
+import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import au.lupine.quarters.object.entity.Quarter;
@@ -14,8 +15,25 @@ import org.bukkit.World;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ServerEndpoint extends GetEndpoint {
+
+    private final EMCAPI plugin;
+
+    private int quartersCount;
+    private int cuboidsCount;
+
+    public ServerEndpoint(final EMCAPI plugin) {
+        this.plugin = plugin;
+
+        plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, task -> {
+            List<Quarter> quarters = QuarterManager.getInstance().getAllQuarters();
+
+            this.quartersCount = quarters.size();
+            this.cuboidsCount = quarters.stream().mapToInt(quarter -> quarter.getCuboids().size()).sum();
+        }, 0L, 1L, TimeUnit.HOURS);
+    }
 
     @Override
     public String lookup() {
@@ -27,10 +45,9 @@ public class ServerEndpoint extends GetEndpoint {
         JsonObject serverObject = new JsonObject();
 
         TownyAPI townyAPI = TownyAPI.getInstance();
-        QuarterManager quarterManager = QuarterManager.getInstance();
-        World overworld = Bukkit.getWorlds().get(0);
+        World overworld = plugin.getServer().getWorlds().getFirst();
 
-        serverObject.addProperty("version", Bukkit.getMinecraftVersion());
+        serverObject.addProperty("version", plugin.getServer().getMinecraftVersion());
         serverObject.addProperty("moonPhase", overworld.getMoonPhase().toString());
 
         JsonObject timestampsObject = new JsonObject();
@@ -55,9 +72,8 @@ public class ServerEndpoint extends GetEndpoint {
         statsObject.addProperty("numTownBlocks", townyAPI.getTownBlocks().size());
         statsObject.addProperty("numNations", townyAPI.getNations().size());
 
-        List<Quarter> quarters = quarterManager.getAllQuarters();
-        statsObject.addProperty("numQuarters", quarters.size());
-        statsObject.addProperty("numCuboids", quarters.parallelStream().mapToInt(q -> q.getCuboids().size()).sum());
+        statsObject.addProperty("numQuarters", quartersCount);
+        statsObject.addProperty("numCuboids", cuboidsCount);
 
         serverObject.add("stats", statsObject);
 
