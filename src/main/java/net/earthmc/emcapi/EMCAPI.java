@@ -11,6 +11,7 @@ import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,6 +58,9 @@ public final class EMCAPI extends JavaPlugin {
                 context.setWar(EMCAPI.class.getProtectionDomain().getCodeSource().getLocation().toExternalForm());
 
                 server.setHandler(context);
+
+                final Server jettyServer = new Server(new QueuedThreadPool(16));
+                server.setServer(jettyServer);
             });
         });
 
