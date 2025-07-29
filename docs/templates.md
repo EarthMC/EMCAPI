@@ -14,7 +14,7 @@ You do not have to specifically set the other fields to `false`, everything that
 
 Here is an example of a POST request to `/towns` with a template:
 
-````json
+```json5
 {
   "query": ["Mojo", "JavaScript"],
   "template": {
@@ -25,11 +25,11 @@ Here is an example of a POST request to `/towns` with a template:
     "jacko": true     // This key does not exist in the Town object, so despite being true, it will not be included
   }
 }
-````
+```
 
 And here is the response:
 
-````json
+```json5
 [
   {
     "name": "Mojo",
@@ -46,5 +46,4 @@ And here is the response:
     }
   }
 ]
-````
-
+```
