@@ -5,8 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.earthmc.emcapi.EMCAPI;
 
-import java.util.Map;
-
 public abstract class PostEndpoint<T> {
 
     public String lookup(JsonArray queryArray, JsonObject template) {
@@ -15,15 +13,11 @@ public abstract class PostEndpoint<T> {
         int numLoops = Math.min(EMCAPI.instance.getConfig().getInt("behaviour.max_lookup_size"), queryArray.size());
         for (int i = 0; i < numLoops; i++) {
             JsonElement element = queryArray.get(i);
+
             T object = getObjectOrNull(element);
-
-            JsonElement innerObject;
-            if (object == null) {
-                continue;
-            } else {
-                innerObject = getTemplateJsonElement(object, template);
-            }
-
+            if (object == null) continue;
+            
+            JsonElement innerObject = getTemplateJsonElement(object, template);
             jsonArray.add(innerObject);
         }
 
@@ -36,21 +30,25 @@ public abstract class PostEndpoint<T> {
 
     public JsonElement getTemplateJsonElement(T object, JsonObject template) {
         JsonElement fullJson = getJsonElement(object);
-
-        if (!(fullJson instanceof JsonObject) || template == null || template.entrySet().isEmpty()) {
-            return fullJson;
-        }
+        
+        // Just return the full, unaltered element in both cases.
+        if (!fullJson.isJsonObject()) return fullJson;
+        if (templateMissingOrEmpty(template)) return fullJson;
 
         JsonObject fullJsonObject = fullJson.getAsJsonObject();
         JsonObject filteredJson = new JsonObject();
-
-        for (Map.Entry<String, JsonElement> entry : template.entrySet()) {
-            String key = entry.getKey();
-            if (entry.getValue().getAsBoolean() && fullJsonObject.has(key)) {
-                filteredJson.add(key, fullJsonObject.get(key));
+        
+        template.asMap().forEach((key, value) -> {
+            JsonElement el = fullJsonObject.get(key);
+            if (value.getAsBoolean() && el != null) {
+                filteredJson.add(key, el);
             }
-        }
+        });
 
         return filteredJson;
+    }
+    
+    public final boolean templateMissingOrEmpty(JsonObject template) {
+        return template == null || template.asMap().isEmpty();
     }
 }
