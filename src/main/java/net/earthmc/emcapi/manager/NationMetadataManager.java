@@ -1,6 +1,5 @@
 package net.earthmc.emcapi.manager;
 
-import com.google.gson.JsonArray;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
