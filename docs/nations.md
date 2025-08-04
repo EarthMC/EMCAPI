@@ -70,6 +70,7 @@ Example **POST** response
       "numTownBlocks": 1764, // The total number of town blocks the nation has
       "numResidents": 50, // The current number of residents in the nation
       "numTowns": 20, // The current number of towns in the nation
+      "numOutlaws": 8, // The current number of outlaws the nation has
       "numAllies": 5, // The current number of allies the nation has
       "numEnemies": 2, // The current number of enemies the nation has
       "balance": 1790 // The nation's balance as seen on /n
@@ -126,6 +127,20 @@ Example **POST** response
       {
         "name": "Slushberg",
         "uuid": "3b58b9c4-3124-4f06-8a1f-439b122325f0"
+      }
+    ],
+    "outlaws": [ // A JSON array representing all the outlaws this nation has, abridged to reduce size
+      {
+        "name": "OblivionAbyss17",
+        "uuid": "574221d1-fb3e-4510-b619-516ffb778d5a"
+      },
+      {
+        "name": "BlueRedStone_",
+        "uuid": "54ee8d5e-2b13-41bf-8ec1-8c8f6a60d5d8"
+      },
+      {
+        "name": "MarkCarney",
+        "uuid": "989ccc74-7c84-4796-bcf1-7ec3d41eb592"
       }
     ],
     "allies": [ // A JSON array representing all the allies this nation has, empty if the nation has no allies
