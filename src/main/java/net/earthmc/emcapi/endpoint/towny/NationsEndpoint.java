@@ -67,8 +67,8 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
 
         nationObject.add("coordinates", EndpointUtils.getCoordinatesObject(nation.getSpawnOrNull()));
         nationObject.add("residents", EndpointUtils.getResidentArray(nation.getResidents()));
-        nationObject.add("outlaws", EndpointUtils.getResidentArray(NationMetadataManager.getNationOutlaws(nation)));
         nationObject.add("towns", EndpointUtils.getTownArray(nation.getTowns()));
+        nationObject.add("outlaws", EndpointUtils.getResidentArray(NationMetadataManager.getNationOutlaws(nation)));
         nationObject.add("allies", EndpointUtils.getNationArray(nation.getAllies()));
         nationObject.add("enemies", EndpointUtils.getNationArray(nation.getEnemies()));
         nationObject.add("sanctioned", EndpointUtils.getTownArray(nation.getSanctionedTowns()));
