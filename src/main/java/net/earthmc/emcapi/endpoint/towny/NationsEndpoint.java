@@ -59,6 +59,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
         statsObject.addProperty("numTownBlocks", nation.getNumTownblocks());
         statsObject.addProperty("numResidents", nation.getNumResidents());
         statsObject.addProperty("numTowns", nation.getNumTowns());
+        statsObject.addProperty("numOutlaws", NationMetadataManager.getNumOutlaws(nation));
         statsObject.addProperty("numAllies", nation.getAllies().size());
         statsObject.addProperty("numEnemies", nation.getEnemies().size());
         statsObject.addProperty("balance", TownyEconomyHandler.isActive() ? nation.getAccount().getHoldingBalance() : 0);
@@ -66,6 +67,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
 
         nationObject.add("coordinates", EndpointUtils.getCoordinatesObject(nation.getSpawnOrNull()));
         nationObject.add("residents", EndpointUtils.getResidentArray(nation.getResidents()));
+        nationObject.add("outlaws", EndpointUtils.getResidentArray(NationMetadataManager.getNationOutlaws(nation)));
         nationObject.add("towns", EndpointUtils.getTownArray(nation.getTowns()));
         nationObject.add("allies", EndpointUtils.getNationArray(nation.getAllies()));
         nationObject.add("enemies", EndpointUtils.getNationArray(nation.getEnemies()));

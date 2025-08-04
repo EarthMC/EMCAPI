@@ -1,7 +1,14 @@
 package net.earthmc.emcapi.manager;
 
+import com.google.gson.JsonArray;
+import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Nation;
+import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.metadata.StringDataField;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class NationMetadataManager {
 
@@ -27,5 +34,26 @@ public class NationMetadataManager {
             return null;
 
         return sdf.getValue();
+    }
+
+    public static int getNumOutlaws(Nation nation) {
+        List<Resident> outlaws = getNationOutlaws(nation);
+        return outlaws != null ? outlaws.size() : 0;
+    }
+
+    public static List<Resident> getNationOutlaws(Nation nation) {
+        if (nation == null) return null;
+
+        List<Resident> outlawedResidents = new ArrayList<>();
+        StringDataField sdf = (StringDataField) nation.getMetadata("townycommandaddons_nation_outlaws");
+        if (sdf == null || sdf.getValue() == null || sdf.getValue().isEmpty()) return null;
+
+        for (String string : sdf.getValue().split(",")) {
+            Resident resident = TownyAPI.getInstance().getResident(UUID.fromString(string));
+            if (resident == null) continue;
+
+            outlawedResidents.add(resident);
+        }
+        return outlawedResidents;
     }
 }
