@@ -39,7 +39,7 @@ public class QuartersEndpoint extends PostEndpoint<Quarter> {
         quarterObject.addProperty("name", quarter.getName());
         quarterObject.addProperty("uuid", quarter.getUUID().toString());
         quarterObject.addProperty("type", quarter.getType().toString());
-        quarterObject.addProperty("creator", quarter.getCreator().toString());
+        quarterObject.addProperty("creator", quarter.getCreator() != null ? quarter.getCreator().toString() : null);
 
         quarterObject.add("owner", EndpointUtils.getResidentJsonObject(quarter.getOwnerResident()));
         quarterObject.add("town", EndpointUtils.getTownJsonObject(quarter.getTown()));
