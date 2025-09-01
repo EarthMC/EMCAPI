@@ -47,8 +47,8 @@ Example **POST** response
     "name": "Yukon", // Nation's name
     "uuid": "3ce63924-44f9-404a-93e0-2fe87a22edd9", // Nation's UUID
     "board": "Larger than Life", // Nation's board as seen on /n, null if no board is set
-    "dynmapColour": "FFA500", // Nation's hex Dynmap colour
-    "dynmapOutline": "FFFF00", // Nation's hex Dynmap outline
+    "dynmapColour": "FFA500", // HEX string representing this nation's fill colour on the map.
+    "dynmapOutline": "FFFF00", // HEX string representing this nation's outline colour on the map.
     "wiki": null, // The nation's wiki URL as a string if set, returns null if not
     "king": {
       "name": "tuzzzie",
