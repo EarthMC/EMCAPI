@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.object.Nation;
+import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
 import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.manager.NationMetadataManager;
@@ -12,6 +13,7 @@ import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
 
+import java.util.List;
 import java.util.UUID;
 
 public class NationsEndpoint extends PostEndpoint<Nation> {
@@ -55,11 +57,12 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
         statusObject.addProperty("isNeutral", nation.isNeutral());
         nationObject.add("status", statusObject);
 
+        List<Resident> nationOutlawedResidents = NationMetadataManager.getNationOutlaws(nation);
         JsonObject statsObject = new JsonObject();
         statsObject.addProperty("numTownBlocks", nation.getNumTownblocks());
         statsObject.addProperty("numResidents", nation.getNumResidents());
         statsObject.addProperty("numTowns", nation.getNumTowns());
-        statsObject.addProperty("numOutlaws", NationMetadataManager.getNumOutlaws(nation));
+        statsObject.addProperty("numOutlaws", nationOutlawedResidents.size());
         statsObject.addProperty("numAllies", nation.getAllies().size());
         statsObject.addProperty("numEnemies", nation.getEnemies().size());
         statsObject.addProperty("balance", TownyEconomyHandler.isActive() ? nation.getAccount().getHoldingBalance() : 0);
@@ -68,7 +71,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
         nationObject.add("coordinates", EndpointUtils.getCoordinatesObject(nation.getSpawnOrNull()));
         nationObject.add("residents", EndpointUtils.getResidentArray(nation.getResidents()));
         nationObject.add("towns", EndpointUtils.getTownArray(nation.getTowns()));
-        nationObject.add("outlaws", EndpointUtils.getResidentArray(NationMetadataManager.getNationOutlaws(nation)));
+        nationObject.add("outlaws", EndpointUtils.getResidentArray(nationOutlawedResidents));
         nationObject.add("allies", EndpointUtils.getNationArray(nation.getAllies()));
         nationObject.add("enemies", EndpointUtils.getNationArray(nation.getEnemies()));
         nationObject.add("sanctioned", EndpointUtils.getTownArray(nation.getSanctionedTowns()));

@@ -35,17 +35,12 @@ public class NationMetadataManager {
         return sdf.getValue();
     }
 
-    public static int getNumOutlaws(Nation nation) {
-        List<Resident> outlaws = getNationOutlaws(nation);
-        return outlaws != null ? outlaws.size() : 0;
-    }
-
     public static List<Resident> getNationOutlaws(Nation nation) {
-        if (nation == null) return null;
+        if (nation == null) return List.of();
 
         List<Resident> outlawedResidents = new ArrayList<>();
         StringDataField sdf = (StringDataField) nation.getMetadata("townycommandaddons_nation_outlaws");
-        if (sdf == null || sdf.getValue() == null || sdf.getValue().isEmpty()) return null;
+        if (sdf == null || sdf.getValue() == null || sdf.getValue().isEmpty()) return List.of();
 
         for (String string : sdf.getValue().split(",")) {
             Resident resident = TownyAPI.getInstance().getResident(UUID.fromString(string));
