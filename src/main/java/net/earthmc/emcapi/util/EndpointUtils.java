@@ -11,6 +11,7 @@ import com.palmergames.bukkit.towny.object.TownyPermission;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -111,17 +112,21 @@ public class EndpointUtils {
         JsonArray jsonArray = new JsonArray();
 
         for (Town town : towns) {
+            if (town == null) {
+                continue;
+            }
+
             jsonArray.add(getTownJsonObject(town));
         }
 
         return jsonArray;
     }
 
-    public static JsonObject getTownJsonObject(Town town) {
+    public static JsonObject getTownJsonObject(@NotNull Town town) {
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("name", town == null ? null : town.getName());
-        jsonObject.addProperty("uuid", town == null ? null : town.getUUID().toString());
+        jsonObject.addProperty("name", town.getName() == null ? null : town.getName());
+        jsonObject.addProperty("uuid", town.getUUID() == null ? null : town.getUUID().toString());
 
         return jsonObject;
     }
@@ -130,17 +135,21 @@ public class EndpointUtils {
         JsonArray jsonArray = new JsonArray();
 
         for (Nation nation : nations) {
+            if (nation == null) {
+                continue;
+            }
+
             jsonArray.add(getNationJsonObject(nation));
         }
 
         return jsonArray;
     }
 
-    public static JsonObject getNationJsonObject(Nation nation) {
+    public static JsonObject getNationJsonObject(@NotNull Nation nation) {
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("name", nation == null ? null : nation.getName());
-        jsonObject.addProperty("uuid", nation == null ? null : nation.getUUID().toString());
+        jsonObject.addProperty("name", nation.getName() == null ? null : nation.getName());
+        jsonObject.addProperty("uuid", nation.getUUID() == null ? null : nation.getUUID().toString());
 
         return jsonObject;
     }
