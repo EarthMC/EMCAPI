@@ -122,11 +122,11 @@ public class EndpointUtils {
         return jsonArray;
     }
 
-    public static JsonObject getTownJsonObject(@NotNull Town town) {
+    public static JsonObject getTownJsonObject(@Nullable Town town) {
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("name", town.getName() == null ? null : town.getName());
-        jsonObject.addProperty("uuid", town.getUUID() == null ? null : town.getUUID().toString());
+        jsonObject.addProperty("name", town == null || town.getName() == null ? null : town.getName());
+        jsonObject.addProperty("uuid", town == null || town.getUUID() == null ? null : town.getUUID().toString());
 
         return jsonObject;
     }
@@ -145,11 +145,11 @@ public class EndpointUtils {
         return jsonArray;
     }
 
-    public static JsonObject getNationJsonObject(@NotNull Nation nation) {
+    public static JsonObject getNationJsonObject(@Nullable Nation nation) {
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("name", nation.getName() == null ? null : nation.getName());
-        jsonObject.addProperty("uuid", nation.getUUID() == null ? null : nation.getUUID().toString());
+        jsonObject.addProperty("name", nation == null || nation.getName() == null ? null : nation.getName());
+        jsonObject.addProperty("uuid", nation == null || nation.getUUID() == null ? null : nation.getUUID().toString());
 
         return jsonObject;
     }
