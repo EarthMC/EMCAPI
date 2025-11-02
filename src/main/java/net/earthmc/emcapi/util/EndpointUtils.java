@@ -8,6 +8,8 @@ import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyPermission;
+import com.palmergames.bukkit.towny.object.metadata.BooleanDataField;
+import com.palmergames.bukkit.towny.object.metadata.CustomDataField;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -17,6 +19,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class EndpointUtils {
 
@@ -171,5 +174,36 @@ public class EndpointUtils {
         jsonObject.addProperty("uuid", quarter.getUUID().toString());
 
         return jsonObject;
+    }
+
+    public static JsonArray getOnlinePlayerArray(List<Player> players) {
+        JsonArray jsonArray = new JsonArray();
+
+        for (Player player : players) {
+            if (playerOptedOut(player.getUniqueId())) continue;
+            jsonArray.add(getOnlinePlayerObject(player));
+        }
+
+        return jsonArray;
+    }
+
+    public static JsonObject getOnlinePlayerObject(Player player) {
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("name", player.getName());
+        jsonObject.addProperty("uuid", player.getUniqueId().toString());
+
+        return jsonObject;
+    }
+
+    public static boolean playerOptedOut(UUID uuid) {
+        Resident res = TownyAPI.getInstance().getResident(uuid);
+        return res != null && playerOptedOut(res);
+    }
+
+    public static boolean playerOptedOut(Resident resident) {
+        CustomDataField<?> cdf = resident.getMetadata("api_opt_out");
+        if (!(cdf instanceof BooleanDataField bdf)) return false;
+        return bdf.getValue();
     }
 }

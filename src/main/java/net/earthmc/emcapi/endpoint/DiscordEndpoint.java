@@ -8,6 +8,7 @@ import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.object.nearby.DiscordContext;
 import net.earthmc.emcapi.object.nearby.DiscordType;
+import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
 
 import java.util.UUID;
@@ -30,6 +31,17 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
         String typeString = JSONUtil.getJsonElementAsStringOrNull(typeElement);
         String target = JSONUtil.getJsonElementAsStringOrNull(targetElement);
         if (typeString == null || target == null) throw new BadRequestResponse("Your JSON query has an invalid type or target");
+        UUID uuid = null;
+        try {
+            uuid = getUUIDFromStr(target);
+        } catch (BadRequestResponse ignored) {
+            try {
+                uuid = getUUIDFromDiscordId(target);
+            } catch (BadRequestResponse ignored1) {}
+        }
+        if (uuid != null && EndpointUtils.playerOptedOut(uuid)) {
+            return null;
+        }
 
         try {
             DiscordType type = DiscordType.valueOf(typeString.toUpperCase());
@@ -46,26 +58,35 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
 
         JsonObject discordObject = new JsonObject();
         if (type == DiscordType.DISCORD) {
-            Pattern pattern = Pattern.compile("^\\d{17,19}$");
-            Matcher matcher = pattern.matcher(target);
-
-            if (!matcher.find()) throw new BadRequestResponse(target + " is not a valid Discord ID");
-
-            UUID uuid = alm.getUuid(target);
+            UUID uuid = getUUIDFromDiscordId(target);
             discordObject.addProperty("id", target);
             discordObject.addProperty("uuid", uuid == null ? null : uuid.toString());
         } else if (type == DiscordType.MINECRAFT) {
-            UUID uuid;
-            try {
-                uuid = UUID.fromString(target);
-            } catch (IllegalArgumentException e) {
-                throw new BadRequestResponse(target + " is not a valid Minecraft UUID");
-            }
+            UUID uuid = getUUIDFromStr(target);
 
             discordObject.addProperty("id", alm.getDiscordId(uuid));
             discordObject.addProperty("uuid", uuid.toString());
         }
 
         return discordObject;
+    }
+
+    private UUID getUUIDFromStr(String uuidStr) throws BadRequestResponse {
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(uuidStr);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestResponse(uuidStr + " is not a valid Minecraft UUID");
+        }
+        return uuid;
+    }
+
+    private UUID getUUIDFromDiscordId(String discordId) throws BadRequestResponse {
+        Pattern pattern = Pattern.compile("^\\d{17,19}$");
+        Matcher matcher = pattern.matcher(discordId);
+
+        if (!matcher.find()) throw new BadRequestResponse(discordId + " is not a valid Discord ID");
+
+        return alm.getUuid(discordId);
     }
 }
