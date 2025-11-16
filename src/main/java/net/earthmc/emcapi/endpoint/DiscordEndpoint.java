@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
-
+    private static final Pattern pattern = Pattern.compile("^\\d{17,19}$");
     private final AccountLinkManager alm = DiscordSRV.getPlugin().getAccountLinkManager();
 
     @Override
@@ -63,7 +63,7 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
             discordObject.addProperty("uuid", uuid == null ? null : uuid.toString());
         } else if (type == DiscordType.MINECRAFT) {
             UUID uuid = getUUIDFromStr(target);
-
+            if (uuid == null) throw new BadRequestResponse(target + " is not a valid Minecraft UUID");
             discordObject.addProperty("id", alm.getDiscordId(uuid));
             discordObject.addProperty("uuid", uuid.toString());
         }
@@ -71,21 +71,20 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
         return discordObject;
     }
 
-    private UUID getUUIDFromStr(String uuidStr) throws BadRequestResponse {
+    private UUID getUUIDFromStr(String uuidStr) {
         UUID uuid;
         try {
             uuid = UUID.fromString(uuidStr);
         } catch (IllegalArgumentException e) {
-            throw new BadRequestResponse(uuidStr + " is not a valid Minecraft UUID");
+            return null;
         }
         return uuid;
     }
 
-    private UUID getUUIDFromDiscordId(String discordId) throws BadRequestResponse {
-        Pattern pattern = Pattern.compile("^\\d{17,19}$");
+    private UUID getUUIDFromDiscordId(String discordId) {
         Matcher matcher = pattern.matcher(discordId);
 
-        if (!matcher.find()) throw new BadRequestResponse(discordId + " is not a valid Discord ID");
+        if (!matcher.find()) return null;
 
         return alm.getUuid(discordId);
     }

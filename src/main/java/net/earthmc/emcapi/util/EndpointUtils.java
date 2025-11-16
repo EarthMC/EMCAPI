@@ -8,20 +8,25 @@ import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyPermission;
-import com.palmergames.bukkit.towny.object.metadata.BooleanDataField;
-import com.palmergames.bukkit.towny.object.metadata.CustomDataField;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 public class EndpointUtils {
+    private static final Set<UUID> optedOut = new HashSet<>();
+    private static final String optOutFile = "opt-out.txt";
 
     public static int getNumOnlineNomads() {
         int numOnlineNomads = 0;
@@ -176,15 +181,18 @@ public class EndpointUtils {
         return jsonObject;
     }
 
-    public static JsonArray getOnlinePlayerArray(List<Player> players) {
+    public static JsonObject getOnlinePlayerArray(List<Player> players) {
+        JsonObject jsonObject = new JsonObject();
         JsonArray jsonArray = new JsonArray();
 
         for (Player player : players) {
             if (playerOptedOut(player.getUniqueId())) continue;
             jsonArray.add(getOnlinePlayerObject(player));
         }
+        jsonObject.addProperty("count", players.size());
+        jsonObject.add("players", jsonArray);
 
-        return jsonArray;
+        return jsonObject;
     }
 
     public static JsonObject getOnlinePlayerObject(Player player) {
@@ -197,13 +205,34 @@ public class EndpointUtils {
     }
 
     public static boolean playerOptedOut(UUID uuid) {
-        Resident res = TownyAPI.getInstance().getResident(uuid);
-        return res != null && playerOptedOut(res);
+        return optedOut.contains(uuid);
     }
 
-    public static boolean playerOptedOut(Resident resident) {
-        CustomDataField<?> cdf = resident.getMetadata("api_opt_out");
-        if (!(cdf instanceof BooleanDataField bdf)) return false;
-        return bdf.getValue();
+    public static void loadOptOut(Path path) throws IOException {
+        Files.readAllLines(path.resolve(optOutFile)).forEach(playerStr -> {
+            UUID uuid = getUUID(playerStr);
+            if (uuid != null) optedOut.add(uuid);
+        });
+    }
+
+    public static void saveOptOut(Path path) throws IOException {
+        Files.deleteIfExists(path.resolve(optOutFile));
+        Files.write(path.resolve(optOutFile), getStrings(), StandardOpenOption.CREATE);
+    }
+
+    private static UUID getUUID(String id) {
+        try {
+            return UUID.fromString(id);
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+
+    private static List<String> getStrings() {
+        List<String> strings = new ArrayList<>();
+        for (UUID uuid : optedOut) {
+            strings.add(uuid.toString());
+        }
+        return strings;
     }
 }

@@ -5,6 +5,7 @@ import io.javalin.util.JavalinLogger;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.earthmc.emcapi.manager.EndpointManager;
+import net.earthmc.emcapi.util.EndpointUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -37,6 +38,12 @@ public final class EMCAPI extends JavaPlugin {
         EndpointManager endpointManager = new EndpointManager(this);
         endpointManager.loadEndpoints();
 
+        try {
+            EndpointUtils.loadOptOut(getDataFolder().toPath());
+        } catch (IOException e) {
+            getLogger().warning("IOException while loading opted-out players: " + e);
+        }
+
         if (getConfig().getBoolean("behaviour.enable_legacy_endpoints"))
             endpointManager.loadLegacyEndpoints();
     }
@@ -44,6 +51,11 @@ public final class EMCAPI extends JavaPlugin {
     @Override
     public void onDisable() {
         javalin.stop();
+        try {
+            EndpointUtils.saveOptOut(getDataFolder().toPath());
+        } catch (IOException e) {
+            getLogger().warning("IOException while saving opted-out players: " + e);
+        }
     }
     
     private void initialiseJavalin() {
