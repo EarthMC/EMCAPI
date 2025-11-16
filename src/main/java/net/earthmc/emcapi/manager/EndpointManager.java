@@ -60,6 +60,7 @@ public class EndpointManager {
         loadNearbyEndpoint();
         loadDiscordEndpoint();
         loadPlayerStatsEndpoint();
+        loadOnlinePlayersEndpoint();
     }
 
     private Pair<JsonArray, JsonObject> parseBody(String body) {
@@ -151,6 +152,13 @@ public class EndpointManager {
         playerStatsEndpoint.initialize();
         javalin.get(v3URLPath + "/player-stats", ctx -> {
             ctx.json(playerStatsEndpoint.latestCachedStatistics());
+        });
+    }
+
+    private void loadOnlinePlayersEndpoint() {
+        OnlineEndpoint onlineEndpoint = new OnlineEndpoint();
+        javalin.get(v3URLPath + "/online", ctx -> {
+           ctx.json(onlineEndpoint.lookup());
         });
     }
 

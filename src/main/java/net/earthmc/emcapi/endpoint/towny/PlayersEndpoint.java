@@ -28,6 +28,10 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
             resident = TownyAPI.getInstance().getResident(string);
         }
 
+        if (resident != null && EndpointUtils.playerOptedOut(resident.getUUID())) {
+            return null;
+        }
+
         return resident;
     }
 

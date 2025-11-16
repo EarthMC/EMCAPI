@@ -9,3 +9,6 @@ contributors: [Warriorrr, Yoditi]
 description: API for EarthMC using Javalin
 website: https://earthmc.net
 folia-supported: true
+commands:
+  api:
+    description: Allow players to opt out
