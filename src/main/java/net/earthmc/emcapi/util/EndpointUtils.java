@@ -208,6 +208,14 @@ public class EndpointUtils {
         return optedOut.contains(uuid);
     }
 
+    public static void setOptedOut(UUID uuid, boolean status) {
+        if (status) {
+            optedOut.add(uuid);
+        } else {
+            optedOut.remove(uuid);
+        }
+    }
+
     public static void loadOptOut(Path path) throws IOException {
         Files.readAllLines(path.resolve(optOutFile)).forEach(playerStr -> {
             UUID uuid = getUUID(playerStr);
