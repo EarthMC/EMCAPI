@@ -1,5 +1,6 @@
-package net.earthmc.emcapi.util;
+package net.earthmc.emcapi.command;
 
+import net.earthmc.emcapi.util.EndpointUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;

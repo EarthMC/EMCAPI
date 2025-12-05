@@ -217,30 +217,21 @@ public class EndpointUtils {
     }
 
     public static void loadOptOut(Path path) throws IOException {
-        Files.readAllLines(path.resolve(optOutFile)).forEach(playerStr -> {
-            UUID uuid = getUUID(playerStr);
-            if (uuid != null) optedOut.add(uuid);
+        final Path file = path.resolve(optOutFile);
+        if (!Files.exists(file)) {
+            return;
+        }
+
+        Files.readAllLines(file).forEach(playerStr -> {
+            try {
+                optedOut.add(UUID.fromString(playerStr));
+            } catch (IllegalArgumentException ignored) {}
         });
     }
 
     public static void saveOptOut(Path path) throws IOException {
-        Files.deleteIfExists(path.resolve(optOutFile));
-        Files.write(path.resolve(optOutFile), getStrings(), StandardOpenOption.CREATE);
-    }
+        final List<String> lines = optedOut.stream().map(UUID::toString).toList();
 
-    private static UUID getUUID(String id) {
-        try {
-            return UUID.fromString(id);
-        } catch (IllegalArgumentException ignored) {
-            return null;
-        }
-    }
-
-    private static List<String> getStrings() {
-        List<String> strings = new ArrayList<>();
-        for (UUID uuid : optedOut) {
-            strings.add(uuid.toString());
-        }
-        return strings;
+        Files.write(path.resolve(optOutFile), lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }

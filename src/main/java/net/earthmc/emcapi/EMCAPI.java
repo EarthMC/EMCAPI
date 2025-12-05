@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.earthmc.emcapi.manager.EndpointManager;
 import net.earthmc.emcapi.util.EndpointUtils;
-import net.earthmc.emcapi.util.OptOutCommand;
+import net.earthmc.emcapi.command.OptOutCommand;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Connector;
