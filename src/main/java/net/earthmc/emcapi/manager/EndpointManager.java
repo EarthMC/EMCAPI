@@ -24,15 +24,11 @@ public class EndpointManager {
 
     private final EMCAPI plugin;
     private final Javalin javalin;
-    private final String v1URLPath;
-    private final String v2URLPath;
     private final String v3URLPath;
 
     public EndpointManager(EMCAPI plugin) {
         this.plugin = plugin;
         this.javalin = plugin.getJavalin();
-        this.v1URLPath = "v1/" + plugin.getConfig().getString("networking.url_path");
-        this.v2URLPath = "v2/" + plugin.getConfig().getString("networking.url_path");
         this.v3URLPath = "v3/" + plugin.getConfig().getString("networking.url_path");
     }
 
@@ -160,28 +156,5 @@ public class EndpointManager {
         javalin.get(v3URLPath + "/online", ctx -> {
            ctx.json(onlineEndpoint.lookup());
         });
-    }
-
-    public void loadLegacyEndpoints() {
-        // v1
-        javalin.get(v1URLPath, ctx -> ctx.json(v1ServerLookup.serverLookup()));
-        javalin.get(v1URLPath + "/residents", ctx -> ctx.json(v1AllLists.allResidents()));
-        javalin.get(v1URLPath + "/towns", ctx -> ctx.json(v1AllLists.allTowns()));
-        javalin.get(v1URLPath + "/nations", ctx -> ctx.json(v1AllLists.allNations()));
-        javalin.get(v1URLPath + "/residents/{name}", ctx -> ctx.json(v1ResidentLookup.residentLookup(ctx.pathParam("name"))));
-        javalin.get(v1URLPath + "/towns/{name}", ctx -> ctx.json(v1TownLookup.townLookup(ctx.pathParam("name"))));
-        javalin.get(v1URLPath + "/nations/{name}", ctx -> ctx.json(v1NationLookup.nationLookup(ctx.pathParam("name"))));
-
-        // v2
-        javalin.get(v2URLPath, ctx -> ctx.json(v2ServerLookup.serverLookup()));
-        javalin.get(v2URLPath + "/residents", ctx -> ctx.json(v2ResidentLookup.allResidentsBulk()));
-        javalin.get(v2URLPath + "/towns", ctx -> ctx.json(v2TownLookup.allTownsBulk()));
-        javalin.get(v2URLPath + "/nations", ctx -> ctx.json(v2NationLookup.allNationsBulk()));
-        javalin.get(v2URLPath + "/residents/{name}", ctx -> ctx.json(v2ResidentLookup.residentLookup(ctx.pathParam("name"))));
-        javalin.get(v2URLPath + "/towns/{name}", ctx -> ctx.json(v2TownLookup.townLookup(ctx.pathParam("name"))));
-        javalin.get(v2URLPath + "/nations/{name}", ctx -> ctx.json(v2NationLookup.nationLookup(ctx.pathParam("name"))));
-        javalin.get(v2URLPath + "/lists/residents", ctx -> ctx.json(v2AllLists.allResidentsList()));
-        javalin.get(v2URLPath + "/lists/towns", ctx -> ctx.json(v2AllLists.allTownsList()));
-        javalin.get(v2URLPath + "/lists/nations", ctx -> ctx.json(v2AllLists.allNationsList()));
     }
 }

@@ -1,7 +1,6 @@
 # EMCAPI
 
 networking:
-
   # IP the API will listen on
   host: 127.0.0.1
 
@@ -12,12 +11,8 @@ networking:
   url_path: aurora
 
 behaviour:
-
   # The maximum entries a player can enter when looking up objects by name
   max_lookup_size: 100
 
   # Setting for testing reasons
   developer_mode: false
-
-  # Enable for v1 and v2 endpoints to be enabled
-  enable_legacy_endpoints: true
