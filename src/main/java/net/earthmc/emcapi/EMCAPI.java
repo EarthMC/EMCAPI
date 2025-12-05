@@ -53,9 +53,6 @@ public final class EMCAPI extends JavaPlugin {
         } catch (IOException e) {
             getLogger().warning("IOException while loading opted-out players: " + e);
         }
-
-        if (getConfig().getBoolean("behaviour.enable_legacy_endpoints"))
-            endpointManager.loadLegacyEndpoints();
     }
 
     @Override

@@ -8,8 +8,6 @@ import io.javalin.http.BadRequestResponse;
 import kotlin.Pair;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.endpoint.*;
-import net.earthmc.emcapi.endpoint.legacy.v1.*;
-import net.earthmc.emcapi.endpoint.legacy.v2.*;
 import net.earthmc.emcapi.endpoint.towny.NationsEndpoint;
 import net.earthmc.emcapi.endpoint.towny.PlayersEndpoint;
 import net.earthmc.emcapi.endpoint.towny.QuartersEndpoint;
