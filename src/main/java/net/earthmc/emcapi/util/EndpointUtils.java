@@ -11,14 +11,22 @@ import com.palmergames.bukkit.towny.object.TownyPermission;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 public class EndpointUtils {
+    private static final Set<UUID> optedOut = new HashSet<>();
+    private static final String optOutFile = "opt-out.txt";
 
     public static int getNumOnlineNomads() {
         int numOnlineNomads = 0;
@@ -171,5 +179,59 @@ public class EndpointUtils {
         jsonObject.addProperty("uuid", quarter.getUUID().toString());
 
         return jsonObject;
+    }
+
+    public static JsonObject getOnlinePlayerArray(List<Player> players) {
+        JsonObject jsonObject = new JsonObject();
+        JsonArray jsonArray = new JsonArray();
+
+        for (Player player : players) {
+            if (playerOptedOut(player.getUniqueId())) continue;
+            jsonArray.add(getOnlinePlayerObject(player));
+        }
+        jsonObject.addProperty("count", players.size());
+        jsonObject.add("players", jsonArray);
+
+        return jsonObject;
+    }
+
+    public static JsonObject getOnlinePlayerObject(Player player) {
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("name", player.getName());
+        jsonObject.addProperty("uuid", player.getUniqueId().toString());
+
+        return jsonObject;
+    }
+
+    public static boolean playerOptedOut(UUID uuid) {
+        return optedOut.contains(uuid);
+    }
+
+    public static void setOptedOut(UUID uuid, boolean status) {
+        if (status) {
+            optedOut.add(uuid);
+        } else {
+            optedOut.remove(uuid);
+        }
+    }
+
+    public static void loadOptOut(Path path) throws IOException {
+        final Path file = path.resolve(optOutFile);
+        if (!Files.exists(file)) {
+            return;
+        }
+
+        Files.readAllLines(file).forEach(playerStr -> {
+            try {
+                optedOut.add(UUID.fromString(playerStr));
+            } catch (IllegalArgumentException ignored) {}
+        });
+    }
+
+    public static void saveOptOut(Path path) throws IOException {
+        final List<String> lines = optedOut.stream().map(UUID::toString).toList();
+
+        Files.write(path.resolve(optOutFile), lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }
