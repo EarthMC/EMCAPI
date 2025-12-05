@@ -1,0 +1,21 @@
+[versions]
+paper = "1.21.8-R0.1-SNAPSHOT"
+javalin = "6.7.0"
+discordsrv = "1.27.0"
+quarters = "e9ed8a133a"
+towny = "0.102.0.0"
+mysterymaster-api = "1.0.0"
+superbvote = "0.6.0"
+conventions = "1.0.6"
+
+[libraries]
+discordsrv = { group = "com.discordsrv", name = "discordsrv", version.ref = "discordsrv" }
+quarters = { group = "com.github.jwkerr", name = "Quarters", version.ref = "quarters" }
+towny = { group = "com.palmergames.bukkit.towny", name = "towny", version.ref = "towny" }
+javalin = { group = "io.javalin", name = "javalin", version.ref = "javalin" }
+paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
+mysterymaster-api = { group = "net.earthmc.mysterymaster", name = "mysterymaster-api", version.ref = "mysterymaster-api" }
+superbvote = { group = "net.earthmc.superbvote", name = "SuperbVote", version.ref = "superbvote" }
+
+[plugins]
+conventions-java = { id = "net.earthmc.conventions.java", version.ref = "conventions" }
