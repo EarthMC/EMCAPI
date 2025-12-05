@@ -1,6 +1,9 @@
 # Player Statistics Endpoint
 Accessed at https://api.earthmc.net/v3/aurora/player-stats
 
+> [!WARNING]
+> As of July 28, 2025, the player statistics endpoint is no longer updated with new data and is considered deprecated. This was done because of the high cost of reading the statistics for all players.
+
 Returns a JSON object with the aggregated statistics for all players for [untyped statistics](https://minecraft.wiki/w/Statistics#List_of_custom_statistic_names).
 
 The following is an example of the response to a **GET** request to the above URL.
