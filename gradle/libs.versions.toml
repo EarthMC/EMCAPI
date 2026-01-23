@@ -6,7 +6,7 @@ quarters = "e9ed8a133a"
 towny = "0.102.0.0"
 mysterymaster-api = "1.0.0"
 superbvote = "0.6.0"
-conventions = "1.0.6"
+conventions = "1.0.8"
 
 [libraries]
 discordsrv = { group = "com.discordsrv", name = "discordsrv", version.ref = "discordsrv" }
