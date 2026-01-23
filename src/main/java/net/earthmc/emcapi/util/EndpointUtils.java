@@ -1,6 +1,5 @@
 package net.earthmc.emcapi.util;
 
-import au.lupine.quarters.object.entity.Quarter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
@@ -158,25 +157,6 @@ public class EndpointUtils {
 
         jsonObject.addProperty("name", nation == null || nation.getName() == null ? null : nation.getName());
         jsonObject.addProperty("uuid", nation == null || nation.getUUID() == null ? null : nation.getUUID().toString());
-
-        return jsonObject;
-    }
-
-    public static JsonArray getQuarterArray(List<Quarter> quarters) {
-        JsonArray jsonArray = new JsonArray();
-
-        for (Quarter quarter : quarters) {
-            jsonArray.add(getQuarterObject(quarter));
-        }
-
-        return jsonArray;
-    }
-
-    public static JsonObject getQuarterObject(Quarter quarter) {
-        JsonObject jsonObject = new JsonObject();
-
-        jsonObject.addProperty("name", quarter.getName());
-        jsonObject.addProperty("uuid", quarter.getUUID().toString());
 
         return jsonObject;
     }

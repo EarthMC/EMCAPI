@@ -4,6 +4,7 @@ import io.javalin.Javalin;
 import io.javalin.util.JavalinLogger;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.EndpointManager;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.command.OptOutCommand;
@@ -23,6 +24,7 @@ public final class EMCAPI extends JavaPlugin {
 
     public static EMCAPI instance;
     private Javalin javalin;
+    private Integrations pluginIntegrations;
 
     @Override
     public void onLoad() {
@@ -36,6 +38,9 @@ public final class EMCAPI extends JavaPlugin {
 
         loadConfig();
         initialiseJavalin();
+
+        this.pluginIntegrations = new Integrations(this);
+        getServer().getPluginManager().registerEvents(this.pluginIntegrations, this);
 
         EndpointManager endpointManager = new EndpointManager(this);
         endpointManager.loadEndpoints();
@@ -64,7 +69,7 @@ public final class EMCAPI extends JavaPlugin {
             getLogger().warning("IOException while saving opted-out players: " + e);
         }
     }
-    
+
     private void initialiseJavalin() {
         javalin = Javalin.create(config -> {
             config.jetty.modifyServer(server -> {
@@ -110,5 +115,9 @@ public final class EMCAPI extends JavaPlugin {
     @NotNull
     public Javalin getJavalin() {
         return javalin;
+    }
+
+    public Integrations integrations() {
+        return this.pluginIntegrations;
     }
 }

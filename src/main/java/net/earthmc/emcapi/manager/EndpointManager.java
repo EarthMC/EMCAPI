@@ -16,6 +16,8 @@ import net.earthmc.emcapi.endpoint.towny.list.NationsListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.PlayersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.QuartersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.TownsListEndpoint;
+import net.earthmc.emcapi.integration.DiscordIntegration;
+import net.earthmc.emcapi.integration.QuartersIntegration;
 import net.earthmc.emcapi.util.JSONUtil;
 
 public class EndpointManager {
@@ -38,7 +40,10 @@ public class EndpointManager {
         javalin.get(v3URLPath, ctx -> ctx.json(serverEndpoint.lookup()));
 
         MysteryMasterEndpoint mysteryMasterEndpoint = new MysteryMasterEndpoint(plugin);
-        javalin.get(v3URLPath + "/mm", ctx -> ctx.json(mysteryMasterEndpoint.lookup()));
+        javalin.get(v3URLPath + "/mm", ctx -> {
+            plugin.integrations().mysteryMasterIntegration().throwIfDisabled();
+            ctx.json(mysteryMasterEndpoint.lookup());
+        });
 
         MudkipEndpoint mudkipEndpoint = new MudkipEndpoint();
         javalin.get("/mudkip", ctx -> {
@@ -88,7 +93,7 @@ public class EndpointManager {
         TownsListEndpoint tle = new TownsListEndpoint();
         javalin.get(v3URLPath + "/towns", ctx -> ctx.json(tle.lookup()));
 
-        TownsEndpoint townsEndpoint = new TownsEndpoint();
+        TownsEndpoint townsEndpoint = new TownsEndpoint(plugin);
         javalin.post(v3URLPath + "/towns", ctx -> {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(townsEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
@@ -107,11 +112,17 @@ public class EndpointManager {
     }
 
     private void loadQuartersEndpoint() {
-        QuartersListEndpoint qle = new QuartersListEndpoint();
-        javalin.get(v3URLPath + "/quarters", ctx -> ctx.json(qle.lookup()));
+        QuartersIntegration quartersIntegration = plugin.integrations().quartersIntegration();
+        QuartersListEndpoint qle = new QuartersListEndpoint(quartersIntegration);
+
+        javalin.get(v3URLPath + "/quarters", ctx -> {
+            quartersIntegration.throwIfDisabled();
+            ctx.json(qle.lookup());
+        });
 
         QuartersEndpoint quartersEndpoint = new QuartersEndpoint();
         javalin.post(v3URLPath + "/quarters", ctx -> {
+            quartersIntegration.throwIfDisabled();
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(quartersEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
@@ -135,7 +146,11 @@ public class EndpointManager {
 
     private void loadDiscordEndpoint() {
         DiscordEndpoint discordEndpoint = new DiscordEndpoint();
+        final DiscordIntegration discordIntegration = plugin.integrations().discordIntegration();
+
         javalin.post(v3URLPath + "/discord", ctx -> {
+            discordIntegration.throwIfDisabled();
+
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(discordEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });

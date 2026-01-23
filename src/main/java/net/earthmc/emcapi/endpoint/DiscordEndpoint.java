@@ -3,12 +3,12 @@ package net.earthmc.emcapi.endpoint;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import github.scarsz.discordsrv.DiscordSRV;
-import github.scarsz.discordsrv.objects.managers.AccountLinkManager;
 import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.object.nearby.DiscordContext;
 import net.earthmc.emcapi.object.nearby.DiscordType;
 import net.earthmc.emcapi.util.EndpointUtils;
+import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
 
 import java.util.UUID;
@@ -16,21 +16,29 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
-    private static final Pattern pattern = Pattern.compile("^\\d{17,19}$");
-    private final AccountLinkManager alm = DiscordSRV.getPlugin().getAccountLinkManager();
+    private static final Pattern ID_PATTERN = Pattern.compile("^\\d{17,19}$");
+    private static final BadRequestResponse MISSING_TYPE_TARGET = new BadRequestResponse("Your JSON query is missing a type or target");
+    private static final BadRequestResponse INVALID_TYPE_TARGET = new BadRequestResponse("Your JSON query has an invalid type or target");
 
     @Override
     public DiscordContext getObjectOrNull(JsonElement element) {
         JsonObject jsonObject = JSONUtil.getJsonElementAsJsonObjectOrNull(element);
-        if (jsonObject == null) throw new BadRequestResponse("Your query contains a value that is not a JSON object");
+        if (jsonObject == null) {
+            throw HttpExceptions.NOT_A_JSON_OBJECT;
+        }
 
         JsonElement typeElement = jsonObject.get("type");
         JsonElement targetElement = jsonObject.get("target");
-        if (typeElement == null || targetElement == null) throw new BadRequestResponse("Your JSON query is missing a type or target");
+        if (typeElement == null || targetElement == null) {
+            throw MISSING_TYPE_TARGET;
+        }
 
         String typeString = JSONUtil.getJsonElementAsStringOrNull(typeElement);
         String target = JSONUtil.getJsonElementAsStringOrNull(targetElement);
-        if (typeString == null || target == null) throw new BadRequestResponse("Your JSON query has an invalid type or target");
+        if (typeString == null || target == null) {
+            throw INVALID_TYPE_TARGET;
+        }
+
         UUID uuid = null;
         try {
             uuid = getUUIDFromStr(target);
@@ -63,8 +71,11 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
             discordObject.addProperty("uuid", uuid == null ? null : uuid.toString());
         } else if (type == DiscordType.MINECRAFT) {
             UUID uuid = getUUIDFromStr(target);
-            if (uuid == null) throw new BadRequestResponse(target + " is not a valid Minecraft UUID");
-            discordObject.addProperty("id", alm.getDiscordId(uuid));
+            if (uuid == null) {
+                throw new BadRequestResponse(target + " is not a valid Minecraft UUID");
+            }
+
+            discordObject.addProperty("id", DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(uuid));
             discordObject.addProperty("uuid", uuid.toString());
         }
 
@@ -82,10 +93,10 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
     }
 
     private UUID getUUIDFromDiscordId(String discordId) {
-        Matcher matcher = pattern.matcher(discordId);
+        Matcher matcher = ID_PATTERN.matcher(discordId);
 
         if (!matcher.find()) return null;
 
-        return alm.getUuid(discordId);
+        return DiscordSRV.getPlugin().getAccountLinkManager().getUuid(discordId);
     }
 }

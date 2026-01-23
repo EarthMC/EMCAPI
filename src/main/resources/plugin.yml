@@ -2,16 +2,17 @@ name: EMCAPI
 version: "${version}"
 main: net.earthmc.emcapi.EMCAPI
 api-version: "1.20"
-depend: [Towny, Quarters, DiscordSRV, SuperbVote]
-softdepend: [MysteryMaster]
+depend: [Towny]
+softdepend: [MysteryMaster, Quarters, DiscordSRV, SuperbVote]
 authors: [Fruitloopins]
 contributors: [Warriorrr, Yoditi]
 description: API for EarthMC using Javalin
 website: "https://github.com/EarthMC/EMCAPI/commit/${commit}"
 folia-supported: true
+
 commands:
   api:
-    description: Allow players to opt out
+    description: Allows you to opt in or out of your information being visible in the API.
 
 libraries:
   - io.javalin:javalin:${javalin_version}

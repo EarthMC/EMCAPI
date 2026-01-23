@@ -3,7 +3,6 @@ package net.earthmc.emcapi.endpoint;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.javalin.http.ServiceUnavailableResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 import net.earthmc.mysterymaster.api.MysteryMasterAPI;
@@ -15,7 +14,6 @@ import java.util.List;
 public class MysteryMasterEndpoint extends GetEndpoint {
 
     private MysteryMasterAPI api = null;
-    private final ServiceUnavailableResponse UNAVAILABLE = new ServiceUnavailableResponse("Mystery Master details are not available currently");
 
     public MysteryMasterEndpoint(final EMCAPI plugin) {
         try {
@@ -27,7 +25,6 @@ public class MysteryMasterEndpoint extends GetEndpoint {
 
     @Override
     public String lookup() {
-        if (api == null) throw UNAVAILABLE;
         return getJsonElement().toString();
     }
 

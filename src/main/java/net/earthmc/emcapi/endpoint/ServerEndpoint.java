@@ -1,20 +1,17 @@
 package net.earthmc.emcapi.endpoint;
 
-import au.lupine.quarters.api.manager.QuarterManager;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownySettings;
-import io.minimum.minecraft.superbvote.SuperbVote;
-import io.minimum.minecraft.superbvote.votes.VoteParty;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.integration.QuartersIntegration;
+import net.earthmc.emcapi.integration.SuperbVoteIntegration;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
-import au.lupine.quarters.object.entity.Quarter;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 import java.time.LocalTime;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class ServerEndpoint extends GetEndpoint {
@@ -27,11 +24,13 @@ public class ServerEndpoint extends GetEndpoint {
     public ServerEndpoint(final EMCAPI plugin) {
         this.plugin = plugin;
 
-        plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, task -> {
-            List<Quarter> quarters = QuarterManager.getInstance().getAllQuarters();
+        final QuartersIntegration quartersIntegration = plugin.integrations().quartersIntegration();
 
-            this.quartersCount = quarters.size();
-            this.cuboidsCount = quarters.stream().mapToInt(quarter -> quarter.getCuboids().size()).sum();
+        plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, task -> {
+            final QuartersIntegration.QuarterStatistics statistics = quartersIntegration.retrieveQuarterStatistics();
+
+            this.quartersCount = statistics.totalQuarters();
+            this.cuboidsCount = statistics.totalCuboids();
         }, 0L, 1L, TimeUnit.HOURS);
     }
 
@@ -77,9 +76,17 @@ public class ServerEndpoint extends GetEndpoint {
 
         serverObject.add("stats", statsObject);
 
-        VoteParty voteParty = SuperbVote.getPlugin().getVoteParty();
-        int target = voteParty.votesNeeded();
-        int currentVotes = voteParty.getCurrentVotes();
+        int target;
+        int currentVotes;
+
+        final SuperbVoteIntegration superbVote = plugin.integrations().superbVoteIntegration();
+        if (superbVote.isEnabled()) {
+            target = superbVote.votesNeeded();
+            currentVotes = superbVote.currentVotes();
+        } else {
+            target = 0;
+            currentVotes = 0;
+        }
 
         JsonObject votePartyObject = new JsonObject();
         votePartyObject.addProperty("target", target);

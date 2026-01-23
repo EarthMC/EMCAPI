@@ -1,6 +1,5 @@
 package net.earthmc.emcapi.endpoint.towny;
 
-import au.lupine.quarters.api.manager.QuarterManager;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -10,6 +9,8 @@ import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
 import io.javalin.http.BadRequestResponse;
+import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.integration.QuartersIntegration;
 import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
@@ -18,6 +19,11 @@ import net.earthmc.emcapi.util.JSONUtil;
 import java.util.UUID;
 
 public class TownsEndpoint extends PostEndpoint<Town> {
+    private final EMCAPI plugin;
+
+    public TownsEndpoint(EMCAPI plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public Town getObjectOrNull(JsonElement element) {
@@ -102,7 +108,8 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         townObject.add("trusted", EndpointUtils.getResidentArray(town.getTrustedResidents().stream().toList()));
         townObject.add("outlaws", EndpointUtils.getResidentArray(town.getOutlaws().stream().toList()));
 
-        JsonArray quartersArray = EndpointUtils.getQuarterArray(QuarterManager.getInstance().getQuarters(town));
+        final QuartersIntegration quartersIntegration = plugin.integrations().quartersIntegration();
+        JsonArray quartersArray = quartersIntegration.isEnabled() ? quartersIntegration.getQuartersArrayForTown(town) : new JsonArray();
         townObject.add("quarters", quartersArray);
 
         JsonObject ranksObject = new JsonObject();
