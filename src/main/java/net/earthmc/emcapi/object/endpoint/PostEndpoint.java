@@ -3,6 +3,7 @@ package net.earthmc.emcapi.object.endpoint;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import net.earthmc.emcapi.EMCAPI;
 
 import java.util.Map;
@@ -46,7 +47,7 @@ public abstract class PostEndpoint<T> {
 
         for (Map.Entry<String, JsonElement> entry : template.entrySet()) {
             String key = entry.getKey();
-            if (entry.getValue().getAsBoolean() && fullJsonObject.has(key)) {
+            if (entry.getValue() instanceof JsonPrimitive primitive && primitive.getAsBoolean() && fullJsonObject.has(key)) {
                 filteredJson.add(key, fullJsonObject.get(key));
             }
         }
