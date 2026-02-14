@@ -74,12 +74,12 @@ Example **POST** response
     "trusted": [], // A JSON array representing all the trusted players in this quarter, empty if nobody is trusted
     "cuboids": [ // A JSON array representing every cuboid in this quarter
       {
-        "pos1": [
+        "cornerOne": [
           -18395,
           93,
           -8215
         ],
-        "pos2": [
+        "cornerTwo": [
           -18381,
           88,
           -8235
