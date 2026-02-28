@@ -24,12 +24,12 @@ public class EndpointManager {
 
     private final EMCAPI plugin;
     private final Javalin javalin;
-    private final String v3URLPath;
+    private final String URLPath;
 
     public EndpointManager(EMCAPI plugin) {
         this.plugin = plugin;
         this.javalin = plugin.getJavalin();
-        this.v3URLPath = "v3/" + plugin.getConfig().getString("networking.url_path");
+        this.URLPath = plugin.getURLPath();
     }
 
     public void loadEndpoints() {
@@ -37,10 +37,10 @@ public class EndpointManager {
         javalin.get("/", ctx -> ctx.json(documentationEndpoint.lookup()));
 
         ServerEndpoint serverEndpoint = new ServerEndpoint(plugin);
-        javalin.get(v3URLPath, ctx -> ctx.json(serverEndpoint.lookup()));
+        javalin.get(URLPath, ctx -> ctx.json(serverEndpoint.lookup()));
 
         MysteryMasterEndpoint mysteryMasterEndpoint = new MysteryMasterEndpoint(plugin);
-        javalin.get(v3URLPath + "/mm", ctx -> {
+        javalin.get(URLPath + "/mm", ctx -> {
             plugin.integrations().mysteryMasterIntegration().throwIfDisabled();
             ctx.json(mysteryMasterEndpoint.lookup());
         });
@@ -80,10 +80,10 @@ public class EndpointManager {
 
     private void loadPlayersEndpoint() {
         PlayersListEndpoint ple = new PlayersListEndpoint();
-        javalin.get(v3URLPath + "/players", ctx -> ctx.json(ple.lookup()));
+        javalin.get(URLPath + "/players", ctx -> ctx.json(ple.lookup()));
 
         PlayersEndpoint playersEndpoint = new PlayersEndpoint();
-        javalin.post(v3URLPath + "/players", ctx -> {
+        javalin.post(URLPath + "/players", ctx -> {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(playersEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
@@ -91,10 +91,10 @@ public class EndpointManager {
 
     private void loadTownsEndpoint() {
         TownsListEndpoint tle = new TownsListEndpoint();
-        javalin.get(v3URLPath + "/towns", ctx -> ctx.json(tle.lookup()));
+        javalin.get(URLPath + "/towns", ctx -> ctx.json(tle.lookup()));
 
         TownsEndpoint townsEndpoint = new TownsEndpoint(plugin);
-        javalin.post(v3URLPath + "/towns", ctx -> {
+        javalin.post(URLPath + "/towns", ctx -> {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(townsEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
@@ -102,10 +102,10 @@ public class EndpointManager {
 
     private void loadNationsEndpoint() {
         NationsListEndpoint nle = new NationsListEndpoint();
-        javalin.get(v3URLPath + "/nations", ctx -> ctx.json(nle.lookup()));
+        javalin.get(URLPath + "/nations", ctx -> ctx.json(nle.lookup()));
 
         NationsEndpoint nationsEndpoint = new NationsEndpoint();
-        javalin.post(v3URLPath + "/nations", ctx -> {
+        javalin.post(URLPath + "/nations", ctx -> {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(nationsEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
@@ -115,13 +115,13 @@ public class EndpointManager {
         QuartersIntegration quartersIntegration = plugin.integrations().quartersIntegration();
         QuartersListEndpoint qle = new QuartersListEndpoint(quartersIntegration);
 
-        javalin.get(v3URLPath + "/quarters", ctx -> {
+        javalin.get(URLPath + "/quarters", ctx -> {
             quartersIntegration.throwIfDisabled();
             ctx.json(qle.lookup());
         });
 
         QuartersEndpoint quartersEndpoint = new QuartersEndpoint();
-        javalin.post(v3URLPath + "/quarters", ctx -> {
+        javalin.post(URLPath + "/quarters", ctx -> {
             quartersIntegration.throwIfDisabled();
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(quartersEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
@@ -130,7 +130,7 @@ public class EndpointManager {
 
     private void loadLocationEndpoint() {
         LocationEndpoint locationEndpoint = new LocationEndpoint();
-        javalin.post(v3URLPath + "/location", ctx -> {
+        javalin.post(URLPath + "/location", ctx -> {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(locationEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
@@ -138,7 +138,7 @@ public class EndpointManager {
 
     private void loadNearbyEndpoint() {
         NearbyEndpoint nearbyEndpoint = new NearbyEndpoint();
-        javalin.post(v3URLPath + "/nearby", ctx -> {
+        javalin.post(URLPath + "/nearby", ctx -> {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(nearbyEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond()));
         });
@@ -148,7 +148,7 @@ public class EndpointManager {
         DiscordEndpoint discordEndpoint = new DiscordEndpoint();
         final DiscordIntegration discordIntegration = plugin.integrations().discordIntegration();
 
-        javalin.post(v3URLPath + "/discord", ctx -> {
+        javalin.post(URLPath + "/discord", ctx -> {
             discordIntegration.throwIfDisabled();
 
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
@@ -159,14 +159,14 @@ public class EndpointManager {
     private void loadPlayerStatsEndpoint() {
         PlayerStatsEndpoint playerStatsEndpoint = new PlayerStatsEndpoint(this.plugin);
         playerStatsEndpoint.initialize();
-        javalin.get(v3URLPath + "/player-stats", ctx -> {
+        javalin.get(URLPath + "/player-stats", ctx -> {
             ctx.json(playerStatsEndpoint.latestCachedStatistics());
         });
     }
 
     private void loadOnlinePlayersEndpoint() {
         OnlineEndpoint onlineEndpoint = new OnlineEndpoint();
-        javalin.get(v3URLPath + "/online", ctx -> {
+        javalin.get(URLPath + "/online", ctx -> {
            ctx.json(onlineEndpoint.lookup());
         });
     }

@@ -214,4 +214,11 @@ public class EndpointUtils {
 
         Files.write(path.resolve(optOutFile), lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
+
+    public static JsonObject generateNameUUIDJsonObject(String name, UUID uuid) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("name", name);
+        jsonObject.addProperty("uuid", uuid.toString());
+        return jsonObject;
+    }
 }

@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.EndpointManager;
+import net.earthmc.emcapi.sse.SSEManager;
+import net.earthmc.emcapi.sse.listeners.TownySSEListeners;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.command.OptOutCommand;
 import org.bukkit.command.PluginCommand;
@@ -25,6 +27,7 @@ public final class EMCAPI extends JavaPlugin {
     public static EMCAPI instance;
     private Javalin javalin;
     private Integrations pluginIntegrations;
+    private SSEManager sseManager;
 
     @Override
     public void onLoad() {
@@ -58,6 +61,10 @@ public final class EMCAPI extends JavaPlugin {
         } catch (IOException e) {
             getLogger().warning("IOException while loading opted-out players: " + e);
         }
+
+        sseManager = new SSEManager(this);
+        sseManager.loadSSE();
+        getServer().getPluginManager().registerEvents(new TownySSEListeners(sseManager), this);
     }
 
     @Override
@@ -68,6 +75,7 @@ public final class EMCAPI extends JavaPlugin {
         } catch (IOException e) {
             getLogger().warning("IOException while saving opted-out players: " + e);
         }
+        sseManager.shutdown();
     }
 
     private void initialiseJavalin() {
@@ -119,5 +127,10 @@ public final class EMCAPI extends JavaPlugin {
 
     public Integrations integrations() {
         return this.pluginIntegrations;
+    }
+
+    public String getURLPath() {
+        String version = getConfig().getString("networking.api_version", "3");
+        return "v" + version + "/" + getConfig().getString("networking.url_path");
     }
 }
