@@ -1,6 +1,11 @@
 package net.earthmc.emcapi.util;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import io.javalin.http.BadRequestResponse;
 
 public class JSONUtil {
@@ -47,5 +52,23 @@ public class JSONUtil {
 
         if (!element.isJsonObject()) return null;
         return element.getAsJsonObject();
+    }
+
+    public static JsonArray toJsonArray(final Iterable<?> collection) {
+        final JsonArray array = new JsonArray();
+
+        for (final Object element : collection) {
+            switch (element) {
+                case Boolean bool -> array.add(bool);
+                case Number number -> array.add(number);
+                case Character character -> array.add(character);
+                case String string -> array.add(string);
+                case JsonElement jsonElement -> array.add(jsonElement);
+                case null -> array.add(JsonNull.INSTANCE);
+                default -> throw new IllegalArgumentException("unsupported collection type '" + element.getClass().getName() + "'");
+            }
+        }
+
+        return array;
     }
 }

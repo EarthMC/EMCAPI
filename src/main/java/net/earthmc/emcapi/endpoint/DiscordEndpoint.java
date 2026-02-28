@@ -4,12 +4,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import github.scarsz.discordsrv.DiscordSRV;
 import io.javalin.http.BadRequestResponse;
+import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.object.nearby.DiscordContext;
 import net.earthmc.emcapi.object.nearby.DiscordType;
-import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -20,8 +21,12 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
     private static final BadRequestResponse MISSING_TYPE_TARGET = new BadRequestResponse("Your JSON query is missing a type or target");
     private static final BadRequestResponse INVALID_TYPE_TARGET = new BadRequestResponse("Your JSON query has an invalid type or target");
 
+    public DiscordEndpoint(final EMCAPI plugin) {
+        super(plugin);
+    }
+
     @Override
-    public DiscordContext getObjectOrNull(JsonElement element) {
+    public DiscordContext getObjectOrNull(JsonElement element, @Nullable String key) {
         JsonObject jsonObject = JSONUtil.getJsonElementAsJsonObjectOrNull(element);
         if (jsonObject == null) {
             throw HttpExceptions.NOT_A_JSON_OBJECT;
@@ -47,7 +52,8 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
                 uuid = getUUIDFromDiscordId(target);
             } catch (BadRequestResponse ignored1) {}
         }
-        if (uuid != null && EndpointUtils.playerOptedOut(uuid)) {
+
+        if (uuid != null && plugin.getOptOut().playerOptedOut(uuid)) {
             return null;
         }
 
@@ -60,7 +66,7 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
     }
 
     @Override
-    public JsonElement getJsonElement(DiscordContext context) {
+    public JsonElement getJsonElement(DiscordContext context, @Nullable String key) {
         DiscordType type = context.getType();
         String target = context.getTarget();
 

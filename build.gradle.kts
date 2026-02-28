@@ -2,6 +2,7 @@
 
 plugins {
     alias(libs.plugins.conventions.java)
+    alias(libs.plugins.shadow)
 }
 
 repositories {
@@ -23,6 +24,10 @@ repositories {
     maven("https://repo.earthmc.net/public/") {
         mavenContent { includeGroupAndSubgroups("net.earthmc") }
     }
+
+    maven("https://repo.codemc.io/repository/maven-public/") {
+        mavenContent { includeGroup("org.maxgamer") }
+    }
 }
 
 dependencies {
@@ -33,9 +38,25 @@ dependencies {
     compileOnly(libs.discordsrv)
     compileOnly(libs.superbvote)
     compileOnly(libs.mysterymaster.api)
+    compileOnly(libs.quickshop) {
+        exclude("*")
+    }
+    implementation(libs.hikaricp) {
+        exclude(group = "org.slf4j", module = "slf4j-api")
+    }
 }
 
 tasks {
+    assemble {
+        dependsOn(shadowJar)
+    }
+
+    shadowJar {
+        archiveClassifier.set("")
+
+        relocate("com.zaxxer.hikari", "net.earthmc.emcapi.libs.hikari")
+    }
+
     processResources {
         val shortCommitId = providers.exec { commandLine("git", "rev-parse", "--short", "HEAD") }.standardOutput.asText.get().trim()
         val commitId = providers.exec { commandLine("git", "rev-parse", "HEAD") }.standardOutput.asText.get().trim()

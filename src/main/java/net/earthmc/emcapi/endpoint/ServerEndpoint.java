@@ -3,13 +3,14 @@ package net.earthmc.emcapi.endpoint;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownySettings;
+import com.palmergames.bukkit.towny.object.Resident;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.QuartersIntegration;
 import net.earthmc.emcapi.integration.SuperbVoteIntegration;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
-import net.earthmc.emcapi.util.EndpointUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
@@ -62,9 +63,9 @@ public class ServerEndpoint extends GetEndpoint {
         JsonObject statsObject = new JsonObject();
         statsObject.addProperty("time", overworld.getTime());
         statsObject.addProperty("fullTime", overworld.getFullTime());
-        statsObject.addProperty("maxPlayers", Bukkit.getMaxPlayers());
-        statsObject.addProperty("numOnlinePlayers", Bukkit.getOnlinePlayers().size());
-        statsObject.addProperty("numOnlineNomads", EndpointUtils.getNumOnlineNomads());
+        statsObject.addProperty("maxPlayers", plugin.getServer().getMaxPlayers());
+        statsObject.addProperty("numOnlinePlayers", plugin.getServer().getOnlinePlayers().size());
+        statsObject.addProperty("numOnlineNomads", getNumOnlineNomads());
         statsObject.addProperty("numResidents", townyAPI.getResidents().size());
         statsObject.addProperty("numNomads", townyAPI.getResidentsWithoutTown().size());
         statsObject.addProperty("numTowns", townyAPI.getTowns().size());
@@ -94,5 +95,18 @@ public class ServerEndpoint extends GetEndpoint {
         serverObject.add("voteParty", votePartyObject);
 
         return serverObject;
+    }
+
+    private static int getNumOnlineNomads() {
+        int numOnlineNomads = 0;
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Resident resident = TownyAPI.getInstance().getResident(player);
+            if (resident == null || !resident.hasTown()) {
+                numOnlineNomads++;
+            }
+        }
+
+        return numOnlineNomads;
     }
 }

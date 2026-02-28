@@ -11,6 +11,7 @@ import com.palmergames.bukkit.towny.object.WorldCoord;
 import com.palmergames.util.MathUtil;
 import io.javalin.http.BadRequestResponse;
 import kotlin.Pair;
+import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.object.nearby.NearbyContext;
 import net.earthmc.emcapi.object.nearby.NearbyType;
@@ -18,14 +19,19 @@ import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
 
+    public NearbyEndpoint(final EMCAPI plugin) {
+        super(plugin);
+    }
+
     @Override
-    public NearbyContext getObjectOrNull(JsonElement element) {
+    public NearbyContext getObjectOrNull(JsonElement element, @Nullable String key) {
         JsonObject jsonObject = JSONUtil.getJsonElementAsJsonObjectOrNull(element);
         if (jsonObject == null) throw new BadRequestResponse("Your query contains a value that is not a JSON object");
 
@@ -64,7 +70,7 @@ public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
     }
 
     @Override
-    public JsonElement getJsonElement(NearbyContext context) {
+    public JsonElement getJsonElement(NearbyContext context, @Nullable String key) {
         NearbyType targetType = context.getTargetType();
         int radius = context.getRadius();
         switch (targetType) {

@@ -15,18 +15,18 @@ import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
 public class TownsEndpoint extends PostEndpoint<Town> {
-    private final EMCAPI plugin;
 
     public TownsEndpoint(EMCAPI plugin) {
-        this.plugin = plugin;
+        super(plugin);
     }
 
     @Override
-    public Town getObjectOrNull(JsonElement element) {
+    public Town getObjectOrNull(JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
 
@@ -41,7 +41,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
     }
 
     @Override
-    public JsonElement getJsonElement(Town town) {
+    public JsonElement getJsonElement(Town town, @Nullable String key) {
         JsonObject townObject = new JsonObject();
 
         townObject.addProperty("name", town.getName());

@@ -2,44 +2,22 @@ package net.earthmc.emcapi.util;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyPermission;
-import org.bukkit.Bukkit;
+import net.earthmc.emcapi.EMCAPI;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
+import org.maxgamer.quickshop.api.shop.Shop;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.Set;
-import java.util.HashSet;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 
 public class EndpointUtils {
-    private static final Set<UUID> optedOut = new HashSet<>();
-    private static final String optOutFile = "opt-out.txt";
-
-    public static int getNumOnlineNomads() {
-        int numOnlineNomads = 0;
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            Resident resident = TownyAPI.getInstance().getResident(player);
-            if (resident != null && !resident.hasTown() && resident.isOnline()) {
-                numOnlineNomads++;
-            }
-        }
-
-        return numOnlineNomads;
-    }
-
     public static JsonObject getPermsObject(TownyPermission permissions) {
         JsonObject permsObject = new JsonObject();
 
@@ -166,7 +144,10 @@ public class EndpointUtils {
         JsonArray jsonArray = new JsonArray();
 
         for (Player player : players) {
-            if (playerOptedOut(player.getUniqueId())) continue;
+            if (EMCAPI.instance.getOptOut().playerOptedOut(player.getUniqueId())) {
+                continue;
+            }
+
             jsonArray.add(getOnlinePlayerObject(player));
         }
         jsonObject.addProperty("count", players.size());
@@ -184,34 +165,20 @@ public class EndpointUtils {
         return jsonObject;
     }
 
-    public static boolean playerOptedOut(UUID uuid) {
-        return optedOut.contains(uuid);
+    public static JsonObject generateNameUUIDJsonObject(String name, UUID uuid) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("name", name);
+        jsonObject.addProperty("uuid", uuid.toString());
+        return jsonObject;
     }
 
-    public static void setOptedOut(UUID uuid, boolean status) {
-        if (status) {
-            optedOut.add(uuid);
-        } else {
-            optedOut.remove(uuid);
-        }
-    }
-
-    public static void loadOptOut(Path path) throws IOException {
-        final Path file = path.resolve(optOutFile);
-        if (!Files.exists(file)) {
-            return;
-        }
-
-        Files.readAllLines(file).forEach(playerStr -> {
-            try {
-                optedOut.add(UUID.fromString(playerStr));
-            } catch (IllegalArgumentException ignored) {}
-        });
-    }
-
-    public static void saveOptOut(Path path) throws IOException {
-        final List<String> lines = optedOut.stream().map(UUID::toString).toList();
-
-        Files.write(path.resolve(optOutFile), lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    public static JsonObject getShopObject(Shop shop) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("item", shop.getItem().getType().name());
+        jsonObject.addProperty("price", shop.getPrice());
+        jsonObject.addProperty("amount", shop.getItem().getAmount());
+        jsonObject.addProperty("type", shop.isSelling() ? "selling" : "buying");
+        jsonObject.addProperty("stock", shop.isSelling() ? shop.getRemainingStock() : shop.getRemainingSpace());
+        return jsonObject;
     }
 }
