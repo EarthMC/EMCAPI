@@ -75,7 +75,6 @@ public final class EMCAPI extends JavaPlugin {
         } catch (IOException e) {
             getLogger().warning("IOException while saving opted-out players: " + e);
         }
-        sseManager.shutdown();
     }
 
     private void initialiseJavalin() {

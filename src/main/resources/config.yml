@@ -7,7 +7,10 @@ networking:
   # Port the API will listen on
   port: 8080
 
-  # The URL path, for instance https://example.com/v3/aurora where aurora is the string written below, version numbers are always present
+  # The version number for endpoints
+  api_version: 3
+
+  # The URL path, formatted as: https://example.com/{api_version}/{url_path}
   url_path: aurora
 
 behaviour:

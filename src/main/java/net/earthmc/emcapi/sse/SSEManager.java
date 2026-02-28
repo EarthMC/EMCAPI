@@ -28,15 +28,6 @@ public class SSEManager {
         });
     }
 
-    public void shutdown() {
-        for (SseClient client : clients) {
-            plugin.getServer().getAsyncScheduler().runNow(plugin, t -> {
-               client.sendEvent("close", "Disconnected from the EarthMC API.");
-               client.close();
-            });
-        }
-    }
-
     public void sendEvent(String event, JsonObject data) {
         long timestamp = Instant.now().getEpochSecond();
         data.addProperty("timestamp", timestamp);
