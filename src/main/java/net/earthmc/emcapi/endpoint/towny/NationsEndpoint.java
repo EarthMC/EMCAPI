@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
+import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
@@ -59,6 +60,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
 
         List<Resident> nationOutlawedResidents = NationMetadataManager.getNationOutlaws(nation);
         JsonObject statsObject = new JsonObject();
+        statsObject.addProperty("nationBonus", TownySettings.getNationBonusBlocks(nation));
         statsObject.addProperty("numTownBlocks", nation.getNumTownblocks());
         statsObject.addProperty("numResidents", nation.getNumResidents());
         statsObject.addProperty("numTowns", nation.getNumTowns());
