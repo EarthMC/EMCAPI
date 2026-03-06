@@ -10,11 +10,14 @@ import com.palmergames.bukkit.towny.object.TownyPermission;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.maxgamer.quickshop.api.shop.Shop;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.Set;
 import java.util.HashSet;
@@ -22,10 +25,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class EndpointUtils {
     private static final Set<UUID> optedOut = new HashSet<>();
     private static final String optOutFile = "opt-out.txt";
+    private static final Map<UUID, UUID> playerKeyMap = new ConcurrentHashMap<>();
+    private static final Map<UUID, UUID> keyPlayerMap = new ConcurrentHashMap<>();
+    private static final Set<UUID> apiKeys = ConcurrentHashMap.newKeySet();
+    private static final String apiKeyFile = "api_keys.txt";
 
     public static int getNumOnlineNomads() {
         int numOnlineNomads = 0;
@@ -213,5 +221,70 @@ public class EndpointUtils {
         final List<String> lines = optedOut.stream().map(UUID::toString).toList();
 
         Files.write(path.resolve(optOutFile), lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    public static void loadApiKeys(Path path) throws IOException {
+        final Path file = path.resolve(apiKeyFile);
+        if (!Files.exists(file)) {
+            return;
+        }
+
+        Files.readAllLines(file).forEach(result -> {
+            try {
+                String[] split = result.split(",");
+                if (split.length != 2) return;
+                UUID player = UUID.fromString(split[0]);
+                UUID key = UUID.fromString(split[1]);
+                playerKeyMap.put(player, key);
+                keyPlayerMap.put(key, player);
+                apiKeys.add(key);
+            } catch (IllegalArgumentException ignored) {}
+        });
+    }
+
+    public static void saveApiKeys(Path path) throws IOException {
+        final List<String> lines = playerKeyMap.entrySet().stream().map(entry -> entry.getKey() + "," + entry.getValue()).toList();
+
+        Files.write(path.resolve(apiKeyFile), lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    public static @Nullable UUID getPlayerKey(UUID player) {
+        return playerKeyMap.get(player);
+    }
+
+    public static @NotNull UUID createApiKey(UUID player) {
+        UUID newID = UUID.randomUUID();
+        playerKeyMap.put(player, newID);
+        keyPlayerMap.put(newID, player);
+        apiKeys.add(newID);
+        return newID;
+    }
+
+    public static void deletePlayerKey(UUID player) {
+        UUID key = playerKeyMap.remove(player);
+        if (key != null) {
+            keyPlayerMap.remove(key);
+            apiKeys.remove(key);
+        }
+    }
+
+    public static UUID getKeyOwner(UUID key) {
+        return keyPlayerMap.get(key);
+    }
+
+    public static JsonObject generateNameUUIDJsonObject(String name, UUID uuid) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("name", name);
+        jsonObject.addProperty("uuid", uuid.toString());
+        return jsonObject;
+    }
+
+    public static JsonObject getShopObject(Shop shop) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("item", shop.getItem().getType().name());
+        jsonObject.addProperty("amount", shop.getItem().getAmount());
+        jsonObject.addProperty("type", shop.isSelling() ? "selling" : "buying");
+        jsonObject.addProperty("stock", shop.isSelling() ? shop.getRemainingStock() : shop.getRemainingSpace());
+        return jsonObject;
     }
 }
