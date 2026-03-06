@@ -12,8 +12,8 @@ import net.earthmc.emcapi.manager.NationMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 

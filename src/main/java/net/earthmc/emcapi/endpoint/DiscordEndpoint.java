@@ -10,8 +10,8 @@ import net.earthmc.emcapi.object.nearby.DiscordType;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

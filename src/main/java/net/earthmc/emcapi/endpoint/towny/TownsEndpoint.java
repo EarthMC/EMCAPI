@@ -15,8 +15,8 @@ import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class TownsEndpoint extends PostEndpoint<Town> {

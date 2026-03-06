@@ -11,8 +11,8 @@ import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.bukkit.Location;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.UUID;
 

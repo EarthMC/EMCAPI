@@ -26,8 +26,8 @@ import net.earthmc.emcapi.integration.MysteryMasterIntegration;
 import net.earthmc.emcapi.integration.QuartersIntegration;
 import net.earthmc.emcapi.integration.QuickShopIntegration;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class EndpointManager {

@@ -12,8 +12,8 @@ import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {

@@ -6,8 +6,8 @@ import io.javalin.http.Context;
 import io.javalin.http.sse.SseClient;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.util.EndpointUtils;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Map;
