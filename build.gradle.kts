@@ -23,6 +23,10 @@ repositories {
     maven("https://repo.earthmc.net/public/") {
         mavenContent { includeGroupAndSubgroups("net.earthmc") }
     }
+
+    maven("https://repo.codemc.io/repository/maven-public/") {
+        mavenContent { includeGroup("org.maxgamer") }
+    }
 }
 
 dependencies {
@@ -33,6 +37,9 @@ dependencies {
     compileOnly(libs.discordsrv)
     compileOnly(libs.superbvote)
     compileOnly(libs.mysterymaster.api)
+    compileOnly(libs.quickshop) {
+        exclude("*")
+    }
 }
 
 tasks {

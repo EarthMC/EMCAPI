@@ -6,9 +6,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.EndpointManager;
+import net.earthmc.emcapi.manager.LegacyEndpointManager;
+import net.earthmc.emcapi.sse.SSEManager;
+import net.earthmc.emcapi.sse.listeners.ShopSSEListener;
+import net.earthmc.emcapi.sse.listeners.TownySSEListener;
 import net.earthmc.emcapi.util.EndpointUtils;
-import net.earthmc.emcapi.command.OptOutCommand;
+import net.earthmc.emcapi.command.ApiCommand;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -25,6 +30,7 @@ public final class EMCAPI extends JavaPlugin {
     public static EMCAPI instance;
     private Javalin javalin;
     private Integrations pluginIntegrations;
+    private SSEManager sseManager;
 
     @Override
     public void onLoad() {
@@ -42,14 +48,16 @@ public final class EMCAPI extends JavaPlugin {
         this.pluginIntegrations = new Integrations(this);
         getServer().getPluginManager().registerEvents(this.pluginIntegrations, this);
 
-        EndpointManager endpointManager = new EndpointManager(this);
-        endpointManager.loadEndpoints();
+        if (getConfig().getBoolean("behavior.load_legacy")) {
+            new LegacyEndpointManager(this).loadEndpoints(); // Load retired endpoints and still serve current endpoints at /v3/aurora/
+        }
+        new EndpointManager(this).loadEndpoints();
 
         PluginCommand apiCommand = getCommand("api");
         if (apiCommand == null) {
             getLogger().warning("API command not found.");
         } else {
-            OptOutCommand cmd = new OptOutCommand();
+            ApiCommand cmd = new ApiCommand();
             apiCommand.setExecutor(cmd);
             apiCommand.setTabCompleter(cmd);
         }
@@ -57,6 +65,21 @@ public final class EMCAPI extends JavaPlugin {
             EndpointUtils.loadOptOut(getDataFolder().toPath());
         } catch (IOException e) {
             getLogger().warning("IOException while loading opted-out players: " + e);
+        }
+
+        sseManager = new SSEManager(this);
+        sseManager.loadSSE();
+        PluginManager pm = getServer().getPluginManager();
+        if (pm.isPluginEnabled("Towny")) {
+            pm.registerEvents(new TownySSEListener(sseManager), this);
+        }
+        if (pm.isPluginEnabled("QuickShop")) {
+            pm.registerEvents(new ShopSSEListener(sseManager), this);
+        }
+        try {
+            EndpointUtils.loadApiKeys(getDataFolder().toPath());
+        } catch (IOException e) {
+            getSLF4JLogger().warn("IOException while loading API keys: ", e);
         }
     }
 
@@ -67,6 +90,12 @@ public final class EMCAPI extends JavaPlugin {
             EndpointUtils.saveOptOut(getDataFolder().toPath());
         } catch (IOException e) {
             getLogger().warning("IOException while saving opted-out players: " + e);
+        }
+        sseManager.shutdown();
+        try {
+            EndpointUtils.saveApiKeys(getDataFolder().toPath());
+        } catch (IOException e) {
+            getSLF4JLogger().warn("IOException while saving API keys: ", e);
         }
     }
 
@@ -119,5 +148,10 @@ public final class EMCAPI extends JavaPlugin {
 
     public Integrations integrations() {
         return this.pluginIntegrations;
+    }
+
+    public String getURLPath() {
+        String version = getConfig().getString("networking.api_version", "3");
+        return "v" + version + "/" + getConfig().getString("networking.url_path");
     }
 }

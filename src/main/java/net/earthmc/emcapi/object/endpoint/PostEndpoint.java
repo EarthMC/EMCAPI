@@ -5,38 +5,36 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.earthmc.emcapi.EMCAPI;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.UUID;
 
 public abstract class PostEndpoint<T> {
 
-    public String lookup(JsonArray queryArray, JsonObject template) {
+    public String lookup(JsonArray queryArray, @Nullable JsonObject template, @Nullable UUID key) {
         JsonArray jsonArray = new JsonArray();
 
         int numLoops = Math.min(EMCAPI.instance.getConfig().getInt("behaviour.max_lookup_size"), queryArray.size());
         for (int i = 0; i < numLoops; i++) {
             JsonElement element = queryArray.get(i);
-            T object = getObjectOrNull(element);
+            T object = getObjectOrNull(element, key);
 
-            JsonElement innerObject;
             if (object == null) {
                 continue;
-            } else {
-                innerObject = getTemplateJsonElement(object, template);
             }
-
-            jsonArray.add(innerObject);
+            jsonArray.add(getTemplateJsonElement(object, template, key));
         }
 
         return jsonArray.toString();
     }
 
-    public abstract T getObjectOrNull(JsonElement element);
+    public abstract T getObjectOrNull(JsonElement element, @Nullable UUID key);
 
-    public abstract JsonElement getJsonElement(T object);
+    public abstract JsonElement getJsonElement(T object, @Nullable UUID key);
 
-    public JsonElement getTemplateJsonElement(T object, JsonObject template) {
-        JsonElement fullJson = getJsonElement(object);
+    public JsonElement getTemplateJsonElement(T object, JsonObject template, @Nullable UUID key) {
+        JsonElement fullJson = getJsonElement(object, key);
 
         if (!(fullJson instanceof JsonObject) || template == null || template.entrySet().isEmpty()) {
             return fullJson;
@@ -46,9 +44,9 @@ public abstract class PostEndpoint<T> {
         JsonObject filteredJson = new JsonObject();
 
         for (Map.Entry<String, JsonElement> entry : template.entrySet()) {
-            String key = entry.getKey();
-            if (entry.getValue() instanceof JsonPrimitive primitive && primitive.getAsBoolean() && fullJsonObject.has(key)) {
-                filteredJson.add(key, fullJsonObject.get(key));
+            String entryKey = entry.getKey();
+            if (entry.getValue() instanceof JsonPrimitive primitive && primitive.getAsBoolean() && fullJsonObject.has(entryKey)) {
+                filteredJson.add(entryKey, fullJsonObject.get(entryKey));
             }
         }
 

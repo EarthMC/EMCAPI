@@ -1,4 +1,4 @@
-package net.earthmc.emcapi.endpoint;
+package net.earthmc.emcapi.endpoint.legacy;
 
 import com.google.gson.JsonObject;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;

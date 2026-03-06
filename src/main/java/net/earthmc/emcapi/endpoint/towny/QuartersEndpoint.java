@@ -11,6 +11,7 @@ import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.bukkit.Location;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.UUID;
@@ -18,7 +19,7 @@ import java.util.UUID;
 public class QuartersEndpoint extends PostEndpoint<Quarter> {
 
     @Override
-    public Quarter getObjectOrNull(JsonElement element) {
+    public Quarter getObjectOrNull(JsonElement element, @Nullable UUID key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
 
@@ -33,7 +34,7 @@ public class QuartersEndpoint extends PostEndpoint<Quarter> {
     }
 
     @Override
-    public JsonElement getJsonElement(Quarter quarter) {
+    public JsonElement getJsonElement(Quarter quarter, @Nullable UUID key) {
         JsonObject quarterObject = new JsonObject();
 
         quarterObject.addProperty("name", quarter.getName());
