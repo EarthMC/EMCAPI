@@ -3,8 +3,6 @@ package net.earthmc.emcapi.util;
 import com.google.gson.*;
 import io.javalin.http.BadRequestResponse;
 
-import java.util.List;
-
 public class JSONUtil {
 
     public static JsonObject getJsonObjectFromString(String string) {
