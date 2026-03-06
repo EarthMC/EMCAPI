@@ -19,3 +19,6 @@ behaviour:
 
   # Setting for testing reasons
   developer_mode: false
+
+  # Should legacy endpoints (if any) be loaded?
+  load_legacy: true

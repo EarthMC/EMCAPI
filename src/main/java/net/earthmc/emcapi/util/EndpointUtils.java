@@ -269,6 +269,7 @@ public class EndpointUtils {
     }
 
     public static UUID getKeyOwner(UUID key) {
+        if (key == null) return null;
         return keyPlayerMap.get(key);
     }
 
@@ -282,6 +283,7 @@ public class EndpointUtils {
     public static JsonObject getShopObject(Shop shop) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("item", shop.getItem().getType().name());
+        jsonObject.addProperty("price", shop.getPrice());
         jsonObject.addProperty("amount", shop.getItem().getAmount());
         jsonObject.addProperty("type", shop.isSelling() ? "selling" : "buying");
         jsonObject.addProperty("stock", shop.isSelling() ? shop.getRemainingStock() : shop.getRemainingSpace());

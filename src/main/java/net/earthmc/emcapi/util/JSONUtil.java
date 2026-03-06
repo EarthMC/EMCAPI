@@ -15,16 +15,6 @@ public class JSONUtil {
         }
     }
 
-    public static JsonArray getJsonArrayFromStringList(List<String> stringList) {
-        JsonArray jsonArray = new JsonArray();
-        if (stringList == null) return jsonArray;
-
-        for (String item : stringList) {
-            jsonArray.add(item);
-        }
-        return jsonArray;
-    }
-
     public static String getJsonElementAsStringOrNull(JsonElement element) {
         if (element == null) return null;
 

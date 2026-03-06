@@ -17,6 +17,7 @@ public class Integrations implements Listener {
     private final QuartersIntegration quartersIntegration;
     private final SuperbVoteIntegration superbVoteIntegration;
     private final MysteryMasterIntegration mysteryMasterIntegration;
+    private final QuickShopIntegration quickShopIntegration;
 
     public Integrations(final EMCAPI plugin) {
         this.plugin = plugin;
@@ -25,6 +26,7 @@ public class Integrations implements Listener {
         this.quartersIntegration = addIntegration(new QuartersIntegration());
         this.superbVoteIntegration = addIntegration(new SuperbVoteIntegration());
         this.mysteryMasterIntegration = addIntegration(new MysteryMasterIntegration());
+        this.quickShopIntegration = addIntegration(new QuickShopIntegration());
     }
 
     private <T extends Integration> T addIntegration(final T integration) {
@@ -48,6 +50,10 @@ public class Integrations implements Listener {
 
     public MysteryMasterIntegration mysteryMasterIntegration() {
         return this.mysteryMasterIntegration;
+    }
+
+    public QuickShopIntegration quickShopIntegration() {
+        return quickShopIntegration;
     }
 
     @EventHandler
