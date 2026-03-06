@@ -7,10 +7,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.EndpointManager;
 import net.earthmc.emcapi.sse.SSEManager;
-import net.earthmc.emcapi.sse.listeners.TownySSEListeners;
+import net.earthmc.emcapi.sse.listeners.ShopSSEListener;
+import net.earthmc.emcapi.sse.listeners.TownySSEListener;
 import net.earthmc.emcapi.util.EndpointUtils;
-import net.earthmc.emcapi.command.OptOutCommand;
+import net.earthmc.emcapi.command.ApiCommand;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -52,7 +54,7 @@ public final class EMCAPI extends JavaPlugin {
         if (apiCommand == null) {
             getLogger().warning("API command not found.");
         } else {
-            OptOutCommand cmd = new OptOutCommand();
+            ApiCommand cmd = new ApiCommand();
             apiCommand.setExecutor(cmd);
             apiCommand.setTabCompleter(cmd);
         }
@@ -64,7 +66,18 @@ public final class EMCAPI extends JavaPlugin {
 
         sseManager = new SSEManager(this);
         sseManager.loadSSE();
-        getServer().getPluginManager().registerEvents(new TownySSEListeners(sseManager), this);
+        PluginManager pm = getServer().getPluginManager();
+        if (pm.isPluginEnabled("Towny")) {
+            pm.registerEvents(new TownySSEListener(sseManager), this);
+        }
+        if (pm.isPluginEnabled("QuickShop")) {
+            pm.registerEvents(new ShopSSEListener(sseManager), this);
+        }
+        try {
+            EndpointUtils.loadApiKeys(getDataFolder().toPath());
+        } catch (IOException e) {
+            getSLF4JLogger().warn("IOException while loading API keys: ", e);
+        }
     }
 
     @Override
@@ -74,6 +87,12 @@ public final class EMCAPI extends JavaPlugin {
             EndpointUtils.saveOptOut(getDataFolder().toPath());
         } catch (IOException e) {
             getLogger().warning("IOException while saving opted-out players: " + e);
+        }
+        sseManager.shutdown();
+        try {
+            EndpointUtils.saveApiKeys(getDataFolder().toPath());
+        } catch (IOException e) {
+            getSLF4JLogger().warn("IOException while saving API keys: ", e);
         }
     }
 

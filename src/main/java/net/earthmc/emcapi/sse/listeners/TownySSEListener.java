@@ -2,12 +2,16 @@ package net.earthmc.emcapi.sse.listeners;
 
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.event.DeleteTownEvent;
+import com.palmergames.bukkit.towny.event.NationAddTownEvent;
+import com.palmergames.bukkit.towny.event.NationRemoveTownEvent;
 import com.palmergames.bukkit.towny.event.NewDayEvent;
 import com.palmergames.bukkit.towny.event.NewNationEvent;
 import com.palmergames.bukkit.towny.event.NewTownEvent;
 import com.palmergames.bukkit.towny.event.PreDeleteNationEvent;
 import com.palmergames.bukkit.towny.event.RenameNationEvent;
 import com.palmergames.bukkit.towny.event.RenameTownEvent;
+import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
+import com.palmergames.bukkit.towny.event.TownRemoveResidentEvent;
 import com.palmergames.bukkit.towny.event.nation.NationKingChangeEvent;
 import com.palmergames.bukkit.towny.event.nation.NationMergeEvent;
 import com.palmergames.bukkit.towny.event.town.TownMayorChangedEvent;
@@ -15,26 +19,21 @@ import com.palmergames.bukkit.towny.event.town.TownMergeEvent;
 import com.palmergames.bukkit.towny.event.town.TownPreRuinedEvent;
 import com.palmergames.bukkit.towny.event.town.TownReclaimedEvent;
 import com.palmergames.bukkit.towny.object.Nation;
+import com.palmergames.bukkit.towny.object.Town;
 import net.earthmc.emcapi.sse.SSEManager;
 import net.earthmc.emcapi.util.EndpointUtils;
-import net.earthmc.emcapi.util.JSONUtil;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 
-public class TownySSEListeners implements Listener {
-    private final SSEManager sse;
+public class TownySSEListener extends AbstractSSEListener {
 
-    public TownySSEListeners(SSEManager sse) {
-        this.sse = sse;
+    public TownySSEListener(SSEManager sse) {
+        super(sse);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onNewDay(NewDayEvent event) {
-        JsonObject message = new JsonObject();
-        message.add("fallenTowns", JSONUtil.getJsonArrayFromStringList(event.getFallenTowns()));
-        message.add("fallenNations", JSONUtil.getJsonArrayFromStringList(event.getFallenNations()));
-        sse.sendEvent("NewDay", message);
+        sse.sendEvent("NewDay", new JsonObject());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -142,5 +141,41 @@ public class TownySSEListeners implements Listener {
         message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
         message.add("newMayor", EndpointUtils.getResidentJsonObject(event.getResident()));
         sse.sendEvent("TownReclaimed", message);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTownJoin(NationAddTownEvent event) {
+        Nation nation = event.getNation();
+        JsonObject message = new JsonObject();
+        message.add("nation", EndpointUtils.getNationJsonObject(nation));
+        message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
+        sse.sendEvent("TownJoinedNation", message, nation.getKing().getUUID());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTownLeave(NationRemoveTownEvent event) {
+        Nation nation = event.getNation();
+        JsonObject message = new JsonObject();
+        message.add("nation", EndpointUtils.getNationJsonObject(nation));
+        message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
+        sse.sendEvent("TownLeftNation", message, nation.getKing().getUUID());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTownJoin(TownAddResidentEvent event) {
+        Town town = event.getTown();
+        JsonObject message = new JsonObject();
+        message.add("town", EndpointUtils.getTownJsonObject(town));
+        message.add("resident", EndpointUtils.getResidentJsonObject(event.getResident()));
+        sse.sendEvent("ResidentJoinedTown", message, town.getMayor().getUUID());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTownLeave(TownRemoveResidentEvent event) {
+        Town town = event.getTown();
+        JsonObject message = new JsonObject();
+        message.add("town", EndpointUtils.getTownJsonObject(town));
+        message.add("resident", EndpointUtils.getResidentJsonObject(event.getResident()));
+        sse.sendEvent("ResidentLeftTown", message, town.getMayor().getUUID());
     }
 }
