@@ -25,6 +25,8 @@ import net.earthmc.emcapi.util.EndpointUtils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 
+import java.util.UUID;
+
 public class TownySSEListener extends AbstractSSEListener {
 
     public TownySSEListener(SSEManager sse) {
@@ -149,7 +151,10 @@ public class TownySSEListener extends AbstractSSEListener {
         JsonObject message = new JsonObject();
         message.add("nation", EndpointUtils.getNationJsonObject(nation));
         message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
-        sse.sendEvent("TownJoinedNation", message, nation.getKing().getUUID());
+        UUID leader = nation.getCapital() != null
+            ? nation.getKing().getUUID()
+            : event.getTown().getMayor().getUUID(); // NationAddTown is fired when new nations are created, before the capital is set. In this case, this town will be the capital anyway.
+        sse.sendEvent("TownJoinedNation", message, leader);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
