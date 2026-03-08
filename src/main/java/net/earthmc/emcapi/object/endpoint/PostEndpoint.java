@@ -11,7 +11,7 @@ import java.util.Map;
 
 public abstract class PostEndpoint<T> {
 
-    public String lookup(JsonArray queryArray, @Nullable JsonObject template, @Nullable Long key) {
+    public String lookup(JsonArray queryArray, @Nullable JsonObject template, @Nullable String key) {
         JsonArray jsonArray = new JsonArray();
 
         int numLoops = Math.min(EMCAPI.instance.getConfig().getInt("behaviour.max_lookup_size"), queryArray.size());
@@ -28,11 +28,11 @@ public abstract class PostEndpoint<T> {
         return jsonArray.toString();
     }
 
-    public abstract T getObjectOrNull(JsonElement element, @Nullable Long key);
+    public abstract T getObjectOrNull(JsonElement element, @Nullable String key);
 
-    public abstract JsonElement getJsonElement(T object, @Nullable Long key);
+    public abstract JsonElement getJsonElement(T object, @Nullable String key);
 
-    public JsonElement getTemplateJsonElement(T object, JsonObject template, @Nullable Long key) {
+    public JsonElement getTemplateJsonElement(T object, JsonObject template, @Nullable String key) {
         JsonElement fullJson = getJsonElement(object, key);
 
         if (!(fullJson instanceof JsonObject) || template == null || template.entrySet().isEmpty()) {

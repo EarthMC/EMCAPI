@@ -78,7 +78,7 @@ public class ApiCommand implements TabExecutor {
         }
 
         UUID playerID = player.getUniqueId();
-        Long key;
+        String key;
         if (args.length == 1) {
             key = KeyManager.getPlayerKey(playerID);
             if (key != null) {

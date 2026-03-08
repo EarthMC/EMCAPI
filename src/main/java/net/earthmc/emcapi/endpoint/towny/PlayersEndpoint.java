@@ -19,7 +19,7 @@ import java.util.UUID;
 public class PlayersEndpoint extends PostEndpoint<Resident> {
 
     @Override
-    public Resident getObjectOrNull(JsonElement element, @Nullable Long key) {
+    public Resident getObjectOrNull(JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
 
@@ -40,7 +40,7 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
     }
 
     @Override
-    public JsonElement getJsonElement(Resident resident, @Nullable Long key) {
+    public JsonElement getJsonElement(Resident resident, @Nullable String key) {
         JsonObject playerObject = new JsonObject();
 
         playerObject.addProperty("name", resident.getName());

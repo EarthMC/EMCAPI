@@ -13,7 +13,7 @@ public class QuickShopIntegration extends Integration {
         super("QuickShop");
     }
 
-    public List<Shop> getPlayerShops(UUID player, Long key) {
+    public List<Shop> getPlayerShops(UUID player, String key) {
         if (!isEnabled()) {
             return List.of();
         }

@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 public class SSEManager {
     private final EMCAPI plugin;
     private final Javalin javalin;
-    private static final Map<Long, ClientData> clientsMap = new ConcurrentHashMap<>();
+    private static final Map<String, ClientData> clientsMap = new ConcurrentHashMap<>();
     private static final Set<SseClient> clients = ConcurrentHashMap.newKeySet();
     private static final Set<String> ALLOWED_EVENTS = Set.of(
         "NewDay",
@@ -46,15 +46,7 @@ public class SSEManager {
                 return;
             }
 
-            Long key;
-            try {
-                key = Long.parseLong(auth.substring("Bearer ".length()));
-            } catch (IllegalArgumentException ignored) {
-                ctx.status(401).result("Invalid API key format");
-                client.close();
-                return;
-            }
-
+            String key = auth.substring("Bearer ".length());
             UUID owner = KeyManager.getKeyOwner(key);
             if (owner == null) {
                 ctx.status(403).result("Invalid API key");
@@ -137,7 +129,7 @@ public class SSEManager {
         });
     }
 
-    public static void deleteKey(Long key) {
+    public static void deleteKey(String key) {
         ClientData data = clientsMap.remove(key);
         if (data != null) {
             SseClient client = data.client;

@@ -68,18 +68,12 @@ public class EndpointManager {
         JsonObject templateObject = templateElement != null && templateElement.isJsonObject() ? templateElement.getAsJsonObject() : null;
 
         JsonElement keyElement = jsonObject.get("key");
-        String keyValue = keyElement != null && keyElement.isJsonPrimitive() ? keyElement.getAsString() : null;
-        Long key = null;
-        if (keyValue != null && keyValue.length() == 12) {
-            try {
-                key = Long.parseLong(keyValue);
-            } catch (IllegalArgumentException ignored) {}
-        }
+        String key = keyElement != null && keyElement.isJsonPrimitive() ? keyElement.getAsString() : null;
 
         return new QueryBody(queryArray, templateObject, key);
     }
 
-    private record QueryBody(JsonArray query, @Nullable JsonObject template, @Nullable Long key) {}
+    private record QueryBody(JsonArray query, @Nullable JsonObject template, @Nullable String key) {}
 
     private void loadPlayersEndpoint() {
         PlayersListEndpoint ple = new PlayersListEndpoint();

@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
 
     @Override
-    public Pair<Integer, Integer> getObjectOrNull(JsonElement element, @Nullable Long key) {
+    public Pair<Integer, Integer> getObjectOrNull(JsonElement element, @Nullable String key) {
         JsonArray jsonArray = JSONUtil.getJsonElementAsJsonArrayOrNull(element);
         if (jsonArray == null) throw new BadRequestResponse("Your query contains a value that is not a JSON array");
 
@@ -41,7 +41,7 @@ public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
     }
 
     @Override
-    public JsonElement getJsonElement(Pair<Integer, Integer> pair, @Nullable Long key) {
+    public JsonElement getJsonElement(Pair<Integer, Integer> pair, @Nullable String key) {
         int x = pair.getFirst();
         int z = pair.getSecond();
 

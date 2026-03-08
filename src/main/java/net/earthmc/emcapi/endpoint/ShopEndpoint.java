@@ -23,7 +23,7 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     }
 
     @Override
-    public List<Shop> getObjectOrNull(JsonElement element, @Nullable Long key) {
+    public List<Shop> getObjectOrNull(JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
 
@@ -39,7 +39,7 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     }
 
     @Override
-    public JsonElement getJsonElement(List<Shop> object, @Nullable Long key) {
+    public JsonElement getJsonElement(List<Shop> object, @Nullable String key) {
         JsonObject shopsObject = new JsonObject();
         int counter = 1;
         UUID keyOwner = KeyManager.getKeyOwner(key);

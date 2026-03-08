@@ -8,14 +8,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class KeyManager {
-    private static final Map<UUID, Long> playerKeyMap = new ConcurrentHashMap<>();
-    private static final Map<Long, UUID> keyPlayerMap = new ConcurrentHashMap<>();
+    private static final Map<UUID, String> playerKeyMap = new ConcurrentHashMap<>();
+    private static final Map<String, UUID> keyPlayerMap = new ConcurrentHashMap<>();
     private static final String apiKeyFile = "api_keys.txt";
 
     public static void loadApiKeys(Path path) throws IOException {
@@ -29,7 +30,7 @@ public class KeyManager {
                 String[] split = result.split(",");
                 if (split.length != 2) return;
                 UUID player = UUID.fromString(split[0]);
-                Long key = Long.parseLong(split[1]);
+                String key = split[1];
                 playerKeyMap.put(player, key);
                 keyPlayerMap.put(key, player);
             } catch (IllegalArgumentException ignored) {}
@@ -42,28 +43,34 @@ public class KeyManager {
         Files.write(path.resolve(apiKeyFile), lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
-    public static @Nullable Long getPlayerKey(UUID player) {
+    public static @Nullable String getPlayerKey(UUID player) {
         return playerKeyMap.get(player);
     }
 
-    public static @NotNull Long createApiKey(UUID player) {
+    public static @NotNull String createApiKey(UUID player) {
         SecureRandom random = new SecureRandom();
 
-        Long key = random.nextLong(100_000_000_000L, 1_000_000_000_000L);
+        byte[] array = new byte[1024];
+        random.nextBytes(array);
+        String key = decode(array);
         playerKeyMap.put(player, key);
         keyPlayerMap.put(key, player);
         return key;
     }
 
     public static void deletePlayerKey(UUID player) {
-        Long key = playerKeyMap.remove(player);
+        String key = playerKeyMap.remove(player);
         if (key != null) {
             keyPlayerMap.remove(key);
         }
     }
 
-    public static UUID getKeyOwner(Long key) {
+    public static UUID getKeyOwner(String key) {
         if (key == null) return null;
         return keyPlayerMap.get(key);
+    }
+
+    private static String decode(byte[] array) {
+        return Base64.getEncoder().encodeToString(array);
     }
 }
