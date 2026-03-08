@@ -10,8 +10,9 @@ import com.palmergames.bukkit.towny.object.TownyPermission;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
+import org.maxgamer.quickshop.api.shop.Shop;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -213,5 +214,22 @@ public class EndpointUtils {
         final List<String> lines = optedOut.stream().map(UUID::toString).toList();
 
         Files.write(path.resolve(optOutFile), lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    public static JsonObject generateNameUUIDJsonObject(String name, UUID uuid) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("name", name);
+        jsonObject.addProperty("uuid", uuid.toString());
+        return jsonObject;
+    }
+
+    public static JsonObject getShopObject(Shop shop) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("item", shop.getItem().getType().name());
+        jsonObject.addProperty("price", shop.getPrice());
+        jsonObject.addProperty("amount", shop.getItem().getAmount());
+        jsonObject.addProperty("type", shop.isSelling() ? "selling" : "buying");
+        jsonObject.addProperty("stock", shop.isSelling() ? shop.getRemainingStock() : shop.getRemainingSpace());
+        return jsonObject;
     }
 }

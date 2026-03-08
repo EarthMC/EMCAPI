@@ -12,11 +12,12 @@ import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.jetbrains.annotations.Nullable;
 
 public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
 
     @Override
-    public Pair<Integer, Integer> getObjectOrNull(JsonElement element) {
+    public Pair<Integer, Integer> getObjectOrNull(JsonElement element, @Nullable String key) {
         JsonArray jsonArray = JSONUtil.getJsonElementAsJsonArrayOrNull(element);
         if (jsonArray == null) throw new BadRequestResponse("Your query contains a value that is not a JSON array");
 
@@ -40,7 +41,7 @@ public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
     }
 
     @Override
-    public JsonElement getJsonElement(Pair<Integer, Integer> pair) {
+    public JsonElement getJsonElement(Pair<Integer, Integer> pair, @Nullable String key) {
         int x = pair.getFirst();
         int z = pair.getSecond();
 

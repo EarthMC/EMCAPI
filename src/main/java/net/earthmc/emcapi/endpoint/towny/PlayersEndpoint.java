@@ -7,9 +7,11 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.object.Resident;
 import io.javalin.http.BadRequestResponse;
+import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +19,7 @@ import java.util.UUID;
 public class PlayersEndpoint extends PostEndpoint<Resident> {
 
     @Override
-    public Resident getObjectOrNull(JsonElement element) {
+    public Resident getObjectOrNull(JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
 
@@ -28,7 +30,9 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
             resident = TownyAPI.getInstance().getResident(string);
         }
 
-        if (resident != null && EndpointUtils.playerOptedOut(resident.getUUID())) {
+        if (resident != null && EndpointUtils.playerOptedOut(resident.getUUID())
+            && !resident.getUUID().equals(KeyManager.getKeyOwner(key))
+        ) {
             return null;
         }
 
@@ -36,7 +40,7 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
     }
 
     @Override
-    public JsonElement getJsonElement(Resident resident) {
+    public JsonElement getJsonElement(Resident resident, @Nullable String key) {
         JsonObject playerObject = new JsonObject();
 
         playerObject.addProperty("name", resident.getName());

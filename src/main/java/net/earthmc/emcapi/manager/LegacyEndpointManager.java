@@ -5,14 +5,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
+import kotlin.Pair;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.endpoint.DiscordEndpoint;
+import net.earthmc.emcapi.endpoint.legacy.DocumentationEndpoint;
 import net.earthmc.emcapi.endpoint.LocationEndpoint;
+import net.earthmc.emcapi.endpoint.legacy.MudkipEndpoint;
 import net.earthmc.emcapi.endpoint.MysteryMasterEndpoint;
 import net.earthmc.emcapi.endpoint.NearbyEndpoint;
 import net.earthmc.emcapi.endpoint.OnlineEndpoint;
+import net.earthmc.emcapi.endpoint.legacy.PlayerStatsEndpoint;
 import net.earthmc.emcapi.endpoint.ServerEndpoint;
-import net.earthmc.emcapi.endpoint.ShopEndpoint;
 import net.earthmc.emcapi.endpoint.towny.NationsEndpoint;
 import net.earthmc.emcapi.endpoint.towny.PlayersEndpoint;
 import net.earthmc.emcapi.endpoint.towny.QuartersEndpoint;
@@ -22,27 +25,38 @@ import net.earthmc.emcapi.endpoint.towny.list.PlayersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.QuartersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.TownsListEndpoint;
 import net.earthmc.emcapi.integration.DiscordIntegration;
-import net.earthmc.emcapi.integration.MysteryMasterIntegration;
 import net.earthmc.emcapi.integration.QuartersIntegration;
-import net.earthmc.emcapi.integration.QuickShopIntegration;
 import net.earthmc.emcapi.util.JSONUtil;
-import org.jetbrains.annotations.Nullable;
 
-public class EndpointManager {
+public class LegacyEndpointManager {
 
     private final EMCAPI plugin;
     private final Javalin javalin;
-    private final String URLPath;
+    private final String URLPath = "v3/aurora";
 
-    public EndpointManager(EMCAPI plugin) {
+    public LegacyEndpointManager(EMCAPI plugin) {
         this.plugin = plugin;
         this.javalin = plugin.getJavalin();
-        this.URLPath = plugin.getURLPath();
     }
 
     public void loadEndpoints() {
+        DocumentationEndpoint documentationEndpoint = new DocumentationEndpoint();
+        javalin.get("/", ctx -> ctx.json(documentationEndpoint.lookup()));
+
         ServerEndpoint serverEndpoint = new ServerEndpoint(plugin);
         javalin.get(URLPath, ctx -> ctx.json(serverEndpoint.lookup()));
+
+        MysteryMasterEndpoint mysteryMasterEndpoint = new MysteryMasterEndpoint(plugin);
+        javalin.get(URLPath + "/mm", ctx -> {
+            plugin.integrations().mysteryMasterIntegration().throwIfDisabled();
+            ctx.json(mysteryMasterEndpoint.lookup());
+        });
+
+        MudkipEndpoint mudkipEndpoint = new MudkipEndpoint();
+        javalin.get("/mudkip", ctx -> {
+            ctx.contentType("text/plain; charset=UTF-8");
+            ctx.result(mudkipEndpoint.lookup());
+        });
 
         loadPlayersEndpoint();
         loadTownsEndpoint();
@@ -51,12 +65,11 @@ public class EndpointManager {
         loadLocationEndpoint();
         loadNearbyEndpoint();
         loadDiscordEndpoint();
+        loadPlayerStatsEndpoint();
         loadOnlinePlayersEndpoint();
-        loadMysteryMasterEndpoint();
-        loadShopsEndpoint();
     }
 
-    private QueryBody parseBody(String body) {
+    private Pair<JsonArray, JsonObject> parseBody(String body) {
         JsonObject jsonObject = JSONUtil.getJsonObjectFromString(body);
 
         JsonElement queryElement = jsonObject.get("query");
@@ -65,15 +78,12 @@ public class EndpointManager {
         JsonArray queryArray = queryElement.getAsJsonArray();
 
         JsonElement templateElement = jsonObject.get("template");
-        JsonObject templateObject = templateElement != null && templateElement.isJsonObject() ? templateElement.getAsJsonObject() : null;
+        JsonObject templateObject = templateElement != null && templateElement.isJsonObject()
+                ? templateElement.getAsJsonObject()
+                : null;
 
-        JsonElement keyElement = jsonObject.get("key");
-        String key = keyElement != null && keyElement.isJsonPrimitive() ? keyElement.getAsString() : null;
-
-        return new QueryBody(queryArray, templateObject, key);
+        return new Pair<>(queryArray, templateObject);
     }
-
-    private record QueryBody(JsonArray query, @Nullable JsonObject template, @Nullable String key) {}
 
     private void loadPlayersEndpoint() {
         PlayersListEndpoint ple = new PlayersListEndpoint();
@@ -81,8 +91,8 @@ public class EndpointManager {
 
         PlayersEndpoint playersEndpoint = new PlayersEndpoint();
         javalin.post(URLPath + "/players", ctx -> {
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(playersEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(playersEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond(), null));
         });
     }
 
@@ -92,8 +102,8 @@ public class EndpointManager {
 
         TownsEndpoint townsEndpoint = new TownsEndpoint(plugin);
         javalin.post(URLPath + "/towns", ctx -> {
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(townsEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(townsEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond(), null));
         });
     }
 
@@ -103,8 +113,8 @@ public class EndpointManager {
 
         NationsEndpoint nationsEndpoint = new NationsEndpoint();
         javalin.post(URLPath + "/nations", ctx -> {
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(nationsEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(nationsEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond(), null));
         });
     }
 
@@ -120,24 +130,24 @@ public class EndpointManager {
         QuartersEndpoint quartersEndpoint = new QuartersEndpoint();
         javalin.post(URLPath + "/quarters", ctx -> {
             quartersIntegration.throwIfDisabled();
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(quartersEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(quartersEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond(), null));
         });
     }
 
     private void loadLocationEndpoint() {
         LocationEndpoint locationEndpoint = new LocationEndpoint();
         javalin.post(URLPath + "/location", ctx -> {
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(locationEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(locationEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond(), null));
         });
     }
 
     private void loadNearbyEndpoint() {
         NearbyEndpoint nearbyEndpoint = new NearbyEndpoint();
         javalin.post(URLPath + "/nearby", ctx -> {
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(nearbyEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(nearbyEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond(), null));
         });
     }
 
@@ -148,34 +158,19 @@ public class EndpointManager {
         javalin.post(URLPath + "/discord", ctx -> {
             discordIntegration.throwIfDisabled();
 
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(discordEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
+            ctx.json(discordEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond(), null));
         });
+    }
+
+    private void loadPlayerStatsEndpoint() {
+        PlayerStatsEndpoint playerStatsEndpoint = new PlayerStatsEndpoint(this.plugin);
+        playerStatsEndpoint.initialize();
+        javalin.get(URLPath + "/player-stats", ctx -> ctx.json(playerStatsEndpoint.latestCachedStatistics()));
     }
 
     private void loadOnlinePlayersEndpoint() {
         OnlineEndpoint onlineEndpoint = new OnlineEndpoint();
         javalin.get(URLPath + "/online", ctx -> ctx.json(onlineEndpoint.lookup()));
-    }
-
-    private void loadMysteryMasterEndpoint() {
-        MysteryMasterEndpoint mysteryMasterEndpoint = new MysteryMasterEndpoint(plugin);
-        MysteryMasterIntegration mysteryMasterIntegration = plugin.integrations().mysteryMasterIntegration();
-        javalin.get(URLPath + "/mm", ctx -> {
-            mysteryMasterIntegration.throwIfDisabled();
-
-            ctx.json(mysteryMasterEndpoint.lookup());
-        });
-    }
-
-    private void loadShopsEndpoint() {
-        ShopEndpoint shopEndpoint = new ShopEndpoint(plugin);
-        QuickShopIntegration quickShopIntegration = plugin.integrations().quickShopIntegration();;
-        javalin.post(URLPath + "/shop", ctx -> {
-            quickShopIntegration.throwIfDisabled();
-
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(shopEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
-        });
     }
 }

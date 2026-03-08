@@ -1,4 +1,4 @@
-package net.earthmc.emcapi.endpoint;
+package net.earthmc.emcapi.endpoint.legacy;
 
 public class MudkipEndpoint {
 

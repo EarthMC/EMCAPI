@@ -13,6 +13,7 @@ import net.earthmc.emcapi.manager.NationMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +21,7 @@ import java.util.UUID;
 public class NationsEndpoint extends PostEndpoint<Nation> {
 
     @Override
-    public Nation getObjectOrNull(JsonElement element) {
+    public Nation getObjectOrNull(JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
 
@@ -35,7 +36,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
     }
 
     @Override
-    public JsonElement getJsonElement(Nation nation) {
+    public JsonElement getJsonElement(Nation nation, @Nullable String key) {
         JsonObject nationObject = new JsonObject();
 
         nationObject.addProperty("name", nation.getName());

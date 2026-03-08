@@ -10,6 +10,7 @@ import net.earthmc.emcapi.object.nearby.DiscordType;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -21,7 +22,7 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
     private static final BadRequestResponse INVALID_TYPE_TARGET = new BadRequestResponse("Your JSON query has an invalid type or target");
 
     @Override
-    public DiscordContext getObjectOrNull(JsonElement element) {
+    public DiscordContext getObjectOrNull(JsonElement element, @Nullable String key) {
         JsonObject jsonObject = JSONUtil.getJsonElementAsJsonObjectOrNull(element);
         if (jsonObject == null) {
             throw HttpExceptions.NOT_A_JSON_OBJECT;
@@ -60,7 +61,7 @@ public class DiscordEndpoint extends PostEndpoint<DiscordContext> {
     }
 
     @Override
-    public JsonElement getJsonElement(DiscordContext context) {
+    public JsonElement getJsonElement(DiscordContext context, @Nullable String key) {
         DiscordType type = context.getType();
         String target = context.getTarget();
 

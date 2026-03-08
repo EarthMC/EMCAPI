@@ -1,4 +1,4 @@
-package net.earthmc.emcapi.endpoint;
+package net.earthmc.emcapi.endpoint.legacy;
 
 import com.google.gson.JsonObject;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class PlayerStatsEndpoint {
     private final EMCAPI plugin;
