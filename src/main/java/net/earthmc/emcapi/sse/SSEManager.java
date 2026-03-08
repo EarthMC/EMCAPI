@@ -5,7 +5,7 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.sse.SseClient;
 import net.earthmc.emcapi.EMCAPI;
-import net.earthmc.emcapi.util.EndpointUtils;
+import net.earthmc.emcapi.manager.KeyManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 public class SSEManager {
     private final EMCAPI plugin;
     private final Javalin javalin;
-    private static final Map<UUID, ClientData> clientsMap = new ConcurrentHashMap<>();
+    private static final Map<Long, ClientData> clientsMap = new ConcurrentHashMap<>();
     private static final Set<SseClient> clients = ConcurrentHashMap.newKeySet();
     private static final Set<String> ALLOWED_EVENTS = Set.of(
         "NewDay",
@@ -46,16 +46,16 @@ public class SSEManager {
                 return;
             }
 
-            UUID key;
+            Long key;
             try {
-                key = UUID.fromString(auth.substring("Bearer ".length()));
+                key = Long.parseLong(auth.substring("Bearer ".length()));
             } catch (IllegalArgumentException ignored) {
                 ctx.status(401).result("Invalid API key format");
                 client.close();
                 return;
             }
 
-            UUID owner = EndpointUtils.getKeyOwner(key);
+            UUID owner = KeyManager.getKeyOwner(key);
             if (owner == null) {
                 ctx.status(403).result("Invalid API key");
                 client.close();
@@ -137,8 +137,8 @@ public class SSEManager {
         });
     }
 
-    public static void deleteKey(UUID uuid) {
-        ClientData data = clientsMap.remove(uuid);
+    public static void deleteKey(Long key) {
+        ClientData data = clientsMap.remove(key);
         if (data != null) {
             SseClient client = data.client;
             client.sendEvent("disconnected", "This API key was deleted by the owner");

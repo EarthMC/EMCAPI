@@ -28,8 +28,6 @@ import net.earthmc.emcapi.integration.QuickShopIntegration;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 public class EndpointManager {
 
     private final EMCAPI plugin;
@@ -71,17 +69,17 @@ public class EndpointManager {
 
         JsonElement keyElement = jsonObject.get("key");
         String keyValue = keyElement != null && keyElement.isJsonPrimitive() ? keyElement.getAsString() : null;
-        UUID key = null;
-        if (keyValue != null) {
+        Long key = null;
+        if (keyValue != null && keyValue.length() == 12) {
             try {
-                key = UUID.fromString(keyValue);
+                key = Long.parseLong(keyValue);
             } catch (IllegalArgumentException ignored) {}
         }
 
         return new QueryBody(queryArray, templateObject, key);
     }
 
-    private record QueryBody(JsonArray query, @Nullable JsonObject template, @Nullable UUID key) {}
+    private record QueryBody(JsonArray query, @Nullable JsonObject template, @Nullable Long key) {}
 
     private void loadPlayersEndpoint() {
         PlayersListEndpoint ple = new PlayersListEndpoint();

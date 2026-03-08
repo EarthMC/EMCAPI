@@ -1,5 +1,6 @@
 package net.earthmc.emcapi.command;
 
+import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.sse.SSEManager;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.kyori.adventure.text.Component;
@@ -77,9 +78,9 @@ public class ApiCommand implements TabExecutor {
         }
 
         UUID playerID = player.getUniqueId();
-        UUID key;
+        Long key;
         if (args.length == 1) {
-            key = EndpointUtils.getPlayerKey(playerID);
+            key = KeyManager.getPlayerKey(playerID);
             if (key != null) {
                 player.sendMessage(Component.text("Click to copy your API key.", NamedTextColor.GREEN).clickEvent(ClickEvent.copyToClipboard(key.toString())));
             } else {
@@ -90,25 +91,25 @@ public class ApiCommand implements TabExecutor {
         String action = args[1].toLowerCase();
         switch (action) {
             case "create" -> {
-                if (EndpointUtils.getPlayerKey(playerID) != null) {
+                if (KeyManager.getPlayerKey(playerID) != null) {
                     player.sendMessage(Component.text("You already have an API key! Use /api key to get it.", NamedTextColor.RED));
                 } else {
-                    key = EndpointUtils.createApiKey(playerID);
+                    key = KeyManager.createApiKey(playerID);
                     player.sendMessage(Component.text("Key created! Click to copy.", NamedTextColor.GREEN).clickEvent(ClickEvent.copyToClipboard(key.toString())));
                 }
             }
             case "delete" -> {
-                key = EndpointUtils.getPlayerKey(playerID);
+                key = KeyManager.getPlayerKey(playerID);
                 if (key != null) {
                     SSEManager.deleteKey(key);
-                    EndpointUtils.deletePlayerKey(playerID);
+                    KeyManager.deletePlayerKey(playerID);
                     player.sendMessage(Component.text("Successfully deleted your API key", NamedTextColor.GREEN));
                 } else {
                     player.sendMessage(Component.text("You do not have an API key.", NamedTextColor.RED));
                 }
             }
             case "copy" -> {
-                key = EndpointUtils.getPlayerKey(playerID);
+                key = KeyManager.getPlayerKey(playerID);
                 if (key != null) {
                     player.sendMessage(Component.text("Click to copy your API key.", NamedTextColor.GREEN).clickEvent(ClickEvent.copyToClipboard(key.toString())));
                 } else {

@@ -27,7 +27,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
     }
 
     @Override
-    public Town getObjectOrNull(JsonElement element, @Nullable UUID key) {
+    public Town getObjectOrNull(JsonElement element, @Nullable Long key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
 
@@ -42,7 +42,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
     }
 
     @Override
-    public JsonElement getJsonElement(Town town, @Nullable UUID key) {
+    public JsonElement getJsonElement(Town town, @Nullable Long key) {
         JsonObject townObject = new JsonObject();
 
         townObject.addProperty("name", town.getName());

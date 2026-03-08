@@ -19,7 +19,7 @@ import java.util.UUID;
 public class QuartersEndpoint extends PostEndpoint<Quarter> {
 
     @Override
-    public Quarter getObjectOrNull(JsonElement element, @Nullable UUID key) {
+    public Quarter getObjectOrNull(JsonElement element, @Nullable Long key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
 
@@ -34,7 +34,7 @@ public class QuartersEndpoint extends PostEndpoint<Quarter> {
     }
 
     @Override
-    public JsonElement getJsonElement(Quarter quarter, @Nullable UUID key) {
+    public JsonElement getJsonElement(Quarter quarter, @Nullable Long key) {
         JsonObject quarterObject = new JsonObject();
 
         quarterObject.addProperty("name", quarter.getName());

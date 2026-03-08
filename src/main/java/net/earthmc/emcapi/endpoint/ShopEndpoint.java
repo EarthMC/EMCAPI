@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.QuickShopIntegration;
+import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
@@ -22,7 +23,7 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     }
 
     @Override
-    public List<Shop> getObjectOrNull(JsonElement element, @Nullable UUID key) {
+    public List<Shop> getObjectOrNull(JsonElement element, @Nullable Long key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
 
@@ -38,10 +39,10 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     }
 
     @Override
-    public JsonElement getJsonElement(List<Shop> object, @Nullable UUID key) {
+    public JsonElement getJsonElement(List<Shop> object, @Nullable Long key) {
         JsonObject shopsObject = new JsonObject();
         int counter = 1;
-        UUID keyOwner = EndpointUtils.getKeyOwner(key);
+        UUID keyOwner = KeyManager.getKeyOwner(key);
         for (Shop shop : object) {
             if (!shop.getOwner().equals(keyOwner)) continue;
             shopsObject.add(String.valueOf(counter++), EndpointUtils.getShopObject(shop));

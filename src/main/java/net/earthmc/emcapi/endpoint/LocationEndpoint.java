@@ -14,12 +14,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
 
     @Override
-    public Pair<Integer, Integer> getObjectOrNull(JsonElement element, @Nullable UUID key) {
+    public Pair<Integer, Integer> getObjectOrNull(JsonElement element, @Nullable Long key) {
         JsonArray jsonArray = JSONUtil.getJsonElementAsJsonArrayOrNull(element);
         if (jsonArray == null) throw new BadRequestResponse("Your query contains a value that is not a JSON array");
 
@@ -43,7 +41,7 @@ public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
     }
 
     @Override
-    public JsonElement getJsonElement(Pair<Integer, Integer> pair, @Nullable UUID key) {
+    public JsonElement getJsonElement(Pair<Integer, Integer> pair, @Nullable Long key) {
         int x = pair.getFirst();
         int z = pair.getSecond();
 

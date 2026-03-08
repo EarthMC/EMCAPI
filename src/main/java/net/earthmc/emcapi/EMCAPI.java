@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.EndpointManager;
+import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.manager.LegacyEndpointManager;
 import net.earthmc.emcapi.sse.SSEManager;
 import net.earthmc.emcapi.sse.listeners.ShopSSEListener;
@@ -77,7 +78,7 @@ public final class EMCAPI extends JavaPlugin {
             pm.registerEvents(new ShopSSEListener(sseManager), this);
         }
         try {
-            EndpointUtils.loadApiKeys(getDataFolder().toPath());
+            KeyManager.loadApiKeys(getDataFolder().toPath());
         } catch (IOException e) {
             getSLF4JLogger().warn("IOException while loading API keys: ", e);
         }
@@ -93,7 +94,7 @@ public final class EMCAPI extends JavaPlugin {
         }
         sseManager.shutdown();
         try {
-            EndpointUtils.saveApiKeys(getDataFolder().toPath());
+            KeyManager.saveApiKeys(getDataFolder().toPath());
         } catch (IOException e) {
             getSLF4JLogger().warn("IOException while saving API keys: ", e);
         }

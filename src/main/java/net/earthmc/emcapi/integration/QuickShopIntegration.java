@@ -1,6 +1,6 @@
 package net.earthmc.emcapi.integration;
 
-import net.earthmc.emcapi.util.EndpointUtils;
+import net.earthmc.emcapi.manager.KeyManager;
 import org.maxgamer.quickshop.QuickShop;
 import org.maxgamer.quickshop.api.shop.Shop;
 
@@ -13,11 +13,11 @@ public class QuickShopIntegration extends Integration {
         super("QuickShop");
     }
 
-    public List<Shop> getPlayerShops(UUID player, UUID key) {
+    public List<Shop> getPlayerShops(UUID player, Long key) {
         if (!isEnabled()) {
             return List.of();
         }
-        if (!player.equals(EndpointUtils.getKeyOwner(key))) {
+        if (!player.equals(KeyManager.getKeyOwner(key))) {
             return List.of();
         }
         return QuickShop.getInstance().getShopManager().getPlayerAllShops(player);

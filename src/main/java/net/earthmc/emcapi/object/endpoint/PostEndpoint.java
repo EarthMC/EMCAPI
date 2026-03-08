@@ -8,11 +8,10 @@ import net.earthmc.emcapi.EMCAPI;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.UUID;
 
 public abstract class PostEndpoint<T> {
 
-    public String lookup(JsonArray queryArray, @Nullable JsonObject template, @Nullable UUID key) {
+    public String lookup(JsonArray queryArray, @Nullable JsonObject template, @Nullable Long key) {
         JsonArray jsonArray = new JsonArray();
 
         int numLoops = Math.min(EMCAPI.instance.getConfig().getInt("behaviour.max_lookup_size"), queryArray.size());
@@ -29,11 +28,11 @@ public abstract class PostEndpoint<T> {
         return jsonArray.toString();
     }
 
-    public abstract T getObjectOrNull(JsonElement element, @Nullable UUID key);
+    public abstract T getObjectOrNull(JsonElement element, @Nullable Long key);
 
-    public abstract JsonElement getJsonElement(T object, @Nullable UUID key);
+    public abstract JsonElement getJsonElement(T object, @Nullable Long key);
 
-    public JsonElement getTemplateJsonElement(T object, JsonObject template, @Nullable UUID key) {
+    public JsonElement getTemplateJsonElement(T object, JsonObject template, @Nullable Long key) {
         JsonElement fullJson = getJsonElement(object, key);
 
         if (!(fullJson instanceof JsonObject) || template == null || template.entrySet().isEmpty()) {

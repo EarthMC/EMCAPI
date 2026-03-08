@@ -20,7 +20,7 @@ import java.util.UUID;
 public class NationsEndpoint extends PostEndpoint<Nation> {
 
     @Override
-    public Nation getObjectOrNull(JsonElement element, @Nullable UUID key) {
+    public Nation getObjectOrNull(JsonElement element, @Nullable Long key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
 
@@ -35,7 +35,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
     }
 
     @Override
-    public JsonElement getJsonElement(Nation nation, @Nullable UUID key) {
+    public JsonElement getJsonElement(Nation nation, @Nullable Long key) {
         JsonObject nationObject = new JsonObject();
 
         nationObject.addProperty("name", nation.getName());
