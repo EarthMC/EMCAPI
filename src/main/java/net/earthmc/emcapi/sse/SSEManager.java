@@ -15,13 +15,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 
 public class SSEManager {
     private final EMCAPI plugin;
     private final Javalin javalin;
     private static final Map<String, ClientData> CLIENTS = new ConcurrentHashMap<>();
     private static final Map<String, Set<ClientData>> CLIENTS_BY_EVENT = new ConcurrentHashMap<>();
+    private static final Map<UUID, ClientData> CLIENTS_BY_UUID = new ConcurrentHashMap<>();
 
     private static final Set<String> ALLOWED_EVENTS = Set.of(
         "NewDay",
@@ -99,6 +99,7 @@ public class SSEManager {
 
             client.onClose(() -> {
                 CLIENTS.remove(key, data);
+                CLIENTS_BY_UUID.remove(data.playerID);
 
                 for (final String event : data.events()) {
                     final Set<ClientData> dataSet = CLIENTS_BY_EVENT.get(event);
@@ -110,6 +111,7 @@ public class SSEManager {
             });
 
             CLIENTS.put(key, data);
+            CLIENTS_BY_UUID.put(owner, data);
 
             for (final String event : events) {
                 CLIENTS_BY_EVENT.computeIfAbsent(event, k -> ConcurrentHashMap.newKeySet()).add(data);
@@ -128,26 +130,28 @@ public class SSEManager {
     }
 
     public void sendEvent(String event, JsonObject data) {
-        sendEvent(event, data, (Predicate<ClientData>) null);
+        sendEvent(event, data, null);
     }
 
-    public void sendEvent(String event, JsonObject data, UUID targetPlayerID) {
-        sendEvent(event, data, client -> client.playerID.equals(targetPlayerID));
-    }
+    public void sendEvent(String event, JsonObject data, @Nullable UUID targetPlayerId) {
+        final ClientData targetClient = targetPlayerId != null ? CLIENTS_BY_UUID.get(targetPlayerId) : null;
+        if (targetPlayerId != null && (targetClient == null || !targetClient.events.contains(event))) {
+            return; // No client is active to hear it
+        }
 
-    public void sendEvent(String event, JsonObject data, @Nullable Predicate<ClientData> predicate) {
         long timestamp = Instant.now().getEpochSecond();
         data.addProperty("timestamp", timestamp);
         String message = data.toString();
 
         plugin.getServer().getAsyncScheduler().runNow(plugin, t -> {
+            if (targetClient != null) {
+                targetClient.client.sendEvent(event, message);
+                return;
+            }
+
             final Set<ClientData> listeningClients = CLIENTS_BY_EVENT.getOrDefault(event, Set.of());
 
             for (ClientData clientData : listeningClients) {
-                if (predicate != null && !predicate.test(clientData)) {
-                    continue;
-                }
-
                 clientData.client.sendEvent(event, message);
             }
         });
