@@ -20,10 +20,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 public class TownsEndpoint extends PostEndpoint<Town> {
-    private final EMCAPI plugin;
 
     public TownsEndpoint(EMCAPI plugin) {
-        this.plugin = plugin;
+        super(plugin);
     }
 
     @Override

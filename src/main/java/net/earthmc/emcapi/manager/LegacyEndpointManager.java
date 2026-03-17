@@ -14,7 +14,6 @@ import net.earthmc.emcapi.endpoint.legacy.MudkipEndpoint;
 import net.earthmc.emcapi.endpoint.MysteryMasterEndpoint;
 import net.earthmc.emcapi.endpoint.NearbyEndpoint;
 import net.earthmc.emcapi.endpoint.OnlineEndpoint;
-import net.earthmc.emcapi.endpoint.legacy.PlayerStatsEndpoint;
 import net.earthmc.emcapi.endpoint.ServerEndpoint;
 import net.earthmc.emcapi.endpoint.towny.NationsEndpoint;
 import net.earthmc.emcapi.endpoint.towny.PlayersEndpoint;
@@ -65,7 +64,6 @@ public class LegacyEndpointManager {
         loadLocationEndpoint();
         loadNearbyEndpoint();
         loadDiscordEndpoint();
-        loadPlayerStatsEndpoint();
         loadOnlinePlayersEndpoint();
     }
 
@@ -89,7 +87,7 @@ public class LegacyEndpointManager {
         PlayersListEndpoint ple = new PlayersListEndpoint();
         javalin.get(URLPath + "/players", ctx -> ctx.json(ple.lookup()));
 
-        PlayersEndpoint playersEndpoint = new PlayersEndpoint();
+        PlayersEndpoint playersEndpoint = new PlayersEndpoint(plugin);
         javalin.post(URLPath + "/players", ctx -> {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(playersEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond(), null));
@@ -111,7 +109,7 @@ public class LegacyEndpointManager {
         NationsListEndpoint nle = new NationsListEndpoint();
         javalin.get(URLPath + "/nations", ctx -> ctx.json(nle.lookup()));
 
-        NationsEndpoint nationsEndpoint = new NationsEndpoint();
+        NationsEndpoint nationsEndpoint = new NationsEndpoint(plugin);
         javalin.post(URLPath + "/nations", ctx -> {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(nationsEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond(), null));
@@ -127,7 +125,7 @@ public class LegacyEndpointManager {
             ctx.json(qle.lookup());
         });
 
-        QuartersEndpoint quartersEndpoint = new QuartersEndpoint();
+        QuartersEndpoint quartersEndpoint = new QuartersEndpoint(plugin);
         javalin.post(URLPath + "/quarters", ctx -> {
             quartersIntegration.throwIfDisabled();
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
@@ -136,7 +134,7 @@ public class LegacyEndpointManager {
     }
 
     private void loadLocationEndpoint() {
-        LocationEndpoint locationEndpoint = new LocationEndpoint();
+        LocationEndpoint locationEndpoint = new LocationEndpoint(plugin);
         javalin.post(URLPath + "/location", ctx -> {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(locationEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond(), null));
@@ -144,7 +142,7 @@ public class LegacyEndpointManager {
     }
 
     private void loadNearbyEndpoint() {
-        NearbyEndpoint nearbyEndpoint = new NearbyEndpoint();
+        NearbyEndpoint nearbyEndpoint = new NearbyEndpoint(plugin);
         javalin.post(URLPath + "/nearby", ctx -> {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(nearbyEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond(), null));
@@ -152,7 +150,7 @@ public class LegacyEndpointManager {
     }
 
     private void loadDiscordEndpoint() {
-        DiscordEndpoint discordEndpoint = new DiscordEndpoint();
+        DiscordEndpoint discordEndpoint = new DiscordEndpoint(plugin);
         final DiscordIntegration discordIntegration = plugin.integrations().discordIntegration();
 
         javalin.post(URLPath + "/discord", ctx -> {
@@ -161,12 +159,6 @@ public class LegacyEndpointManager {
             Pair<JsonArray, JsonObject> parsedBody = parseBody(ctx.body());
             ctx.json(discordEndpoint.lookup(parsedBody.getFirst(), parsedBody.getSecond(), null));
         });
-    }
-
-    private void loadPlayerStatsEndpoint() {
-        PlayerStatsEndpoint playerStatsEndpoint = new PlayerStatsEndpoint(this.plugin);
-        playerStatsEndpoint.initialize();
-        javalin.get(URLPath + "/player-stats", ctx -> ctx.json(playerStatsEndpoint.latestCachedStatistics()));
     }
 
     private void loadOnlinePlayersEndpoint() {

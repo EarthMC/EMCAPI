@@ -7,6 +7,7 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import io.javalin.http.BadRequestResponse;
 import kotlin.Pair;
+import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
@@ -15,6 +16,10 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 
 public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
+
+    public LocationEndpoint(final EMCAPI plugin) {
+        super(plugin);
+    }
 
     @Override
     public Pair<Integer, Integer> getObjectOrNull(JsonElement element, @Nullable String key) {

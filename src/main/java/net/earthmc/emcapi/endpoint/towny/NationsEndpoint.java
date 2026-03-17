@@ -8,6 +8,7 @@ import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
 import io.javalin.http.BadRequestResponse;
+import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.manager.NationMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
@@ -18,6 +19,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class NationsEndpoint extends PostEndpoint<Nation> {
+
+    public NationsEndpoint(final EMCAPI plugin) {
+        super(plugin);
+    }
 
     @Override
     public Nation getObjectOrNull(JsonElement element, @Nullable String key) {

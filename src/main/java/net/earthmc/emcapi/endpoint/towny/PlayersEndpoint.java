@@ -7,6 +7,7 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.object.Resident;
 import io.javalin.http.BadRequestResponse;
+import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
@@ -17,6 +18,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class PlayersEndpoint extends PostEndpoint<Resident> {
+
+    public PlayersEndpoint(final EMCAPI plugin) {
+        super(plugin);
+    }
 
     @Override
     public Resident getObjectOrNull(JsonElement element, @Nullable String key) {
@@ -30,9 +35,7 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
             resident = TownyAPI.getInstance().getResident(string);
         }
 
-        if (resident != null && EndpointUtils.playerOptedOut(resident.getUUID())
-            && !resident.getUUID().equals(KeyManager.getKeyOwner(key))
-        ) {
+        if (resident != null && plugin.getOptOut().playerOptedOut(resident.getUUID()) && !resident.getUUID().equals(KeyManager.getKeyOwner(key))) {
             return null;
         }
 

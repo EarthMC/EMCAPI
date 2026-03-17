@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.javalin.http.BadRequestResponse;
+import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
@@ -17,6 +18,10 @@ import java.awt.*;
 import java.util.UUID;
 
 public class QuartersEndpoint extends PostEndpoint<Quarter> {
+
+    public QuartersEndpoint(final EMCAPI plugin) {
+        super(plugin);
+    }
 
     @Override
     public Quarter getObjectOrNull(JsonElement element, @Nullable String key) {

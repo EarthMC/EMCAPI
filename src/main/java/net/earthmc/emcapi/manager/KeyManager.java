@@ -1,76 +1,112 @@
 package net.earthmc.emcapi.manager;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.earthmc.emcapi.EMCAPI;
+import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.security.SecureRandom;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Base64;
-import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+@NullMarked
 public class KeyManager {
-    private static final Map<UUID, String> playerKeyMap = new ConcurrentHashMap<>();
-    private static final Map<String, UUID> keyPlayerMap = new ConcurrentHashMap<>();
-    private static final String apiKeyFile = "api_keys.txt";
+    private static final Random RANDOM = new SecureRandom();
 
-    public static void loadApiKeys(Path path) throws IOException {
-        final Path file = path.resolve(apiKeyFile);
-        if (!Files.exists(file)) {
+    private static final Map<UUID, String> PLAYER_KEY_MAP = new ConcurrentHashMap<>();
+    private static final Map<String, UUID> KEY_PLAYER_MAP = new ConcurrentHashMap<>();
+
+    public static void loadApiKeys(final EMCAPI plugin) throws SQLException {
+        if (!plugin.getDatabase().ready()) {
+            plugin.getSLF4JLogger().warn("Unable to load API keys, database is not ready.");
             return;
         }
 
-        Files.readAllLines(file).forEach(result -> {
-            try {
-                String[] split = result.split(",");
-                if (split.length != 2) return;
-                UUID player = UUID.fromString(split[0]);
-                String key = split[1];
-                playerKeyMap.put(player, key);
-                keyPlayerMap.put(key, player);
-            } catch (IllegalArgumentException ignored) {}
-        });
-    }
+        try (final Connection connection = plugin.getDatabase().getConnection(); PreparedStatement ps = connection.prepareStatement("SELECT uuid, api_key FROM api_keys"); final ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                final UUID uuid;
+                try {
+                    uuid = UUID.fromString(rs.getString("uuid"));
+                } catch (IllegalArgumentException e) {
+                    plugin.getSLF4JLogger().warn("Invalid UUID format '{}' for row in the api_keys table", rs.getString("uuid"));
+                    continue;
+                }
 
-    public static void saveApiKeys(Path path) throws IOException {
-        final List<String> lines = playerKeyMap.entrySet().stream().map(entry -> entry.getKey() + "," + entry.getValue()).toList();
+                final String key = rs.getString("api_key");
 
-        Files.write(path.resolve(apiKeyFile), lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                PLAYER_KEY_MAP.put(uuid, key);
+                KEY_PLAYER_MAP.put(key, uuid);
+            }
+        }
     }
 
     public static @Nullable String getPlayerKey(UUID player) {
-        return playerKeyMap.get(player);
+        return PLAYER_KEY_MAP.get(player);
     }
 
-    public static @NotNull String createApiKey(UUID player) {
-        SecureRandom random = new SecureRandom();
+    public static String createApiKey(UUID player) {
+        byte[] array = new byte[128];
+        RANDOM.nextBytes(array);
+        String key = Base64.getUrlEncoder().withoutPadding().encodeToString(array);
 
-        byte[] array = new byte[1024];
-        random.nextBytes(array);
-        String key = decode(array);
-        playerKeyMap.put(player, key);
-        keyPlayerMap.put(key, player);
+        PLAYER_KEY_MAP.put(player, key);
+        KEY_PLAYER_MAP.put(key, player);
+
+        final EMCAPI plugin = EMCAPI.instance;
+        if (!plugin.getDatabase().ready()) {
+            plugin.getSLF4JLogger().warn("The database has not been properly configured yet, API keys will not persist across restarts.");
+            return key;
+        }
+
+        plugin.getServer().getAsyncScheduler().runNow(plugin, t -> {
+            try (final Connection connection = plugin.getDatabase().getConnection(); final PreparedStatement ps = connection.prepareStatement("INSERT INTO api_keys (uuid, api_key) VALUES (?, ?) ON DUPLICATE KEY UPDATE api_key = VALUES(api_key)")) {
+                ps.setString(1, player.toString());
+                ps.setString(2, key);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                plugin.getSLF4JLogger().warn("Failed to insert api key for player {} into database", player, e);
+            }
+        });
+
         return key;
     }
 
     public static void deletePlayerKey(UUID player) {
-        String key = playerKeyMap.remove(player);
-        if (key != null) {
-            keyPlayerMap.remove(key);
+        String key = PLAYER_KEY_MAP.remove(player);
+        if (key == null) {
+            return;
         }
+
+        KEY_PLAYER_MAP.remove(key);
+
+        final EMCAPI plugin = EMCAPI.instance;
+        if (!plugin.getDatabase().ready()) {
+            return;
+        }
+
+        plugin.getServer().getAsyncScheduler().runNow(plugin, t -> {
+            try (final Connection connection = plugin.getDatabase().getConnection(); final PreparedStatement ps = connection.prepareStatement("DELETE FROM api_keys WHERE uuid = ? LIMIT 1")) {
+                ps.setString(1, player.toString());
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                plugin.getSLF4JLogger().warn("Failed delete api key for player {} from database", player, e);
+            }
+        });
     }
 
-    public static UUID getKeyOwner(String key) {
-        if (key == null) return null;
-        return keyPlayerMap.get(key);
-    }
+    @Contract("null -> null")
+    public static @Nullable UUID getKeyOwner(@Nullable String key) {
+        if (key == null) {
+            return null;
+        }
 
-    private static String decode(byte[] array) {
-        return Base64.getEncoder().encodeToString(array);
+        return KEY_PLAYER_MAP.get(key);
     }
 }

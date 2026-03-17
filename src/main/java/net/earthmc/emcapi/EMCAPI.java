@@ -1,19 +1,21 @@
 package net.earthmc.emcapi;
 
+import com.zaxxer.hikari.HikariConfig;
 import io.javalin.Javalin;
 import io.javalin.util.JavalinLogger;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import net.earthmc.emcapi.database.APIDatabase;
+import net.earthmc.emcapi.database.DatabaseSchema;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.EndpointManager;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.manager.LegacyEndpointManager;
+import net.earthmc.emcapi.manager.OptOut;
 import net.earthmc.emcapi.sse.SSEManager;
 import net.earthmc.emcapi.sse.listeners.ShopSSEListener;
 import net.earthmc.emcapi.sse.listeners.TownySSEListener;
-import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.command.ApiCommand;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Connector;
@@ -25,6 +27,9 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Objects;
 
 public final class EMCAPI extends JavaPlugin {
 
@@ -32,6 +37,8 @@ public final class EMCAPI extends JavaPlugin {
     private Javalin javalin;
     private Integrations pluginIntegrations;
     private SSEManager sseManager;
+    private final APIDatabase database = new APIDatabase();
+    private final OptOut optOut = new OptOut(this);
 
     @Override
     public void onLoad() {
@@ -44,6 +51,7 @@ public final class EMCAPI extends JavaPlugin {
         instance = this;
 
         loadConfig();
+        loadDatabase();
         initialiseJavalin();
 
         this.pluginIntegrations = new Integrations(this);
@@ -54,19 +62,9 @@ public final class EMCAPI extends JavaPlugin {
         }
         new EndpointManager(this).loadEndpoints();
 
-        PluginCommand apiCommand = getCommand("api");
-        if (apiCommand == null) {
-            getLogger().warning("API command not found.");
-        } else {
-            ApiCommand cmd = new ApiCommand();
-            apiCommand.setExecutor(cmd);
-            apiCommand.setTabCompleter(cmd);
-        }
-        try {
-            EndpointUtils.loadOptOut(getDataFolder().toPath());
-        } catch (IOException e) {
-            getLogger().warning("IOException while loading opted-out players: " + e);
-        }
+        Objects.requireNonNull(getCommand("api")).setExecutor(new ApiCommand(this));
+
+        optOut.loadOptOut();
 
         sseManager = new SSEManager(this);
         sseManager.loadSSE();
@@ -77,27 +75,19 @@ public final class EMCAPI extends JavaPlugin {
         if (pm.isPluginEnabled("QuickShop")) {
             pm.registerEvents(new ShopSSEListener(sseManager), this);
         }
+
         try {
-            KeyManager.loadApiKeys(getDataFolder().toPath());
-        } catch (IOException e) {
-            getSLF4JLogger().warn("IOException while loading API keys: ", e);
+            KeyManager.loadApiKeys(this);
+        } catch (SQLException e) {
+            getSLF4JLogger().warn("exception while loading API keys: ", e);
         }
     }
 
     @Override
     public void onDisable() {
         javalin.stop();
-        try {
-            EndpointUtils.saveOptOut(getDataFolder().toPath());
-        } catch (IOException e) {
-            getLogger().warning("IOException while saving opted-out players: " + e);
-        }
         sseManager.shutdown();
-        try {
-            KeyManager.saveApiKeys(getDataFolder().toPath());
-        } catch (IOException e) {
-            getSLF4JLogger().warn("IOException while saving API keys: ", e);
-        }
+        database.close();
     }
 
     private void initialiseJavalin() {
@@ -120,6 +110,36 @@ public final class EMCAPI extends JavaPlugin {
     private void loadConfig() {
         saveDefaultConfig();
         reloadConfig();
+    }
+
+    private void loadDatabase() {
+        final HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mysql://" + getConfig().getString("database.host") + ":" + getConfig().getString("database.port") + "/" + getConfig().getString("database.name") + getConfig().getString("database.flags"));
+        final String username = getConfig().getString("database.username");
+        final String password = getConfig().getString("database.password");
+
+        config.setUsername(username);
+        config.setPassword(password);
+
+        config.setMaximumPoolSize(Math.min(1, getConfig().getInt("database.max-pool-size", 1)));
+        config.setMinimumIdle(Math.min(0, getConfig().getInt("database.min-pool-size", 0)));
+        config.setPoolName("EMCAPI");
+
+        try {
+            database.start(config);
+
+            try (final Connection connection = database.getConnection()) {
+                DatabaseSchema.createTables(connection);
+            } catch (SQLException e) {
+                getSLF4JLogger().warn("Failed to create default tables", e);
+            }
+        } catch (SQLException e) {
+            if (!"root".equals(username) || !"".equals(password)) {
+                getSLF4JLogger().warn("Failed to start datasource", e);
+            }
+        } catch (ReflectiveOperationException e) {
+            getSLF4JLogger().warn("Failed to find embedded sql driver", e);
+        }
     }
 
     private void disableServerVersionHeader(final Server server) {
@@ -154,5 +174,13 @@ public final class EMCAPI extends JavaPlugin {
     public String getURLPath() {
         String version = getConfig().getString("networking.api_version", "3");
         return "v" + version + "/" + getConfig().getString("networking.url_path");
+    }
+
+    public APIDatabase getDatabase() {
+        return database;
+    }
+
+    public OptOut getOptOut() {
+        return optOut;
     }
 }

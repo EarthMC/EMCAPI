@@ -11,6 +11,7 @@ import com.palmergames.bukkit.towny.object.WorldCoord;
 import com.palmergames.util.MathUtil;
 import io.javalin.http.BadRequestResponse;
 import kotlin.Pair;
+import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.object.nearby.NearbyContext;
 import net.earthmc.emcapi.object.nearby.NearbyType;
@@ -24,6 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
+
+    public NearbyEndpoint(final EMCAPI plugin) {
+        super(plugin);
+    }
 
     @Override
     public NearbyContext getObjectOrNull(JsonElement element, @Nullable String key) {

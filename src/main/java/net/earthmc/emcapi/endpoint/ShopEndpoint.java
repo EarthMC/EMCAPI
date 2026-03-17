@@ -19,6 +19,7 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     private final QuickShopIntegration integration;
 
     public ShopEndpoint(EMCAPI plugin) {
+        super(plugin);
         this.integration = plugin.integrations().quickShopIntegration();
     }
 

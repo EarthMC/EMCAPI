@@ -10,6 +10,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 public abstract class PostEndpoint<T> {
+    protected final EMCAPI plugin;
+
+    protected PostEndpoint(final EMCAPI plugin) {
+        this.plugin = plugin;
+    }
 
     public String lookup(JsonArray queryArray, @Nullable JsonObject template, @Nullable String key) {
         JsonArray jsonArray = new JsonArray();

@@ -1,8 +1,8 @@
 package net.earthmc.emcapi.command;
 
+import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.sse.SSEManager;
-import net.earthmc.emcapi.util.EndpointUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -19,7 +19,9 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 public class ApiCommand implements TabExecutor {
-    private static final Component infoMessage = Component.text()
+    private final EMCAPI plugin;
+
+    private static final Component INFO_MESSAGE = Component.text()
         .append(Component.text("- The API provides real-time information about players, towns, and nations. The API can be accessed ", NamedTextColor.AQUA))
         .append(Component.text("here", NamedTextColor.AQUA, TextDecoration.UNDERLINED).clickEvent(ClickEvent.openUrl("https://api.earthmc.net/")))
         .appendNewline()
@@ -31,6 +33,10 @@ public class ApiCommand implements TabExecutor {
         .append(Component.text("- If you'd like to opt out of your information being public on the API, you can use /api opt-out", NamedTextColor.RED))
         .build();
 
+    public ApiCommand(EMCAPI plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (!(commandSender instanceof Player player)) {
@@ -39,18 +45,18 @@ public class ApiCommand implements TabExecutor {
         }
 
         if (args.length < 1) {
-            player.sendMessage(infoMessage);
+            player.sendMessage(INFO_MESSAGE);
             return true;
         }
         String action = args[0].toLowerCase();
         switch (action) {
             case "opt-in" -> {
                 player.sendMessage(Component.text("You have opted back in for your information being public on the API.", NamedTextColor.GREEN));
-                EndpointUtils.setOptedOut(player.getUniqueId(), false);
+                plugin.getOptOut().setOptedOut(player.getUniqueId(), false);
             }
             case "opt-out" -> {
                 player.sendMessage(Component.text("You have opted out of your information being public on the API", NamedTextColor.RED));
-                EndpointUtils.setOptedOut(player.getUniqueId(), true);
+                plugin.getOptOut().setOptedOut(player.getUniqueId(), true);
             }
             case "key" -> handleKey(player, args);
             default -> player.sendMessage(Component.text("Usage: /api [opt-in|opt-out|key]", NamedTextColor.RED));
@@ -82,7 +88,7 @@ public class ApiCommand implements TabExecutor {
         if (args.length == 1) {
             key = KeyManager.getPlayerKey(playerID);
             if (key != null) {
-                player.sendMessage(Component.text("Click to copy your API key.", NamedTextColor.GREEN).clickEvent(ClickEvent.copyToClipboard(key.toString())));
+                player.sendMessage(Component.text("Click to copy your API key.", NamedTextColor.GREEN).clickEvent(ClickEvent.copyToClipboard(key)));
             } else {
                 player.sendMessage(Component.text("You do not have an API key. Use /api key create to create one.", NamedTextColor.RED));
             }
@@ -95,7 +101,7 @@ public class ApiCommand implements TabExecutor {
                     player.sendMessage(Component.text("You already have an API key! Use /api key to get it.", NamedTextColor.RED));
                 } else {
                     key = KeyManager.createApiKey(playerID);
-                    player.sendMessage(Component.text("Key created! Click to copy.", NamedTextColor.GREEN).clickEvent(ClickEvent.copyToClipboard(key.toString())));
+                    player.sendMessage(Component.text("Key created! Click to copy.", NamedTextColor.GREEN).clickEvent(ClickEvent.copyToClipboard(key)));
                 }
             }
             case "delete" -> {
@@ -111,7 +117,7 @@ public class ApiCommand implements TabExecutor {
             case "copy" -> {
                 key = KeyManager.getPlayerKey(playerID);
                 if (key != null) {
-                    player.sendMessage(Component.text("Click to copy your API key.", NamedTextColor.GREEN).clickEvent(ClickEvent.copyToClipboard(key.toString())));
+                    player.sendMessage(Component.text("Click to copy your API key.", NamedTextColor.GREEN).clickEvent(ClickEvent.copyToClipboard(key)));
                 } else {
                     player.sendMessage(Component.text("You do not have an API key. Use /api key create to create one.", NamedTextColor.RED));
                 }

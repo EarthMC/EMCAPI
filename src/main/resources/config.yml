@@ -22,3 +22,13 @@ behaviour:
 
   # Should legacy endpoints (if any) be loaded?
   load_legacy: true
+
+database:
+  host: 127.0.0.1
+  port: 3306
+  username: 'root'
+  password: ''
+  name: emcapi
+  min-pool-size: 0
+  max-pool-size: 1
+  flags: ''

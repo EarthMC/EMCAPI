@@ -6,8 +6,12 @@ quarters = "e9ed8a133a"
 towny = "0.102.0.0"
 mysterymaster-api = "1.0.0"
 superbvote = "0.6.0"
-conventions = "1.0.8"
 quickshop = "5.1.2.5-SNAPSHOT"
+hikaricp = "7.0.2"
+
+# plugins
+conventions = "1.0.8"
+shadow = "9.3.0"
 
 [libraries]
 discordsrv = { group = "com.discordsrv", name = "discordsrv", version.ref = "discordsrv" }
@@ -18,6 +22,8 @@ paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" 
 mysterymaster-api = { group = "net.earthmc.mysterymaster", name = "mysterymaster-api", version.ref = "mysterymaster-api" }
 superbvote = { group = "net.earthmc.superbvote", name = "SuperbVote", version.ref = "superbvote" }
 quickshop = { group = "org.maxgamer", name = "QuickShop", version.ref = "quickshop" }
+hikaricp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp" }
 
 [plugins]
 conventions-java = { id = "net.earthmc.conventions.java", version.ref = "conventions" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

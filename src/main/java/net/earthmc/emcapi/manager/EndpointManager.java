@@ -79,7 +79,7 @@ public class EndpointManager {
         PlayersListEndpoint ple = new PlayersListEndpoint();
         javalin.get(URLPath + "/players", ctx -> ctx.json(ple.lookup()));
 
-        PlayersEndpoint playersEndpoint = new PlayersEndpoint();
+        PlayersEndpoint playersEndpoint = new PlayersEndpoint(plugin);
         javalin.post(URLPath + "/players", ctx -> {
             QueryBody parsedBody = parseBody(ctx.body());
             ctx.json(playersEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
@@ -101,7 +101,7 @@ public class EndpointManager {
         NationsListEndpoint nle = new NationsListEndpoint();
         javalin.get(URLPath + "/nations", ctx -> ctx.json(nle.lookup()));
 
-        NationsEndpoint nationsEndpoint = new NationsEndpoint();
+        NationsEndpoint nationsEndpoint = new NationsEndpoint(plugin);
         javalin.post(URLPath + "/nations", ctx -> {
             QueryBody parsedBody = parseBody(ctx.body());
             ctx.json(nationsEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
@@ -117,7 +117,7 @@ public class EndpointManager {
             ctx.json(qle.lookup());
         });
 
-        QuartersEndpoint quartersEndpoint = new QuartersEndpoint();
+        QuartersEndpoint quartersEndpoint = new QuartersEndpoint(plugin);
         javalin.post(URLPath + "/quarters", ctx -> {
             quartersIntegration.throwIfDisabled();
             QueryBody parsedBody = parseBody(ctx.body());
@@ -126,7 +126,7 @@ public class EndpointManager {
     }
 
     private void loadLocationEndpoint() {
-        LocationEndpoint locationEndpoint = new LocationEndpoint();
+        LocationEndpoint locationEndpoint = new LocationEndpoint(plugin);
         javalin.post(URLPath + "/location", ctx -> {
             QueryBody parsedBody = parseBody(ctx.body());
             ctx.json(locationEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
@@ -134,7 +134,7 @@ public class EndpointManager {
     }
 
     private void loadNearbyEndpoint() {
-        NearbyEndpoint nearbyEndpoint = new NearbyEndpoint();
+        NearbyEndpoint nearbyEndpoint = new NearbyEndpoint(plugin);
         javalin.post(URLPath + "/nearby", ctx -> {
             QueryBody parsedBody = parseBody(ctx.body());
             ctx.json(nearbyEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
@@ -142,7 +142,7 @@ public class EndpointManager {
     }
 
     private void loadDiscordEndpoint() {
-        DiscordEndpoint discordEndpoint = new DiscordEndpoint();
+        DiscordEndpoint discordEndpoint = new DiscordEndpoint(plugin);
         final DiscordIntegration discordIntegration = plugin.integrations().discordIntegration();
 
         javalin.post(URLPath + "/discord", ctx -> {
