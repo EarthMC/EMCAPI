@@ -85,8 +85,8 @@ public final class EMCAPI extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        javalin.stop();
         sseManager.shutdown();
+        javalin.stop();
         database.close();
     }
 
