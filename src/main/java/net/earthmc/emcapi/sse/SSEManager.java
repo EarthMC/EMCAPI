@@ -7,6 +7,7 @@ import io.javalin.http.sse.SseClient;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.manager.KeyManager;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -19,8 +20,9 @@ import java.util.function.Predicate;
 public class SSEManager {
     private final EMCAPI plugin;
     private final Javalin javalin;
-    private static final Map<String, ClientData> clientsMap = new ConcurrentHashMap<>();
-    private static final Set<SseClient> clients = ConcurrentHashMap.newKeySet();
+    private static final Map<String, ClientData> CLIENTS = new ConcurrentHashMap<>();
+    private static final Map<String, Set<ClientData>> CLIENTS_BY_EVENT = new ConcurrentHashMap<>();
+
     private static final Set<String> ALLOWED_EVENTS = Set.of(
         "NewDay",
         "NationCreated", "NationDeleted", "NationRenamed", "NationKingChanged", "NationMerged",
@@ -41,7 +43,7 @@ public class SSEManager {
             String auth = ctx.header("Authorization");
 
             if (auth == null || !auth.startsWith("Bearer ")) {
-                ctx.status(401).result("Missing API key");
+                client.sendEvent("error", "Missing API key");
                 client.close();
                 return;
             }
@@ -49,12 +51,13 @@ public class SSEManager {
             String key = auth.substring("Bearer ".length());
             UUID owner = KeyManager.getKeyOwner(key);
             if (owner == null) {
-                ctx.status(403).result("Invalid API key");
+                client.sendEvent("error", "Invalid API key");
                 client.close();
                 return;
             }
-            if (clientsMap.containsKey(key)) {
-                ctx.status(403).result("This API key is already in use.");
+
+            if (CLIENTS.containsKey(key)) {
+                client.sendEvent("error", "This API key is already in use.");
                 client.close();
                 return;
             }
@@ -64,6 +67,12 @@ public class SSEManager {
 
             String listenStr = ctx.queryParam("listen");
             if (listenStr != null) {
+                if (listenStr.length() > 10_000) {
+                    client.sendEvent("error", "Attempted to listen to too many events.");
+                    client.close();
+                    return;
+                }
+
                 for (String event : listenStr.split(",")) {
                     if (ALLOWED_EVENTS.contains(event)) {
                         events.add(event);
@@ -71,37 +80,51 @@ public class SSEManager {
                         invalid.add(event);
                     }
                 }
-                if (events.isEmpty()) {
-                    ctx.status(400).result("No valid events specified");
-                    client.close();
-                    return;
-                }
-            } else {
-                events.addAll(new HashSet<>(ALLOWED_EVENTS));
             }
-            ClientData data = new ClientData(client, events, owner);
+
+            if (events.isEmpty()) {
+                client.sendEvent("error", "No valid events specified through the 'listen' query param.");
+                client.close();
+                return;
+            }
+
+            ClientData data = new ClientData(client, Set.copyOf(events), owner);
             client.keepAlive();
             client.sendEvent("open", "Connected to the EarthMC API.");
             client.sendEvent("listening", "Listening to the following events: " + String.join(", ", events));
+
             if (!invalid.isEmpty()) {
                 client.sendEvent("invalid", "The following events are invalid: " + String.join(", ", invalid));
             }
+
             client.onClose(() -> {
-                clients.remove(client);
-                clientsMap.remove(key, data);
+                CLIENTS.remove(key, data);
+
+                for (final String event : data.events()) {
+                    final Set<ClientData> dataSet = CLIENTS_BY_EVENT.get(event);
+
+                    if (dataSet != null) {
+                        dataSet.remove(data);
+                    }
+                }
             });
 
-            clients.add(client);
-            clientsMap.put(key, data);
+            CLIENTS.put(key, data);
+
+            for (final String event : events) {
+                CLIENTS_BY_EVENT.computeIfAbsent(event, k -> ConcurrentHashMap.newKeySet()).add(data);
+            }
         });
     }
 
     public void shutdown() {
-        for (SseClient client : clients) {
-            client.sendEvent("close", "EarthMC API shut down.");
-            client.close();
+        for (ClientData data : CLIENTS.values()) {
+            data.client.sendEvent("close", "EarthMC API shutting down.");
+            data.client.close();
         }
-        clientsMap.clear();
+
+        CLIENTS.clear();
+        CLIENTS_BY_EVENT.clear();
     }
 
     public void sendEvent(String event, JsonObject data) {
@@ -118,25 +141,26 @@ public class SSEManager {
         String message = data.toString();
 
         plugin.getServer().getAsyncScheduler().runNow(plugin, t -> {
-            for (ClientData clientData : clientsMap.values()) {
-                if (!clientData.events.contains(event)) {
+            final Set<ClientData> listeningClients = CLIENTS_BY_EVENT.getOrDefault(event, Set.of());
+
+            for (ClientData clientData : listeningClients) {
+                if (predicate != null && !predicate.test(clientData)) {
                     continue;
                 }
-                if (predicate != null && !predicate.test(clientData))
-                    continue;
+
                 clientData.client.sendEvent(event, message);
             }
         });
     }
 
     public static void deleteKey(String key) {
-        ClientData data = clientsMap.remove(key);
+        ClientData data = CLIENTS.remove(key);
         if (data != null) {
             SseClient client = data.client;
-            client.sendEvent("disconnected", "This API key was deleted by the owner");
+            client.sendEvent("close", "This API key was deleted by the owner");
             client.close();
         }
     }
 
-    public record ClientData(SseClient client, Set<String> events, UUID playerID) {}
+    public record ClientData(SseClient client, @Unmodifiable Set<String> events, UUID playerID) {}
 }
