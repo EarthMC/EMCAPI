@@ -25,6 +25,7 @@ import net.earthmc.emcapi.util.EndpointUtils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class TownySSEListener extends AbstractSSEListener {
@@ -151,15 +152,21 @@ public class TownySSEListener extends AbstractSSEListener {
         JsonObject message = new JsonObject();
         message.add("nation", EndpointUtils.getNationJsonObject(nation));
         message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
-        UUID leader = nation.getCapital() != null
-            ? nation.getKing().getUUID()
-            : event.getTown().getMayor().getUUID(); // NationAddTown is fired when new nations are created, before the capital is set. In this case, this town will be the capital anyway.
-        sse.sendEvent("TownJoinedNation", message, leader);
+        try {
+            UUID leader = nation.getCapital() != null
+                ? nation.getKing().getUUID()
+                : event.getTown().getMayor().getUUID(); // NationAddTown is fired when new nations are created, before the capital is set. In this case, this town will be the capital anyway.
+            sse.sendEvent("TownJoinedNation", message, Objects.requireNonNull(leader));
+        } catch (NullPointerException ignored) {}
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTownLeave(NationRemoveTownEvent event) {
         Nation nation = event.getNation();
+        if (nation.getKing() == null) {
+            return;
+        }
+
         JsonObject message = new JsonObject();
         message.add("nation", EndpointUtils.getNationJsonObject(nation));
         message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
@@ -169,6 +176,10 @@ public class TownySSEListener extends AbstractSSEListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTownJoin(TownAddResidentEvent event) {
         Town town = event.getTown();
+        if (town.getMayor() == null) {
+            return;
+        }
+
         JsonObject message = new JsonObject();
         message.add("town", EndpointUtils.getTownJsonObject(town));
         message.add("resident", EndpointUtils.getResidentJsonObject(event.getResident()));
@@ -178,6 +189,10 @@ public class TownySSEListener extends AbstractSSEListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTownLeave(TownRemoveResidentEvent event) {
         Town town = event.getTown();
+        if (town.getMayor() == null) {
+            return;
+        }
+
         JsonObject message = new JsonObject();
         message.add("town", EndpointUtils.getTownJsonObject(town));
         message.add("resident", EndpointUtils.getResidentJsonObject(event.getResident()));
