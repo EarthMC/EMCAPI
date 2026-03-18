@@ -71,10 +71,11 @@ public class KeyManager {
             return key;
         }
 
+        final String finalKey = key;
         plugin.getServer().getAsyncScheduler().runNow(plugin, t -> {
             try (final Connection connection = plugin.getDatabase().getConnection(); final PreparedStatement ps = connection.prepareStatement("INSERT INTO api_keys (uuid, api_key) VALUES (?, ?) ON DUPLICATE KEY UPDATE api_key = VALUES(api_key)")) {
                 ps.setString(1, player.toString());
-                ps.setString(2, key);
+                ps.setString(2, finalKey);
                 ps.executeUpdate();
             } catch (SQLException e) {
                 plugin.getSLF4JLogger().warn("Failed to insert api key for player {} into database", player, e);
