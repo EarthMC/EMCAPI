@@ -1,5 +1,7 @@
 package net.earthmc.emcapi.database;
 
+import net.earthmc.emcapi.manager.KeyManager;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -29,7 +31,7 @@ public class DatabaseSchema {
 
     private static List<String> getApiKeysColumns() {
         return List.of(
-            "`api_key` VARCHAR(1024) NOT NULL"
+            "`api_key` VARCHAR(" + KeyManager.MAX_KEY_LENGTH + ") NOT NULL"
         );
     }
 }

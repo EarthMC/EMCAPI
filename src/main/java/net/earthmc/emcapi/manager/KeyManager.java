@@ -19,6 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @NullMarked
 public class KeyManager {
     private static final Random RANDOM = new SecureRandom();
+    public static final int MAX_KEY_LENGTH = 256;
+    public static final int KEY_BYTES = 128;
 
     private static final Map<UUID, String> PLAYER_KEY_MAP = new ConcurrentHashMap<>();
     private static final Map<String, UUID> KEY_PLAYER_MAP = new ConcurrentHashMap<>();
@@ -52,9 +54,13 @@ public class KeyManager {
     }
 
     public static String createApiKey(UUID player) {
-        byte[] array = new byte[128];
+        byte[] array = new byte[KEY_BYTES];
         RANDOM.nextBytes(array);
         String key = Base64.getUrlEncoder().withoutPadding().encodeToString(array);
+
+        if (key.length() > MAX_KEY_LENGTH) {
+            key = key.substring(0, MAX_KEY_LENGTH);
+        }
 
         PLAYER_KEY_MAP.put(player, key);
         KEY_PLAYER_MAP.put(key, player);
