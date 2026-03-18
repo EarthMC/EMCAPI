@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class SSEManager {
     private final EMCAPI plugin;
@@ -56,10 +58,26 @@ public class SSEManager {
                 return;
             }
 
-            if (CLIENTS.containsKey(key)) {
-                client.sendEvent("error", "This API key is already in use.");
-                client.close();
-                return;
+            final ClientData existingClient = CLIENTS.get(key);
+            if (existingClient != null) {
+                // check if the other client is still active
+                // prevent sending more than one keepalive per second
+                final long now = System.currentTimeMillis();
+                final long lastKeepAlive = existingClient.lastManualKeepAlive.getAndUpdate(prev ->
+                    (prev == 0 || now - prev > 1000) ? now : prev
+                );
+
+                final boolean sendKeepAlive = lastKeepAlive == 0 || now - lastKeepAlive > 1000;
+
+                if (sendKeepAlive) {
+                    existingClient.client.sendComment("keepalive");
+                }
+
+                if (!sendKeepAlive || !existingClient.client.terminated()) {
+                    client.sendEvent("error", "This API key is already in use.");
+                    client.close();
+                    return;
+                }
             }
 
             Set<String> events = new HashSet<>();
@@ -117,6 +135,14 @@ public class SSEManager {
                 CLIENTS_BY_EVENT.computeIfAbsent(event, k -> ConcurrentHashMap.newKeySet()).add(data);
             }
         });
+
+        // when a client disconnects, we don't really know about it until the next time we try to send something to them.
+        // so to keep the list of clients tidy, we can periodically send a keepalive event.
+        plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, task -> {
+            for (final ClientData data : CLIENTS.values()) {
+                data.client.sendComment("keepalive");
+            }
+        }, 5L, 5L, TimeUnit.MINUTES);
     }
 
     public void shutdown() {
@@ -139,8 +165,7 @@ public class SSEManager {
             return; // No client is active to hear it
         }
 
-        long timestamp = Instant.now().getEpochSecond();
-        data.addProperty("timestamp", timestamp);
+        data.addProperty("timestamp", Instant.now().getEpochSecond());
         String message = data.toString();
 
         plugin.getServer().getAsyncScheduler().runNow(plugin, t -> {
@@ -166,5 +191,13 @@ public class SSEManager {
         }
     }
 
-    public record ClientData(SseClient client, @Unmodifiable Set<String> events, UUID playerID) {}
+    public record ClientData(SseClient client, @Unmodifiable Set<String> events, UUID playerID, AtomicLong lastManualKeepAlive) {
+        public ClientData(final SseClient client, final Set<String> events, final UUID playerID) {
+            this(client, events, playerID, new AtomicLong());
+        }
+
+        public ClientData {
+            events = Set.copyOf(events);
+        }
+    }
 }
