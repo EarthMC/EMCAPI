@@ -6,6 +6,7 @@ import io.javalin.http.Context;
 import io.javalin.http.sse.SseClient;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.manager.KeyManager;
+import net.earthmc.emcapi.util.JSONUtil;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -45,7 +46,7 @@ public class SSEManager {
             String auth = ctx.header("Authorization");
 
             if (auth == null || !auth.startsWith("Bearer ")) {
-                client.sendEvent("error", "Missing API key");
+                client.sendEvent("error", msg("Missing API key"));
                 client.close();
                 return;
             }
@@ -53,7 +54,7 @@ public class SSEManager {
             String key = auth.substring("Bearer ".length());
             UUID owner = KeyManager.getKeyOwner(key);
             if (owner == null) {
-                client.sendEvent("error", "Invalid API key");
+                client.sendEvent("error", msg("Invalid API key"));
                 client.close();
                 return;
             }
@@ -74,7 +75,7 @@ public class SSEManager {
                 }
 
                 if (!sendKeepAlive || !existingClient.client.terminated()) {
-                    client.sendEvent("error", "This API key is already in use.");
+                    client.sendEvent("error", msg("This API key is already in use."));
                     client.close();
                     return;
                 }
@@ -86,7 +87,7 @@ public class SSEManager {
             String listenStr = ctx.queryParam("listen");
             if (listenStr != null) {
                 if (listenStr.length() > 10_000) {
-                    client.sendEvent("error", "Attempted to listen to too many events.");
+                    client.sendEvent("error", msg("Attempted to listen to too many events."));
                     client.close();
                     return;
                 }
@@ -101,19 +102,19 @@ public class SSEManager {
             }
 
             if (events.isEmpty()) {
-                client.sendEvent("error", "No valid events specified through the 'listen' query param.");
+                client.sendEvent("error", msg("No valid events specified through the 'listen' query param."));
                 client.close();
                 return;
             }
 
             ClientData data = new ClientData(client, Set.copyOf(events), owner);
             client.keepAlive();
-            client.sendEvent("open", "Connected to the EarthMC API.");
-            client.sendEvent("listening", "Listening to the following events: " + String.join(", ", events));
+            client.sendEvent("open", msg("Connected to the EarthMC API."));
 
-            if (!invalid.isEmpty()) {
-                client.sendEvent("invalid", "The following events are invalid: " + String.join(", ", invalid));
-            }
+            final JsonObject listening = new JsonObject();
+            listening.add("valid", JSONUtil.toJsonArray(events));
+            listening.add("invalid", JSONUtil.toJsonArray(invalid));
+            client.sendEvent("listening", listening);
 
             client.onClose(() -> {
                 CLIENTS.remove(key, data);
@@ -147,12 +148,13 @@ public class SSEManager {
 
     public void shutdown() {
         for (ClientData data : CLIENTS.values()) {
-            data.client.sendEvent("close", "EarthMC API shutting down.");
+            data.client.sendEvent("close", msg("EarthMC API shutting down."));
             data.client.close();
         }
 
         CLIENTS.clear();
         CLIENTS_BY_EVENT.clear();
+        CLIENTS_BY_UUID.clear();
     }
 
     public void sendEvent(String event, JsonObject data) {
@@ -186,9 +188,15 @@ public class SSEManager {
         ClientData data = CLIENTS.remove(key);
         if (data != null) {
             SseClient client = data.client;
-            client.sendEvent("close", "This API key was deleted by the owner");
+            client.sendEvent("close", msg("This API key was deleted by the owner"));
             client.close();
         }
+    }
+
+    private static JsonObject msg(final String message) {
+        final JsonObject object = new JsonObject();
+        object.addProperty("message", message);
+        return object;
     }
 
     public record ClientData(SseClient client, @Unmodifiable Set<String> events, UUID playerID, AtomicLong lastManualKeepAlive) {
