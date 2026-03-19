@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariConfig;
 import io.javalin.Javalin;
 import io.javalin.json.JsonMapper;
 import io.javalin.util.JavalinLogger;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.earthmc.emcapi.database.APIDatabase;
@@ -33,7 +34,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Objects;
 
 public final class EMCAPI extends JavaPlugin {
 
@@ -66,7 +66,7 @@ public final class EMCAPI extends JavaPlugin {
         }
         new EndpointManager(this).loadEndpoints();
 
-        Objects.requireNonNull(getCommand("api")).setExecutor(new ApiCommand(this));
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register(ApiCommand.create(this)));
 
         optOut.loadOptOut();
 
