@@ -40,6 +40,7 @@ public class ApiCommand {
 
     public static LiteralCommandNode<CommandSourceStack> create(final EMCAPI plugin) {
         return Commands.literal("api")
+            .requires(ctx -> ctx.getSender().hasPermission("emcapi.command"))
             .executes(ctx -> {
                 ctx.getSource().getSender().sendMessage(INFO_MESSAGE);
                 return Command.SINGLE_SUCCESS;

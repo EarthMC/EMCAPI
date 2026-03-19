@@ -10,11 +10,6 @@ description: API for EarthMC using Javalin
 website: "https://github.com/EarthMC/EMCAPI/commit/${commit}"
 folia-supported: true
 
-commands:
-  api:
-    description: Allows you to opt in or out of your information being visible in the API.
-    permission: emcapi.command
-
 permissions:
   emcapi.command:
     default: true

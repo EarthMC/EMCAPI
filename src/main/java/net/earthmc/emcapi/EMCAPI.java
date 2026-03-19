@@ -66,7 +66,7 @@ public final class EMCAPI extends JavaPlugin {
         }
         new EndpointManager(this).loadEndpoints();
 
-        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register(ApiCommand.create(this)));
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register(ApiCommand.create(this), "Allows you to opt in or out of your information being visible in the API."));
 
         optOut.loadOptOut();
 
