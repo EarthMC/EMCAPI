@@ -57,7 +57,7 @@ public final class EMCAPI extends JavaPlugin {
         this.pluginIntegrations = new Integrations(this);
         getServer().getPluginManager().registerEvents(this.pluginIntegrations, this);
 
-        if (getConfig().getBoolean("behavior.load_legacy")) {
+        if (getConfig().getBoolean("behaviour.load_legacy")) {
             new LegacyEndpointManager(this).loadEndpoints(); // Load retired endpoints and still serve current endpoints at /v3/aurora/
         }
         new EndpointManager(this).loadEndpoints();
