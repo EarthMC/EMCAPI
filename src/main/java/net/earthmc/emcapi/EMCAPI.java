@@ -36,7 +36,7 @@ public final class EMCAPI extends JavaPlugin {
     public static EMCAPI instance;
     private Javalin javalin;
     private Integrations pluginIntegrations;
-    private SSEManager sseManager;
+    private final SSEManager sseManager = new SSEManager(this);
     private final APIDatabase database = new APIDatabase();
     private final OptOut optOut = new OptOut(this);
 
@@ -66,7 +66,6 @@ public final class EMCAPI extends JavaPlugin {
 
         optOut.loadOptOut();
 
-        sseManager = new SSEManager(this);
         sseManager.loadSSE();
         PluginManager pm = getServer().getPluginManager();
         if (pm.isPluginEnabled("Towny")) {
