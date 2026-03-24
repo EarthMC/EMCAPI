@@ -1,9 +1,7 @@
 package net.earthmc.emcapi;
 
-import com.google.gson.Gson;
 import com.zaxxer.hikari.HikariConfig;
 import io.javalin.Javalin;
-import io.javalin.json.JsonMapper;
 import io.javalin.util.JavalinLogger;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,10 +26,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -105,19 +101,6 @@ public final class EMCAPI extends JavaPlugin {
                 context.setWar(EMCAPI.class.getProtectionDomain().getCodeSource().getLocation().toExternalForm());
 
                 server.setHandler(context);
-            });
-
-            final Gson gson = new Gson();
-            config.jsonMapper(new JsonMapper() {
-                @Override
-                public @NonNull String toJsonString(@NonNull Object obj, @NonNull Type type) {
-                    return gson.toJson(obj, type);
-                }
-
-                @Override
-                public @NonNull <T> T fromJsonString(@NonNull String json, @NonNull Type targetType) {
-                    return gson.fromJson(json, targetType);
-                }
             });
         });
 

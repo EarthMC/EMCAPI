@@ -193,10 +193,10 @@ public class SSEManager {
         }
     }
 
-    private static JsonObject msg(final String message) {
+    private static String msg(final String message) {
         final JsonObject object = new JsonObject();
         object.addProperty("message", message);
-        return object;
+        return object.toString();
     }
 
     public record ClientData(SseClient client, @Unmodifiable Set<String> events, UUID playerID, AtomicLong lastManualKeepAlive) {
