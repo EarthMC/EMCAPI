@@ -114,7 +114,7 @@ public class SSEManager {
             final JsonObject listening = new JsonObject();
             listening.add("valid", JSONUtil.toJsonArray(events));
             listening.add("invalid", JSONUtil.toJsonArray(invalid));
-            client.sendEvent("listening", listening);
+            client.sendEvent("listening", listening.toString());
 
             client.onClose(() -> {
                 CLIENTS.remove(key, data);
