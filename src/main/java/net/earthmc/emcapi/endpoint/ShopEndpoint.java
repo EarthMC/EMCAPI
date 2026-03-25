@@ -12,8 +12,10 @@ import net.earthmc.emcapi.util.JSONUtil;
 import org.jetbrains.annotations.Nullable;
 import org.maxgamer.quickshop.api.shop.Shop;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     private final QuickShopIntegration integration;
@@ -42,13 +44,35 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     @Override
     public JsonElement getJsonElement(List<Shop> object, @Nullable String key) {
         JsonObject shopsObject = new JsonObject();
-        int counter = 1;
+        int counter = 0;
         UUID keyOwner = KeyManager.getKeyOwner(key);
+
+        final List<CompletableFuture<Void>> shopFutures = new ArrayList<>();
+
         for (Shop shop : object) {
             if (!shop.getOwner().equals(keyOwner)) continue;
-            shopsObject.add(String.valueOf(counter++), EndpointUtils.getShopObject(shop));
+
+            final CompletableFuture<Void> shopFuture = new CompletableFuture<>();
+            shopFutures.add(shopFuture);
+
+            final int count = counter++;
+
+            plugin.getServer().getRegionScheduler().execute(plugin, shop.getLocation(), () -> {
+                shop.getLocation().getWorld().getChunkAtAsync(shop.getLocation()).thenAccept(chunk -> {
+                    try {
+                        shopsObject.add(String.valueOf(count), EndpointUtils.getShopObject(shop));
+                        shopFuture.complete(null);
+                    } catch (Throwable throwable) {
+                        shopFuture.completeExceptionally(throwable);
+                    }
+                });
+            });
         }
+
+        CompletableFuture.allOf(shopFutures.toArray(new CompletableFuture[]{})).join();
 
         return shopsObject;
     }
+
+    private record Entry(int counter, JsonObject object) {}
 }
