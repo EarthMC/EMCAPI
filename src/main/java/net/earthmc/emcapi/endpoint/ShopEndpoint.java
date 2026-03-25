@@ -73,6 +73,4 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
 
         return shopsObject;
     }
-
-    private record Entry(int counter, JsonObject object) {}
 }
