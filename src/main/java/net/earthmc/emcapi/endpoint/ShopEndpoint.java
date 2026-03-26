@@ -14,8 +14,10 @@ import org.maxgamer.quickshop.api.shop.Shop;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     private final QuickShopIntegration integration;
@@ -43,7 +45,7 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
 
     @Override
     public JsonElement getJsonElement(List<Shop> object, @Nullable String key) {
-        JsonObject shopsObject = new JsonObject();
+        final Map<String, JsonElement> shops = new ConcurrentHashMap<>();
         int counter = 0;
         UUID keyOwner = KeyManager.getKeyOwner(key);
 
@@ -60,7 +62,7 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
             plugin.getServer().getRegionScheduler().execute(plugin, shop.getLocation(), () -> {
                 shop.getLocation().getWorld().getChunkAtAsync(shop.getLocation()).thenAccept(chunk -> {
                     try {
-                        shopsObject.add(String.valueOf(count), EndpointUtils.getShopObject(shop));
+                        shops.put(String.valueOf(count), EndpointUtils.getShopObject(shop));
                         shopFuture.complete(null);
                     } catch (Throwable throwable) {
                         shopFuture.completeExceptionally(throwable);
@@ -70,6 +72,11 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
         }
 
         CompletableFuture.allOf(shopFutures.toArray(new CompletableFuture[]{})).join();
+
+        final JsonObject shopsObject = new JsonObject();
+        for (final Map.Entry<String, JsonElement> entry : shops.entrySet()) {
+            shopsObject.add(entry.getKey(), entry.getValue());
+        }
 
         return shopsObject;
     }
