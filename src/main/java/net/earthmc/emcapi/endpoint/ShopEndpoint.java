@@ -12,19 +12,30 @@ import net.earthmc.emcapi.util.JSONUtil;
 import org.jetbrains.annotations.Nullable;
 import org.maxgamer.quickshop.api.shop.Shop;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     private final QuickShopIntegration integration;
+    private static final Map<UUID, Long> LAST_QUERY_MAP = new ConcurrentHashMap<>();
+    private static final int COOLDOWN_SECONDS = 3600;
 
     public ShopEndpoint(EMCAPI plugin) {
         super(plugin);
         this.integration = plugin.integrations().quickShopIntegration();
+        plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, t ->
+                LAST_QUERY_MAP.entrySet().removeIf(entry -> entry.getValue() < Instant.now().getEpochSecond() - COOLDOWN_SECONDS),
+                1,
+                1,
+                TimeUnit.HOURS
+        );
     }
 
     @Override
@@ -48,6 +59,9 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
         final Map<String, JsonElement> shops = new ConcurrentHashMap<>();
         int counter = 0;
         UUID keyOwner = KeyManager.getKeyOwner(key);
+        if (keyOwner == null) {
+            return null;
+        }
 
         final List<CompletableFuture<Void>> shopFutures = new ArrayList<>();
 
@@ -72,6 +86,10 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
         }
 
         CompletableFuture.allOf(shopFutures.toArray(new CompletableFuture[]{})).join();
+        if (shops.isEmpty()) {
+            LAST_QUERY_MAP.put(keyOwner, Instant.now().getEpochSecond());
+            return null;
+        }
 
         final JsonObject shopsObject = new JsonObject();
         for (final Map.Entry<String, JsonElement> entry : shops.entrySet()) {
