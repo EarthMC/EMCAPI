@@ -163,7 +163,7 @@ public class TownySSEListener extends AbstractSSEListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTownLeave(NationRemoveTownEvent event) {
         Nation nation = event.getNation();
-        if (nation.getKing() == null) {
+        if (nation.getCapital() == null) {
             return;
         }
 
