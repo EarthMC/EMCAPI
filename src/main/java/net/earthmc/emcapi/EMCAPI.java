@@ -176,7 +176,7 @@ public final class EMCAPI extends JavaPlugin {
 
     public String getURLPath() {
         String version = getConfig().getString("networking.api_version", "3");
-        return "v" + version + "/" + getConfig().getString("networking.url_path");
+        return "v" + version;
     }
 
     public APIDatabase getDatabase() {

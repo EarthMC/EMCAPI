@@ -10,9 +10,6 @@ networking:
   # The version number for endpoints
   api_version: 3
 
-  # The URL path, formatted as: https://example.com/{api_version}/{url_path}
-  url_path: aurora
-
 behaviour:
   # The maximum entries a player can enter when looking up objects by name
   max_lookup_size: 100
