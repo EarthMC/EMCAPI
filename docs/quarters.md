@@ -1,5 +1,5 @@
 # Quarters Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/quarters
+Accessed at https://api.earthmc.net/v4/quarters
 
 The following is an abridged version of the response to a **GET** request to the above URL which contains every currently registered quarter within a JSON array.
 ```json5

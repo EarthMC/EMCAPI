@@ -1,5 +1,5 @@
 # Location Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/location
+Accessed at https://api.earthmc.net/v4/location
 
 Get Towny-related information on a specific location, for instance if it belongs to a town.
 

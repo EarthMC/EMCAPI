@@ -1,5 +1,5 @@
 # Server Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/
+Accessed at https://api.earthmc.net/v4/
 
 The following is an example of the response to a **GET** request to the above URL. 
 ```json5

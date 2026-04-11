@@ -1,5 +1,5 @@
 # Nearby Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/nearby
+Accessed at https://api.earthmc.net/v4/nearby
 
 Returns an array of all the elements of type `search_type` (`TOWN`) in a given `radius` of a target location of type `target_type` (`TOWN`|`COORDINATE`).
 
