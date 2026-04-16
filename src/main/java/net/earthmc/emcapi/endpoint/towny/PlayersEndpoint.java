@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.object.Resident;
+import github.scarsz.discordsrv.DiscordSRV;
 import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.manager.KeyManager;
@@ -16,8 +17,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class PlayersEndpoint extends PostEndpoint<Resident> {
+    private static final Pattern DISCORD_ID_PATTERN = Pattern.compile("^\\d{17,19}$");
 
     public PlayersEndpoint(final EMCAPI plugin) {
         super(plugin);
@@ -33,6 +36,12 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
             resident = TownyAPI.getInstance().getResident(UUID.fromString(string));
         } catch (IllegalArgumentException e) {
             resident = TownyAPI.getInstance().getResident(string);
+        }
+        if (resident == null && DISCORD_ID_PATTERN.matcher(string).find()) {
+            UUID uuid = getUUIDFromDiscordId(string);
+            if (uuid != null) {
+                resident = TownyAPI.getInstance().getResident(uuid);
+            }
         }
 
         if (resident != null && plugin.getOptOut().playerOptedOut(resident.getUUID()) && !resident.getUUID().equals(KeyManager.getKeyOwner(key))) {
@@ -85,6 +94,8 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
 
         playerObject.add("friends", EndpointUtils.getResidentArray(resident.getFriends()));
 
+        playerObject.addProperty("discord", getDiscordId(resident.getUUID()));
+
         return playerObject;
     }
 
@@ -96,5 +107,21 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
         }
 
         return jsonArray;
+    }
+
+    private String getDiscordId(UUID uuid) {
+        if (!plugin.integrations().discordIntegration().isEnabled()) {
+            return null;
+        }
+        return DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(uuid);
+    }
+
+    private UUID getUUIDFromDiscordId(String discordId) {
+        if (!plugin.integrations().discordIntegration().isEnabled()) {
+            return null;
+        }
+        if (!DISCORD_ID_PATTERN.matcher(discordId).find()) return null;
+
+        return DiscordSRV.getPlugin().getAccountLinkManager().getUuid(discordId);
     }
 }

@@ -1,5 +1,5 @@
 # Towns Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/towns
+Accessed at https://api.earthmc.net/v4/towns
 
 The following is an abridged version of the response to a **GET** request to the above URL which contains every currently registered Towny town within a JSON array.
 ```json5

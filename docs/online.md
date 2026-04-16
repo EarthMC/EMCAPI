@@ -1,5 +1,5 @@
 # Online Players Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/online
+Accessed at https://api.earthmc.net/v4/online
 
 Returns a JSON object with a count of how many players are online and their names and uuid. Players that have opted themselves out of appearing in the API will not
 appear in the players array, but are included in the count.

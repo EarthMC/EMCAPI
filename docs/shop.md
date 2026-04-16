@@ -1,5 +1,5 @@
 # Shop Endpoint
-Accessed at https://api.earthmc.net/v4/aurora/shop
+Accessed at https://api.earthmc.net/v4/shop
 
 The shop endpoint provides information about player-owned QuickShops.
 It is important to note that the information here is not public, and players can only access their own shops' information, using their API key.

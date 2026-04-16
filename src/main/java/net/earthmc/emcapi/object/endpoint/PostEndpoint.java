@@ -27,14 +27,28 @@ public abstract class PostEndpoint<T> {
             if (object == null) {
                 continue;
             }
-            jsonArray.add(getTemplateJsonElement(object, template, key));
+            JsonElement formatted = getTemplateJsonElement(object, template, key);
+            if (formatted == null) {
+                continue;
+            }
+            jsonArray.add(formatted);
         }
 
         return jsonArray.toString();
     }
 
+    /**
+     * @param element The query provided by the user
+     * @param key The API key, if any provided
+     * @return The queried object if found, otherwise null
+     */
     public abstract T getObjectOrNull(JsonElement element, @Nullable String key);
 
+    /**
+     * @param object The object to describe
+     * @param key The API key, if any provided
+     * @return A JsonElement describing this object, or null if anything went wrong (E.g. cooldown, unauthorized key)
+     */
     public abstract JsonElement getJsonElement(T object, @Nullable String key);
 
     public JsonElement getTemplateJsonElement(T object, JsonObject template, @Nullable String key) {

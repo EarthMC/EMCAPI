@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.EMCAPI;
-import net.earthmc.emcapi.endpoint.DiscordEndpoint;
 import net.earthmc.emcapi.endpoint.LocationEndpoint;
 import net.earthmc.emcapi.endpoint.MysteryMasterEndpoint;
 import net.earthmc.emcapi.endpoint.NearbyEndpoint;
@@ -21,7 +20,6 @@ import net.earthmc.emcapi.endpoint.towny.list.NationsListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.PlayersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.QuartersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.TownsListEndpoint;
-import net.earthmc.emcapi.integration.DiscordIntegration;
 import net.earthmc.emcapi.integration.MysteryMasterIntegration;
 import net.earthmc.emcapi.integration.QuartersIntegration;
 import net.earthmc.emcapi.integration.QuickShopIntegration;
@@ -50,7 +48,6 @@ public class EndpointManager {
         loadQuartersEndpoint();
         loadLocationEndpoint();
         loadNearbyEndpoint();
-        loadDiscordEndpoint();
         loadOnlinePlayersEndpoint();
         loadMysteryMasterEndpoint();
         loadShopsEndpoint();
@@ -138,18 +135,6 @@ public class EndpointManager {
         javalin.post(URLPath + "/nearby", ctx -> {
             QueryBody parsedBody = parseBody(ctx.body());
             ctx.json(nearbyEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
-        });
-    }
-
-    private void loadDiscordEndpoint() {
-        DiscordEndpoint discordEndpoint = new DiscordEndpoint(plugin);
-        final DiscordIntegration discordIntegration = plugin.integrations().discordIntegration();
-
-        javalin.post(URLPath + "/discord", ctx -> {
-            discordIntegration.throwIfDisabled();
-
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(discordEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
         });
     }
 

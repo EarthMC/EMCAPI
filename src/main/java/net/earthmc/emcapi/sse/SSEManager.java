@@ -143,7 +143,7 @@ public class SSEManager {
             for (final ClientData data : CLIENTS.values()) {
                 data.client.sendComment("keepalive");
             }
-        }, 5L, 5L, TimeUnit.MINUTES);
+        }, 30, 30, TimeUnit.SECONDS);
     }
 
     public void shutdown() {

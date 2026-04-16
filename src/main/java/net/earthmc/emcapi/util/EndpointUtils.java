@@ -179,6 +179,14 @@ public class EndpointUtils {
         jsonObject.addProperty("amount", shop.getItem().getAmount());
         jsonObject.addProperty("type", shop.isSelling() ? "selling" : "buying");
         jsonObject.addProperty("stock", shop.isSelling() ? shop.getRemainingStock() : shop.getRemainingSpace());
+
+        Location location = shop.getLocation();
+        JsonObject locationObject = new JsonObject();
+        locationObject.addProperty("x", location.getBlockX());
+        locationObject.addProperty("y", location.getBlockY());
+        locationObject.addProperty("z", location.getBlockZ());
+
+        jsonObject.add("location", locationObject);
         return jsonObject;
     }
 }

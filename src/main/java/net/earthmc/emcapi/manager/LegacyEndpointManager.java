@@ -7,7 +7,7 @@ import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
 import kotlin.Pair;
 import net.earthmc.emcapi.EMCAPI;
-import net.earthmc.emcapi.endpoint.DiscordEndpoint;
+import net.earthmc.emcapi.endpoint.legacy.DiscordEndpoint;
 import net.earthmc.emcapi.endpoint.legacy.DocumentationEndpoint;
 import net.earthmc.emcapi.endpoint.LocationEndpoint;
 import net.earthmc.emcapi.endpoint.legacy.MudkipEndpoint;

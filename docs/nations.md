@@ -1,5 +1,5 @@
 # Nations Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/nations
+Accessed at https://api.earthmc.net/v4/nations
 
 The following is an abridged version of the response to a **GET** request to the above URL which contains every currently registered Towny nation within a JSON array.
 ```json5

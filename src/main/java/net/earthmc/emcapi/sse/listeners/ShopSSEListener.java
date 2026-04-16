@@ -27,6 +27,7 @@ public class ShopSSEListener extends AbstractSSEListener {
         String purchaser = getPlayerName(event.getPurchaser());
         JsonObject saleMessage = new JsonObject();
         saleMessage.add("shop", EndpointUtils.getShopObject(shop));
+        saleMessage.addProperty("amount", event.getAmount());
         if (isSelling) {
             saleMessage.addProperty("buyer", purchaser);
             sse.sendEvent("ShopSoldItem", saleMessage, owner);

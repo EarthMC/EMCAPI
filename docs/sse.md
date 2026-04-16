@@ -1,5 +1,5 @@
 # Server Sent Events (SSE)
-Accessed at https://api.earthmc.net/v4/aurora/events
+Accessed at https://api.earthmc.net/v4/events
 
 Server sent events allow clients to connect & listen to specific events sent by the server.
 
@@ -19,7 +19,7 @@ These are the current events available:
 "ShopSoldItem", "ShopBoughtItem", "ShopOutOfStock", "ShopOutOfSpace", "ShopOutOfGold"
 ```
 Clients must specify which events to listen to by specifying a `?listen=` query parameter in the URL.
-Example: `https://api.earthmc.net/v4/aurora/events?listen=NewDay,TownDeleted,NationRenamed`. This would make it so only these events are sent to the client.
+Example: `https://api.earthmc.net/v4/events?listen=NewDay,TownDeleted,NationRenamed`. This would make it so only these events are sent to the client.
 
 Most Town events include a `town` field with the name & UUID of the town. The same applies to nations with a `nation` field.
 ### Authorized player events

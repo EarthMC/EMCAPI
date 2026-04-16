@@ -1,5 +1,5 @@
 # Players Endpoint
-Accessed at https://api.earthmc.net/v3/aurora/players
+Accessed at https://api.earthmc.net/v4/players
 
 The following is an abridged version of the response to a **GET** request to the above URL which contains every currently registered Towny resident within a JSON array.
 ```json5
