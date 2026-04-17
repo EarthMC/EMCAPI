@@ -1,5 +1,6 @@
 package net.earthmc.emcapi.util;
 
+import com.ghostchu.quickshop.api.shop.Shop;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.object.Nation;
@@ -10,7 +11,6 @@ import net.earthmc.emcapi.EMCAPI;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
-import org.maxgamer.quickshop.api.shop.Shop;
 
 import java.util.ArrayList;
 import java.util.Collections;

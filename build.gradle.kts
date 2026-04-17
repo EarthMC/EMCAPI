@@ -26,7 +26,7 @@ repositories {
     }
 
     maven("https://repo.codemc.io/repository/maven-public/") {
-        mavenContent { includeGroup("org.maxgamer") }
+        mavenContent { includeGroup("com.ghostchu") }
     }
 }
 
@@ -41,6 +41,7 @@ dependencies {
     compileOnly(libs.quickshop) {
         exclude("*")
     }
+    compileOnly(libs.quickshop.api)
     implementation(libs.hikaricp) {
         exclude(group = "org.slf4j", module = "slf4j-api")
     }

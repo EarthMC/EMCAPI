@@ -1,5 +1,6 @@
 package net.earthmc.emcapi.endpoint;
 
+import com.ghostchu.quickshop.api.shop.Shop;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.javalin.http.BadRequestResponse;
@@ -10,7 +11,6 @@ import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.jetbrains.annotations.Nullable;
-import org.maxgamer.quickshop.api.shop.Shop;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
         final List<CompletableFuture<Void>> shopFutures = new ArrayList<>();
 
         for (Shop shop : object) {
-            if (!shop.getOwner().equals(keyOwner)) continue;
+            if (!keyOwner.equals(shop.getOwner().getUniqueId())) continue;
 
             final CompletableFuture<Void> shopFuture = new CompletableFuture<>();
             shopFutures.add(shopFuture);

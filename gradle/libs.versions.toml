@@ -1,12 +1,12 @@
 [versions]
-paper = "1.21.8-R0.1-SNAPSHOT"
+paper = "1.21.1-R0.1-SNAPSHOT"
 javalin = "6.7.0"
 discordsrv = "1.27.0"
 quarters = "e9ed8a133a"
 towny = "0.102.0.0"
 mysterymaster-api = "1.0.0"
 superbvote = "0.6.0"
-quickshop = "5.1.2.5-SNAPSHOT"
+quickshop = "6.2.0.11"
 hikaricp = "7.0.2"
 
 # plugins
@@ -21,7 +21,8 @@ javalin = { group = "io.javalin", name = "javalin", version.ref = "javalin" }
 paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
 mysterymaster-api = { group = "net.earthmc.mysterymaster", name = "mysterymaster-api", version.ref = "mysterymaster-api" }
 superbvote = { group = "net.earthmc.superbvote", name = "SuperbVote", version.ref = "superbvote" }
-quickshop = { group = "org.maxgamer", name = "QuickShop", version.ref = "quickshop" }
+quickshop = { group = "com.ghostchu", name = "quickshop-bukkit", version.ref = "quickshop" }
+quickshop-api = { group = "com.ghostchu", name = "quickshop-api", version.ref = "quickshop" }
 hikaricp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp" }
 
 [plugins]

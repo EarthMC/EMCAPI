@@ -1,5 +1,8 @@
 package net.earthmc.emcapi.sse.listeners;
 
+import com.ghostchu.quickshop.api.event.economy.ShopSuccessPurchaseEvent;
+import com.ghostchu.quickshop.api.obj.QUser;
+import com.ghostchu.quickshop.api.shop.Shop;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
@@ -7,8 +10,6 @@ import net.earthmc.emcapi.sse.SSEManager;
 import net.earthmc.emcapi.util.EndpointUtils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.maxgamer.quickshop.api.event.ShopSuccessPurchaseEvent;
-import org.maxgamer.quickshop.api.shop.Shop;
 
 import java.util.UUID;
 
@@ -21,7 +22,10 @@ public class ShopSSEListener extends AbstractSSEListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onShopPurchase(ShopSuccessPurchaseEvent event) {
         Shop shop = event.getShop();
-        UUID owner = shop.getOwner();
+        UUID owner = shop.getOwner().getUniqueId();
+        if (owner == null) {
+            return;
+        }
 
         boolean isSelling = shop.isSelling();
         String purchaser = getPlayerName(event.getPurchaser());
@@ -55,15 +59,23 @@ public class ShopSSEListener extends AbstractSSEListener {
         JsonObject alertMessage = new JsonObject();
         alertMessage.addProperty("action", isSelling ? "out_of_stock" : "out_of_space");
         alertMessage.add("shop", EndpointUtils.getShopObject(shop));
-        sse.sendEvent("ShopOutOf" + (isSelling ? "Stock " : "Space"), alertMessage, shop.getOwner());
+        sse.sendEvent("ShopOutOf" + (isSelling ? "Stock " : "Space"), alertMessage, shop.getOwner().getUniqueId());
     }
 
-    private String getPlayerName(UUID uuid) {
+    private String getPlayerName(QUser user) {
+        String name = user.getUsername();
+        if (name != null) {
+            return name;
+        }
+        UUID uuid = user.getUniqueId();
+        if (uuid == null) {
+            return "Unknown player";
+        }
         Resident res = TownyAPI.getInstance().getResident(uuid);
         if (res != null) {
             return res.getName();
         } else {
-            return "Unknown player `(" + uuid + ")`";
+            return "Unknown player (" + uuid + ")";
         }
     }
 }
