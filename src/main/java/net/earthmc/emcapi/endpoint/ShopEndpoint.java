@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class ShopEndpoint extends PostEndpoint<List<Shop>> {
@@ -34,7 +33,7 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
                 LAST_QUERY_MAP.entrySet().removeIf(entry -> entry.getValue() < Instant.now().getEpochSecond() - COOLDOWN_SECONDS),
                 1,
                 1,
-                TimeUnit.HOURS
+                TimeUnit.MINUTES // Check more often
         );
     }
 
@@ -62,6 +61,14 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
         if (keyOwner == null) {
             return null;
         }
+        if (LAST_QUERY_MAP.containsKey(keyOwner) && LAST_QUERY_MAP.get(keyOwner) > Instant.now().getEpochSecond() - COOLDOWN_SECONDS) {
+            return null;
+        }
+        if (object.isEmpty()) {
+            return null;
+        } else {
+            LAST_QUERY_MAP.put(keyOwner, Instant.now().getEpochSecond());
+        }
 
         final List<CompletableFuture<Void>> shopFutures = new ArrayList<>();
 
@@ -87,7 +94,6 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
 
         CompletableFuture.allOf(shopFutures.toArray(new CompletableFuture[]{})).join();
         if (shops.isEmpty()) {
-            LAST_QUERY_MAP.put(keyOwner, Instant.now().getEpochSecond());
             return null;
         }
 
