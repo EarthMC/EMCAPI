@@ -3,7 +3,7 @@ version: "${version}"
 main: net.earthmc.emcapi.EMCAPI
 api-version: "1.20"
 depend: [Towny]
-softdepend: [MysteryMaster, Quarters, DiscordSRV, SuperbVote, QuickShop]
+softdepend: [MysteryMaster, Quarters, DiscordSRV, SuperbVote, QuickShop-Hikari]
 authors: [Fruitloopins]
 contributors: [Warriorrr, Yoditi, Veyronity]
 description: API for EarthMC using Javalin

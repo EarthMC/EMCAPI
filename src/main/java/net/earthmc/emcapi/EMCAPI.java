@@ -72,7 +72,7 @@ public final class EMCAPI extends JavaPlugin {
         if (pm.isPluginEnabled("Towny")) {
             pm.registerEvents(new TownySSEListener(sseManager), this);
         }
-        if (pm.isPluginEnabled("QuickShop")) {
+        if (pm.isPluginEnabled("QuickShop-Hikari")) {
             pm.registerEvents(new ShopSSEListener(sseManager), this);
         }
 

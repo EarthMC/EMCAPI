@@ -10,7 +10,7 @@ import java.util.UUID;
 public class QuickShopIntegration extends Integration {
 
     public QuickShopIntegration() {
-        super("QuickShop");
+        super("QuickShop-Hikari");
     }
 
     public List<Shop> getPlayerShops(UUID player, String key) {
