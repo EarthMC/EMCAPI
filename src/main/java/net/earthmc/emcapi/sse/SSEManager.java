@@ -59,28 +59,6 @@ public class SSEManager {
                 return;
             }
 
-            final ClientData existingClient = CLIENTS.get(key);
-            if (existingClient != null) {
-                // check if the other client is still active
-                // prevent sending more than one keepalive per second
-                final long now = System.currentTimeMillis();
-                final long lastKeepAlive = existingClient.lastManualKeepAlive.getAndUpdate(prev ->
-                    (prev == 0 || now - prev > 1000) ? now : prev
-                );
-
-                final boolean sendKeepAlive = lastKeepAlive == 0 || now - lastKeepAlive > 1000;
-
-                if (sendKeepAlive) {
-                    existingClient.client.sendComment("keepalive");
-                }
-
-                if (!sendKeepAlive || !existingClient.client.terminated()) {
-                    client.sendEvent("error", msg("This API key is already in use."));
-                    client.close();
-                    return;
-                }
-            }
-
             Set<String> events = new HashSet<>();
             Set<String> invalid = new HashSet<>();
 
@@ -105,6 +83,14 @@ public class SSEManager {
                 client.sendEvent("error", msg("No valid events specified through the 'listen' query param."));
                 client.close();
                 return;
+            }
+
+            ClientData existingClient = CLIENTS.get(key);
+            if (existingClient != null) {
+                if (!existingClient.client.terminated()) {
+                    existingClient.client.sendEvent("close", msg("Another client has connected with this API Key. If this was not you, revoke your API key."));
+                }
+                existingClient.client.close();
             }
 
             ClientData data = new ClientData(client, Set.copyOf(events), owner);
@@ -199,11 +185,7 @@ public class SSEManager {
         return object.toString();
     }
 
-    public record ClientData(SseClient client, @Unmodifiable Set<String> events, UUID playerID, AtomicLong lastManualKeepAlive) {
-        public ClientData(final SseClient client, final Set<String> events, final UUID playerID) {
-            this(client, events, playerID, new AtomicLong());
-        }
-
+    public record ClientData(SseClient client, @Unmodifiable Set<String> events, UUID playerID) {
         public ClientData {
             events = Set.copyOf(events);
         }
