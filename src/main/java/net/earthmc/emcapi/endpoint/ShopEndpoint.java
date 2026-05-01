@@ -4,6 +4,9 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.javalin.http.BadRequestResponse;
+import io.javalin.http.ForbiddenResponse;
+import io.javalin.http.TooManyRequestsResponse;
+import io.javalin.http.UnauthorizedResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.QuickShopIntegration;
 import net.earthmc.emcapi.manager.KeyManager;
@@ -46,11 +49,23 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
         try {
             player = UUID.fromString(string);
         } catch (IllegalArgumentException ignored) {
-            return null;
+            throw new BadRequestResponse("Your query contains an invalid UUID");
         }
 
         integration.throwIfDisabled();
-        return integration.getPlayerShops(player, key);
+        UUID keyOwner = KeyManager.getKeyOwner(key);
+        if (keyOwner == null) {
+            throw new UnauthorizedResponse("Could not find an owner for this API key");
+        }
+        if (!player.equals(KeyManager.getKeyOwner(key))) {
+            throw new ForbiddenResponse("This API key is not owned by the player queried");
+        }
+        Long next = LAST_QUERY_MAP.containsKey(keyOwner) ? LAST_QUERY_MAP.get(keyOwner) + COOLDOWN_SECONDS : null;
+        Long now = Instant.now().getEpochSecond();
+        if (next != null && next > now) { // Rate limiting should happen before even querying the shops, not before formatting the data
+            throw new TooManyRequestsResponse("Too Many Requests. Try again in " + (next - now) + " seconds");
+        }
+        return integration.getPlayerShops(player);
     }
 
     @Override
@@ -59,16 +74,12 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
         int counter = 0;
         UUID keyOwner = KeyManager.getKeyOwner(key);
         if (keyOwner == null) {
-            return null;
-        }
-        if (LAST_QUERY_MAP.containsKey(keyOwner) && LAST_QUERY_MAP.get(keyOwner) > Instant.now().getEpochSecond() - COOLDOWN_SECONDS) {
-            return null;
+            throw new UnauthorizedResponse("Could not find an owner for this API key");
         }
         if (object.isEmpty()) {
             return null;
-        } else {
-            LAST_QUERY_MAP.put(keyOwner, Instant.now().getEpochSecond());
         }
+        LAST_QUERY_MAP.put(keyOwner, Instant.now().getEpochSecond()); // Mark as a successful query if at least 1 shop was loaded
 
         final List<CompletableFuture<Void>> shopFutures = new ArrayList<>();
 
