@@ -174,6 +174,7 @@ public class EndpointUtils {
 
     public static JsonObject getShopObject(Shop shop) {
         JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("Id", shop.getShopId());
         jsonObject.addProperty("item", shop.getItem().getType().name());
         jsonObject.addProperty("price", shop.getPrice());
         jsonObject.addProperty("amount", shop.getItem().getAmount());
