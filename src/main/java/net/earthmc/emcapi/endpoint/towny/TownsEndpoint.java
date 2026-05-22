@@ -129,15 +129,15 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         return townObject;
     }
 
-    private JsonObject getWarpsObject(Town town) {
-        JsonObject json = new JsonObject();
+    private JsonArray getWarpsObject(Town town) {
+        JsonArray json = new JsonArray();
         WarpsIntegration integration = Integrations.getIntegration("lynchpin-towny-warps");
         if (integration == null || !integration.isEnabled()) {
             return json;
         }
 
         for (Warp warp : integration.getWarps(town)) {
-            json.add(warp.getName(), EndpointUtils.getWarpObject(warp));
+            json.add(EndpointUtils.getWarpObject(warp));
         }
 
         return json;

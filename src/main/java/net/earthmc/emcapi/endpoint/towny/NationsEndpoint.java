@@ -134,17 +134,15 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
             return json;
         }
 
-        JsonObject active = new JsonObject();
-        JsonObject pending = new JsonObject();
+        JsonArray active = new JsonArray();
+        JsonArray pending = new JsonArray();
 
         for (Pact pact : integration.getActivePacts(nation)) {
-            Nation other = nation.equals(pact.getSenderNation()) ? pact.getReceivingNation() : pact.getSenderNation();
-            active.add(other.getName(), EndpointUtils.getPactObject(pact));
+            active.add(EndpointUtils.getPactObject(pact));
         }
 
         for (Pact pact : integration.getPendingPacts(nation)) {
-            Nation other = nation.equals(pact.getSenderNation()) ? pact.getReceivingNation() : pact.getSenderNation();
-            pending.add(other.getName(), EndpointUtils.getPactObject(pact));
+            pending.add(EndpointUtils.getPactObject(pact));
         }
 
         json.add("active", active);
