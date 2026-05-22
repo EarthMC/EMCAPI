@@ -1,5 +1,6 @@
 package net.earthmc.emcapi.endpoint.towny;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
@@ -10,10 +11,15 @@ import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
 import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.integration.EmbargoesIntegration;
+import net.earthmc.emcapi.integration.Integrations;
+import net.earthmc.emcapi.integration.PactsIntegration;
 import net.earthmc.emcapi.manager.NationMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
+import net.earthmc.lynchpin.api.towny.embargoes.Embargo;
+import net.earthmc.lynchpin.api.towny.pacts.Pact;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -50,6 +56,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
         nationObject.addProperty("dynmapColour", NationMetadataManager.getDynmapColour(nation));
         nationObject.addProperty("dynmapOutline", NationMetadataManager.getDynmapOutline(nation));
         nationObject.addProperty("wiki", NationMetadataManager.getWikiURL(nation));
+        nationObject.addProperty("discord", NationMetadataManager.getDiscordURL(nation));
 
         nationObject.add("king", EndpointUtils.getResidentJsonObject(nation.getKing()));
         nationObject.add("capital", EndpointUtils.getTownJsonObject(nation.getCapital()));
@@ -90,6 +97,59 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
         }
         nationObject.add("ranks", ranksObject);
 
+        nationObject.add("embargoes", getEmbargoesObject(nation));
+        nationObject.add("pacts", getPactsObject(nation));
+
         return nationObject;
+    }
+
+    private JsonObject getEmbargoesObject(Nation nation) {
+        JsonObject json = new JsonObject();
+        EmbargoesIntegration integration = Integrations.getIntegration("lynchpin-towny-embargoes");
+        if (integration == null || !integration.isEnabled()) {
+            return json;
+        }
+
+        JsonArray byNation = new JsonArray();
+        JsonArray againstNation = new JsonArray();
+        for (Embargo embargo : integration.getEmbargoes(nation)) {
+            if (nation.equals(embargo.getSender())) {
+                Nation other = embargo.getAgainst();
+                byNation.add(EndpointUtils.getNationJsonObject(other));
+            } else {
+                Nation other = embargo.getSender();
+                againstNation.add(EndpointUtils.getNationJsonObject(other));
+            }
+        }
+        json.add("own", byNation);
+        json.add("against", againstNation);
+
+        return json;
+    }
+
+    private JsonObject getPactsObject(Nation nation) {
+        JsonObject json = new JsonObject();
+        PactsIntegration integration = Integrations.getIntegration("lynchpin-towny-pacts");
+        if (integration == null || !integration.isEnabled()) {
+            return json;
+        }
+
+        JsonObject active = new JsonObject();
+        JsonObject pending = new JsonObject();
+
+        for (Pact pact : integration.getActivePacts(nation)) {
+            Nation other = nation.equals(pact.getSenderNation()) ? pact.getReceivingNation() : pact.getSenderNation();
+            active.add(other.getName(), EndpointUtils.getPactObject(pact));
+        }
+
+        for (Pact pact : integration.getPendingPacts(nation)) {
+            Nation other = nation.equals(pact.getSenderNation()) ? pact.getReceivingNation() : pact.getSenderNation();
+            pending.add(other.getName(), EndpointUtils.getPactObject(pact));
+        }
+
+        json.add("active", active);
+        json.add("pending", pending);
+
+        return json;
     }
 }
