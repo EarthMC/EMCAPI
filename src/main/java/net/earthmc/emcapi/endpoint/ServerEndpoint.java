@@ -5,6 +5,7 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Resident;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuartersIntegration;
 import net.earthmc.emcapi.integration.SuperbVoteIntegration;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
@@ -25,7 +26,7 @@ public class ServerEndpoint extends GetEndpoint {
     public ServerEndpoint(final EMCAPI plugin) {
         this.plugin = plugin;
 
-        final QuartersIntegration quartersIntegration = plugin.integrations().quartersIntegration();
+        final QuartersIntegration quartersIntegration = Integrations.getIntegration("Quarters");
 
         plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, task -> {
             final QuartersIntegration.QuarterStatistics statistics = quartersIntegration.retrieveQuarterStatistics();
@@ -33,11 +34,6 @@ public class ServerEndpoint extends GetEndpoint {
             this.quartersCount = statistics.totalQuarters();
             this.cuboidsCount = statistics.totalCuboids();
         }, 0L, 1L, TimeUnit.HOURS);
-    }
-
-    @Override
-    public String lookup() {
-        return getJsonElement().toString();
     }
 
     @Override
@@ -80,7 +76,7 @@ public class ServerEndpoint extends GetEndpoint {
         int target;
         int currentVotes;
 
-        final SuperbVoteIntegration superbVote = plugin.integrations().superbVoteIntegration();
+        final SuperbVoteIntegration superbVote = Integrations.getIntegration("SuperbVote");
         if (superbVote.isEnabled()) {
             target = superbVote.votesNeeded();
             currentVotes = superbVote.currentVotes();

@@ -24,11 +24,6 @@ public class MysteryMasterEndpoint extends GetEndpoint {
     }
 
     @Override
-    public String lookup() {
-        return getJsonElement().toString();
-    }
-
-    @Override
     public JsonElement getJsonElement() {
         JsonArray jsonArray = new JsonArray();
 

@@ -8,11 +8,6 @@ import net.earthmc.emcapi.util.EndpointUtils;
 public class TownsListEndpoint extends GetEndpoint {
 
     @Override
-    public String lookup() {
-        return getJsonElement().toString();
-    }
-
-    @Override
     public JsonArray getJsonElement() {
         return EndpointUtils.getTownArray(TownyAPI.getInstance().getTowns());
     }

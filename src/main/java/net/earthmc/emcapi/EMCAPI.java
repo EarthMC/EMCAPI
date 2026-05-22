@@ -11,12 +11,12 @@ import net.earthmc.emcapi.database.DatabaseSchema;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.EndpointManager;
 import net.earthmc.emcapi.manager.KeyManager;
-import net.earthmc.emcapi.manager.LegacyEndpointManager;
 import net.earthmc.emcapi.manager.OptOut;
 import net.earthmc.emcapi.sse.SSEManager;
 import net.earthmc.emcapi.sse.listeners.ShopSSEListener;
 import net.earthmc.emcapi.sse.listeners.TownySSEListener;
 import net.earthmc.emcapi.command.ApiCommand;
+import net.earthmc.emcapi.util.CooldownUtil;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Connector;
@@ -30,12 +30,12 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.TimeUnit;
 
 public final class EMCAPI extends JavaPlugin {
 
     public static EMCAPI instance;
     private Javalin javalin;
-    private Integrations pluginIntegrations;
     private SSEManager sseManager;
     private final APIDatabase database = new APIDatabase();
     private final OptOut optOut = new OptOut(this);
@@ -46,6 +46,7 @@ public final class EMCAPI extends JavaPlugin {
         JavalinLogger.startupInfo = false;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void onEnable() {
         instance = this;
@@ -54,12 +55,8 @@ public final class EMCAPI extends JavaPlugin {
         loadDatabase();
         initialiseJavalin();
 
-        this.pluginIntegrations = new Integrations(this);
-        getServer().getPluginManager().registerEvents(this.pluginIntegrations, this);
+        getServer().getPluginManager().registerEvents(new Integrations(), this);
 
-        if (getConfig().getBoolean("behaviour.load_legacy")) {
-            new LegacyEndpointManager(this).loadEndpoints(); // Load retired endpoints and still serve current endpoints at /v3/aurora/
-        }
         new EndpointManager(this).loadEndpoints();
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register(ApiCommand.create(this), "Allows you to opt in or out of your information being visible in the API."));
@@ -81,6 +78,8 @@ public final class EMCAPI extends JavaPlugin {
         } catch (SQLException e) {
             getSLF4JLogger().warn("exception while loading API keys: ", e);
         }
+
+        getServer().getAsyncScheduler().runAtFixedRate(this, t -> CooldownUtil.refresh(), 5, 5, TimeUnit.MINUTES);
     }
 
     @Override
@@ -168,10 +167,6 @@ public final class EMCAPI extends JavaPlugin {
     @NotNull
     public Javalin getJavalin() {
         return javalin;
-    }
-
-    public Integrations integrations() {
-        return this.pluginIntegrations;
     }
 
     public String getURLPath() {

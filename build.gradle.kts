@@ -28,6 +28,10 @@ repositories {
     maven("https://repo.codemc.io/repository/maven-public/") {
         mavenContent { includeGroup("com.ghostchu") }
     }
+
+    maven("https://nexus.neetgames.com/repository/maven-releases/") {
+        mavenContent { includeGroup("com.gmail.nossr50.mcMMO") }
+    }
 }
 
 dependencies {
@@ -45,6 +49,13 @@ dependencies {
     implementation(libs.hikaricp) {
         exclude(group = "org.slf4j", module = "slf4j-api")
     }
+    compileOnly(libs.mcmmo) {
+        exclude("com.sk89q.worldguard")
+        exclude("com.comphenix.protocol")
+    }
+    compileOnly(libs.lynchpin.pursuits)
+    compileOnly(libs.lynchpin.towny)
+    compileOnly(libs.lynchpin.advancements)
 }
 
 tasks {

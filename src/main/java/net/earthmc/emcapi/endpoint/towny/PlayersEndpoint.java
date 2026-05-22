@@ -9,6 +9,7 @@ import com.palmergames.bukkit.towny.object.Resident;
 import github.scarsz.discordsrv.DiscordSRV;
 import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
@@ -110,14 +111,14 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
     }
 
     private String getDiscordId(UUID uuid) {
-        if (!plugin.integrations().discordIntegration().isEnabled()) {
+        if (!Integrations.getIntegration("DiscordSRV").isEnabled()) {
             return null;
         }
         return DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(uuid);
     }
 
     private UUID getUUIDFromDiscordId(String discordId) {
-        if (!plugin.integrations().discordIntegration().isEnabled()) {
+        if (!Integrations.getIntegration("DiscordSRV").isEnabled()) {
             return null;
         }
         if (!DISCORD_ID_PATTERN.matcher(discordId).find()) return null;

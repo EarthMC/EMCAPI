@@ -4,40 +4,31 @@ import com.ghostchu.quickshop.api.shop.Shop;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.javalin.http.BadRequestResponse;
-import io.javalin.http.ForbiddenResponse;
-import io.javalin.http.TooManyRequestsResponse;
-import io.javalin.http.UnauthorizedResponse;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuickShopIntegration;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
+import net.earthmc.emcapi.util.CooldownUtil;
 import net.earthmc.emcapi.util.EndpointUtils;
+import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     private final QuickShopIntegration integration;
-    private static final Map<UUID, Long> LAST_QUERY_MAP = new ConcurrentHashMap<>();
     private static final int COOLDOWN_SECONDS = 3600;
 
     public ShopEndpoint(EMCAPI plugin) {
         super(plugin);
-        this.integration = plugin.integrations().quickShopIntegration();
-        plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, t ->
-                LAST_QUERY_MAP.entrySet().removeIf(entry -> entry.getValue() < Instant.now().getEpochSecond() - COOLDOWN_SECONDS),
-                1,
-                1,
-                TimeUnit.MINUTES // Check more often
-        );
+        this.integration = Integrations.getIntegration("QuickShop-Hikari");
     }
 
     @Override
@@ -52,19 +43,14 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
             throw new BadRequestResponse("Your query contains an invalid UUID");
         }
 
-        integration.throwIfDisabled();
         UUID keyOwner = KeyManager.getKeyOwner(key);
         if (keyOwner == null) {
-            throw new UnauthorizedResponse("Could not find an owner for this API key");
+            throw HttpExceptions.MISSING_API_KEY;
         }
         if (!player.equals(KeyManager.getKeyOwner(key))) {
-            throw new ForbiddenResponse("This API key is not owned by the player queried");
+            throw HttpExceptions.FORBIDDEN;
         }
-        Long next = LAST_QUERY_MAP.containsKey(keyOwner) ? LAST_QUERY_MAP.get(keyOwner) + COOLDOWN_SECONDS : null;
-        Long now = Instant.now().getEpochSecond();
-        if (next != null && next > now) { // Rate limiting should happen before even querying the shops, not before formatting the data
-            throw new TooManyRequestsResponse("Too Many Requests. Try again in " + (next - now) + " seconds");
-        }
+        CooldownUtil.checkAndAddCooldownOrThrow("shop", keyOwner.toString(), COOLDOWN_SECONDS);
         return integration.getPlayerShops(player);
     }
 
@@ -74,12 +60,11 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
         int counter = 0;
         UUID keyOwner = KeyManager.getKeyOwner(key);
         if (keyOwner == null) {
-            throw new UnauthorizedResponse("Could not find an owner for this API key");
+            throw HttpExceptions.MISSING_API_KEY;
         }
         if (object.isEmpty()) {
             return null;
         }
-        LAST_QUERY_MAP.put(keyOwner, Instant.now().getEpochSecond()); // Mark as a successful query if at least 1 shop was loaded
 
         final List<CompletableFuture<Void>> shopFutures = new ArrayList<>();
 

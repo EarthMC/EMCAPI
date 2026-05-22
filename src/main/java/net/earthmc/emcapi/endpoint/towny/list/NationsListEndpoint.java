@@ -8,11 +8,6 @@ import net.earthmc.emcapi.util.EndpointUtils;
 public class NationsListEndpoint extends GetEndpoint {
 
     @Override
-    public String lookup() {
-        return getJsonElement().toString();
-    }
-
-    @Override
     public JsonArray getJsonElement() {
         return EndpointUtils.getNationArray(TownyAPI.getInstance().getNations());
     }
