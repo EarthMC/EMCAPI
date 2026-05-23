@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Integrations implements Listener {
     private static final Map<String, Integration> INTEGRATIONS = new ConcurrentHashMap<>();
+    private static final Map<String, Integration> PLUGIN_INTEGRATION_MAP = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
     public static <T extends Integration> T getIntegration(String name) {
@@ -19,13 +20,14 @@ public class Integrations implements Listener {
 
     public static void addIntegration(String identifier, Integration integration) {
         INTEGRATIONS.put(identifier, integration);
+        PLUGIN_INTEGRATION_MAP.put(integration.name(), integration);
 
         integration.setEnabled(EMCAPI.instance.getServer().getPluginManager().isPluginEnabled(integration.name()));
     }
 
     @EventHandler
     public void onPluginEnable(final PluginEnableEvent event) {
-        final Integration integration = INTEGRATIONS.get(event.getPlugin().getName());
+        final Integration integration = PLUGIN_INTEGRATION_MAP.get(event.getPlugin().getName());
         if (integration != null) {
             integration.setEnabled(true);
         }
@@ -33,7 +35,7 @@ public class Integrations implements Listener {
 
     @EventHandler
     public void onPluginDisable(final PluginDisableEvent event) {
-        final Integration integration = INTEGRATIONS.get(event.getPlugin().getName());
+        final Integration integration = PLUGIN_INTEGRATION_MAP.get(event.getPlugin().getName());
         if (integration != null) {
             integration.setEnabled(false);
         }
