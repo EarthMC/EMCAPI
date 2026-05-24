@@ -50,6 +50,7 @@ Example **POST** response
     "dynmapColour": "FFA500", // Nation's hex Dynmap colour
     "dynmapOutline": "FFFF00", // Nation's hex Dynmap outline
     "wiki": null, // The nation's wiki URL as a string if set, returns null if not
+    "discord": null, // The nation's discord URL
     "king": {
       "name": "tuzzzie",
       "uuid": "8391474f-4b57-412a-a835-96bd2c253219"
