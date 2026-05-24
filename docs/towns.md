@@ -270,7 +270,22 @@ Example **POST** response
       "Treasurer": [],
       "Realtor": [],
       "Settler": []
-    }
+    },
+    "warps": [
+      {
+        "name": "cool_warp",
+        "uuid": "936fe2be-1461-4a77-828f-a9aa073f827e",
+        "createdAt": 1779458705887,
+        "createdBy": "Veyronity",
+        "access": "RESIDENT",
+        "location": {
+          "x": 1,
+          "y": 185,
+          "z": -9
+        }
+      }
+    ]
+  }
   }
 ]
 ```
