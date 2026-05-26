@@ -14,8 +14,8 @@ public class PactsIntegration extends Integration {
         super("Lynchpin");
         try {
             this.module = TownyProvider.instance().pacts();
-        } catch (Exception ignored) {
-            plugin.getLogger().warning("Not loading towny-pacts integration due to the module not being present/enabled");
+        } catch (Throwable ignored) {
+            plugin.getSLF4JLogger().warn("Not loading towny-pacts integration due to the module not being present/enabled");
         }
     }
 

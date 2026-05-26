@@ -14,8 +14,8 @@ public class EmbargoesIntegration extends Integration {
         super("Lynchpin");
         try {
             this.module = TownyProvider.instance().embargoes();
-        } catch (Exception ignored) {
-            plugin.getLogger().warning("Not loading towny-embargoes integration due to the module not being present/enabled");
+        } catch (Throwable ignored) {
+            plugin.getSLF4JLogger().warn("Not loading towny-embargoes integration due to the module not being present/enabled");
         }
     }
 

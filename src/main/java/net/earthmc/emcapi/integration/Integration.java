@@ -13,7 +13,6 @@ public abstract class Integration {
 
     protected Integration(final String name) {
         this.name = name;
-        register();
     }
 
     /**

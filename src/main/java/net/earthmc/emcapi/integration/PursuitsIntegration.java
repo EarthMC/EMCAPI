@@ -12,8 +12,8 @@ public class PursuitsIntegration extends Integration {
         super("Lynchpin");
         try {
             pursuits = PursuitsProvider.instance();
-        } catch (Exception e) {
-            plugin.getLogger().warning("Not loading pursuits integration due to the module not being present/enabled");
+        } catch (Throwable ignored) {
+            plugin.getSLF4JLogger().warn("Not loading pursuits integration due to the module not being present/enabled");
         }
     }
 

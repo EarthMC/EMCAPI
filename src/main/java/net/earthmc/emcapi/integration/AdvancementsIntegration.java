@@ -12,8 +12,8 @@ public class AdvancementsIntegration extends Integration {
         super("Lynchpin");
         try {
             module = AdvancementsProvider.instance();
-        } catch (Exception ignored) {
-            plugin.getLogger().warning("Not loading advancements integration due to the module not being present/enabled");
+        } catch (Throwable ignored) {
+            plugin.getSLF4JLogger().warn("Not loading advancements integration due to the module not being present/enabled");
         }
     }
 

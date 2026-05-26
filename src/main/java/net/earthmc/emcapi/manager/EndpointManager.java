@@ -6,7 +6,16 @@ import com.google.gson.JsonObject;
 import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.EMCAPI;
-import net.earthmc.emcapi.endpoint.*;
+import net.earthmc.emcapi.endpoint.LocationEndpoint;
+import net.earthmc.emcapi.endpoint.MysteryMasterEndpoint;
+import net.earthmc.emcapi.endpoint.NearbyEndpoint;
+import net.earthmc.emcapi.endpoint.OnlineEndpoint;
+import net.earthmc.emcapi.endpoint.ServerEndpoint;
+import net.earthmc.emcapi.endpoint.ShopEndpoint;
+import net.earthmc.emcapi.endpoint.McMMOEndpoint;
+import net.earthmc.emcapi.endpoint.McMMOTopEndpoint;
+import net.earthmc.emcapi.endpoint.PursuitsEndpoint;
+import net.earthmc.emcapi.endpoint.AdvancementsEndpoint;
 import net.earthmc.emcapi.endpoint.towny.NationsEndpoint;
 import net.earthmc.emcapi.endpoint.towny.PlayersEndpoint;
 import net.earthmc.emcapi.endpoint.towny.QuartersEndpoint;
@@ -32,8 +41,8 @@ public class EndpointManager {
     }
 
     public void loadEndpoints() {
-        new SuperbVoteIntegration(); // Register integrations for usage in ServerEndpoint
-        new QuartersIntegration();
+        new SuperbVoteIntegration().register(); // Register integrations for usage in ServerEndpoint
+        new QuartersIntegration().register();
         ServerEndpoint serverEndpoint = new ServerEndpoint(plugin);
         javalin.get(URLPath, ctx -> ctx.json(serverEndpoint.lookup()));
 
@@ -46,7 +55,7 @@ public class EndpointManager {
         loadOnlinePlayersEndpoint();
         loadMysteryMasterEndpoint();
         loadShopsEndpoint();
-        loadMcMMoEndpoint();
+        loadmcMMoEndpoint();
         loadPursuitsEndpoint();
         loadAdvancementsEndpoint();
     }
@@ -74,7 +83,7 @@ public class EndpointManager {
         PlayersListEndpoint ple = new PlayersListEndpoint();
         javalin.get(URLPath + "/players", ctx -> ctx.json(ple.lookup()));
 
-        new DiscordIntegration(); // Load the discord integration to check if DiscordSRV is enabled - checked when including discord for player
+        new DiscordIntegration().register(); // Load the discord integration to check if DiscordSRV is enabled - checked when including discord for player
         PlayersEndpoint playersEndpoint = new PlayersEndpoint(plugin);
         javalin.post(URLPath + "/players", ctx -> {
             QueryBody parsedBody = parseBody(ctx.body());
@@ -86,7 +95,7 @@ public class EndpointManager {
         TownsListEndpoint tle = new TownsListEndpoint();
         javalin.get(URLPath + "/towns", ctx -> ctx.json(tle.lookup()));
 
-        new WarpsIntegration();
+        new WarpsIntegration().register();
         TownsEndpoint townsEndpoint = new TownsEndpoint(plugin);
         javalin.post(URLPath + "/towns", ctx -> {
             QueryBody parsedBody = parseBody(ctx.body());
@@ -98,8 +107,8 @@ public class EndpointManager {
         NationsListEndpoint nle = new NationsListEndpoint();
         javalin.get(URLPath + "/nations", ctx -> ctx.json(nle.lookup()));
 
-        new EmbargoesIntegration();
-        new PactsIntegration();
+        new EmbargoesIntegration().register();
+        new PactsIntegration().register();
         NationsEndpoint nationsEndpoint = new NationsEndpoint(plugin);
         javalin.post(URLPath + "/nations", ctx -> {
             QueryBody parsedBody = parseBody(ctx.body());
@@ -147,6 +156,7 @@ public class EndpointManager {
 
     private void loadMysteryMasterEndpoint() {
         MysteryMasterIntegration mysteryMasterIntegration = new MysteryMasterIntegration();
+        mysteryMasterIntegration.register();
         MysteryMasterEndpoint mysteryMasterEndpoint = new MysteryMasterEndpoint(plugin);
         javalin.get(URLPath + "/mm", ctx -> {
             mysteryMasterIntegration.throwIfDisabled();
@@ -157,6 +167,7 @@ public class EndpointManager {
 
     private void loadShopsEndpoint() {
         QuickShopIntegration quickShopIntegration = new QuickShopIntegration();
+        quickShopIntegration.register();
         ShopEndpoint shopEndpoint = new ShopEndpoint(plugin);
         javalin.post(URLPath + "/shop", ctx -> {
             quickShopIntegration.throwIfDisabled();
@@ -166,8 +177,9 @@ public class EndpointManager {
         });
     }
 
-    private void loadMcMMoEndpoint() {
+    private void loadmcMMoEndpoint() {
         McMMOIntegration mcMMOIntegration = new McMMOIntegration();
+        mcMMOIntegration.register();
         McMMOEndpoint mcMMOEndpoint = new McMMOEndpoint(plugin);
         javalin.post(URLPath + "/mcmmo", ctx -> {
            mcMMOIntegration.throwIfDisabled();
@@ -187,6 +199,7 @@ public class EndpointManager {
 
     private void loadPursuitsEndpoint() {
         PursuitsIntegration pursuitsIntegration = new PursuitsIntegration();
+        pursuitsIntegration.register();
         PursuitsEndpoint pursuitsEndpoint = new PursuitsEndpoint(plugin);
         javalin.post(URLPath + "/pursuits", ctx -> {
             pursuitsIntegration.throwIfDisabled();
@@ -198,6 +211,7 @@ public class EndpointManager {
 
     private void loadAdvancementsEndpoint() {
         AdvancementsIntegration advancementsIntegration = new AdvancementsIntegration();
+        advancementsIntegration.register();
         AdvancementsEndpoint advancementsEndpoint = new AdvancementsEndpoint();
         javalin.get(URLPath + "/advancements", ctx -> {
             advancementsIntegration.throwIfDisabled();

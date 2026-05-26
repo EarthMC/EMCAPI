@@ -14,8 +14,8 @@ public class WarpsIntegration extends Integration {
         super("Lynchpin");
         try {
             this.module = TownyProvider.instance().warps();
-        } catch (Exception ignored) {
-            plugin.getLogger().warning("Not loading towny-warps integration due to the module not being present/enabled");
+        } catch (Throwable ignored) {
+            plugin.getSLF4JLogger().warn("Not loading towny-warps integration due to the module not being present/enabled");
         }
     }
 
