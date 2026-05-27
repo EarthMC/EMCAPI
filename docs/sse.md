@@ -16,7 +16,7 @@ These are the current events available:
 "TownCreated", "TownDeleted", "TownRenamed", "TownMayorChanged", "TownMerged", "TownRuined", "TownReclaimed",
 "TownJoinedNation", "TownLeftNation",
 "ResidentJoinedTown", "ResidentLeftTown",
-"ShopSoldItem", "ShopBoughtItem", "ShopOutOfStock", "ShopOutOfSpace", "ShopOutOfGold"
+"ShopSoldItem", "ShopBoughtItem", "ShopOutOfStock", "ShopOutOfSpace", "ShopOutOfGold", "ShopCreated", "ShopDeleted"
 ```
 Clients must specify which events to listen to by specifying a `?listen=` query parameter in the URL.
 Example: `https://api.earthmc.net/v4/events?listen=NewDay,TownDeleted,NationRenamed`. This would make it so only these events are sent to the client.
@@ -26,5 +26,5 @@ Most Town events include a `town` field with the name & UUID of the town. The sa
 Some events are only sent to the relevant player. These are:
 - TownJoinedNation, TownLeftNation - Sent to the leader of the nation
 - ResidentJoinedTown, ResidentLeftTown - Sent to the mayor of the town
-- ShopSoldItem, ShopBoughtItem, ShopOutOfStock, ShopOutOfSpace, ShopOutOfGold - Sent to the shop owner
+- ShopSoldItem, ShopBoughtItem, ShopOutOfStock, ShopOutOfSpace, ShopOutOfGold, ShopCreated, ShopDeleted - Sent to the shop owner
 

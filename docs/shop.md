@@ -7,6 +7,7 @@ It is important to note that the information here is not public, and players can
 The rate limit for this endpoint is one request per hour per API key (and thus per player).
 
 Each shop object has the following properties:
+- `id` - The unique identifier of the shop
 - `item` - The Material/name of the item being traded
 - `price` - The price of one transaction
 - `amount` - The amount of items in one transaction
@@ -30,6 +31,7 @@ Example **POST** response
 [
   {
     "1": {
+      "id": 120,
       "item": "COPPER_BLOCK",
       "price": 2,
       "amount": 4,

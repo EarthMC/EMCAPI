@@ -1,6 +1,9 @@
 package net.earthmc.emcapi.sse.listeners;
 
+import com.ghostchu.quickshop.api.event.Phase;
 import com.ghostchu.quickshop.api.event.economy.ShopSuccessPurchaseEvent;
+import com.ghostchu.quickshop.api.event.management.ShopCreateEvent;
+import com.ghostchu.quickshop.api.event.management.ShopDeleteEvent;
 import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.google.gson.JsonObject;
@@ -42,6 +45,44 @@ public class ShopSSEListener extends AbstractSSEListener {
 
         checkOwnerBalance(owner);
         checkShopOut(shop);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onShopCreate(ShopCreateEvent event) {
+
+        if (!event.isPhase(Phase.POST)) {
+            return;
+        }
+
+        Shop shop = event.shop().orElse(null);
+        if (shop == null) {
+            return;
+        }
+        UUID owner = shop.getOwner().getUniqueId();
+        if (owner == null ) {
+            return;
+        }
+
+        JsonObject message = new JsonObject();
+        message.add("shop", EndpointUtils.getShopObject(shop));
+        sse.sendEvent("ShopCreated", message, owner);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onShopDelete(ShopDeleteEvent event) {
+        Shop shop = event.shop().orElse(null);
+        if (shop == null) {
+            return;
+        }
+        if (!event.isPhase(Phase.POST)) {
+            return;
+        }
+        UUID owner = shop.getOwner().getUniqueId();
+        if (owner == null) return;
+
+        JsonObject message = new JsonObject();
+        message.add("shop", EndpointUtils.getShopObject(shop));
+        sse.sendEvent("ShopDeleted", message, owner);
     }
 
     private void checkOwnerBalance(UUID owner) {
