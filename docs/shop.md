@@ -5,6 +5,7 @@ The shop endpoint provides information about player-owned QuickShops.
 It is important to note that the information here is not public, and players can only access their own shops' information, using their API key.
 
 Each shop object has the following properties:
+- `id` - The unique identifier of the shop
 - `item` - The Material/name of the item being traded
 - `price` - The price of one transaction
 - `amount` - The amount of items in one transaction
@@ -28,6 +29,7 @@ Example **POST** response
 [
   {
     "1": {
+      "id": 120,
       "item": "COPPER_BLOCK",
       "price": 2,
       "amount": 4,
