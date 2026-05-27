@@ -49,6 +49,7 @@ Example **POST** response
     "board": "Fishing every Friday! Join our Discord, link can be found on the signs!", // Town's board as seen on /t, null if none is present
     "founder": "tuzzzie", // The founder of the town as seen on /t
     "wiki": null, // The town's wiki URL as a string if set, returns null if not
+    "discord": null, // The town's wiki URL
     "mayor": {
       "name": "Fruitloopins",
       "uuid": "fed0ec4a-f1ad-4b97-9443-876391668b34"
@@ -71,8 +72,10 @@ Example **POST** response
       "isRuined": false, // True if the town is ruined
       "isForSale": false, // True if the town is for sale
       "hasNation": true, // True if the town has a nation
-      "hasOverclaimShield": false, // True if the town currently has an overclaim shield
       "canOutsidersSpawn": false, // True if the town allows outsiders to teleport
+      "canPassiveMobsSpawn": true, // True if the town has passive mob spawn enabled
+      "hasSnowAccumulation": true, // True if the town has snow accumulation enabled
+      "hasFriendlyFire": false, // True if the town has friendly-fire enabled
     },
     "stats": {
       "numTownBlocks": 473, // The total number of town blocks the town has
@@ -270,7 +273,22 @@ Example **POST** response
       "Treasurer": [],
       "Realtor": [],
       "Settler": []
-    }
+    },
+    "warps": [
+      {
+        "name": "cool_warp",
+        "uuid": "936fe2be-1461-4a77-828f-a9aa073f827e",
+        "createdAt": 1779458705887,
+        "createdBy": "Veyronity",
+        "access": "RESIDENT",
+        "location": {
+          "x": 1,
+          "y": 185,
+          "z": -9
+        }
+      }
+    ]
+  }
   }
 ]
 ```

@@ -4,6 +4,8 @@ Accessed at https://api.earthmc.net/v4/shop
 The shop endpoint provides information about player-owned QuickShops.
 It is important to note that the information here is not public, and players can only access their own shops' information, using their API key.
 
+The rate limit for this endpoint is one request per hour per API key (and thus per player).
+
 Each shop object has the following properties:
 - `id` - The unique identifier of the shop
 - `item` - The Material/name of the item being traded

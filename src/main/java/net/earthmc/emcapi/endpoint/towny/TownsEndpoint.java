@@ -10,11 +10,14 @@ import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
 import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuartersIntegration;
+import net.earthmc.emcapi.integration.WarpsIntegration;
 import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
+import net.earthmc.lynchpin.api.towny.warps.Warp;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -49,6 +52,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         townObject.addProperty("board", town.getBoard().isEmpty() ? null : town.getBoard());
         townObject.addProperty("founder", town.getFounder());
         townObject.addProperty("wiki", TownMetadataManager.getWikiURL(town));
+        townObject.addProperty("discord", TownMetadataManager.getDiscordURL(town));
 
         townObject.add("mayor", EndpointUtils.getResidentJsonObject(town.getMayor()));
         townObject.add("nation", EndpointUtils.getNationJsonObject(town.getNationOrNull()));
@@ -68,8 +72,10 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         statusObject.addProperty("isRuined", town.isRuined());
         statusObject.addProperty("isForSale", town.isForSale());
         statusObject.addProperty("hasNation", town.hasNation());
-        statusObject.addProperty("hasOverclaimShield", TownMetadataManager.hasOverclaimShield(town));
         statusObject.addProperty("canOutsidersSpawn", TownMetadataManager.getCanOutsidersSpawn(town));
+        statusObject.addProperty("canPassiveMobsSpawn", TownMetadataManager.getPassiveMobs(town));
+        statusObject.addProperty("hasSnowAccumulation", TownMetadataManager.getSnow(town));
+        statusObject.addProperty("hasFriendlyFire", TownMetadataManager.getFriendlyFire(town));
         townObject.add("status", statusObject);
 
         JsonObject statsObject = new JsonObject();
@@ -108,7 +114,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         townObject.add("trusted", EndpointUtils.getResidentArray(town.getTrustedResidents().stream().toList()));
         townObject.add("outlaws", EndpointUtils.getResidentArray(town.getOutlaws().stream().toList()));
 
-        final QuartersIntegration quartersIntegration = plugin.integrations().quartersIntegration();
+        final QuartersIntegration quartersIntegration = Integrations.getIntegration("Quarters");
         JsonArray quartersArray = quartersIntegration.isEnabled() ? quartersIntegration.getQuartersArrayForTown(town) : new JsonArray();
         townObject.add("quarters", quartersArray);
 
@@ -118,6 +124,22 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         }
         townObject.add("ranks", ranksObject);
 
+        townObject.add("warps", getWarpsObject(town));
+
         return townObject;
+    }
+
+    private JsonArray getWarpsObject(Town town) {
+        JsonArray json = new JsonArray();
+        WarpsIntegration integration = Integrations.getIntegration("lynchpin-towny-warps");
+        if (integration == null || !integration.isEnabled()) {
+            return json;
+        }
+
+        for (Warp warp : integration.getWarps(town)) {
+            json.add(EndpointUtils.getWarpObject(warp));
+        }
+
+        return json;
     }
 }

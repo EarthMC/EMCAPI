@@ -10,11 +10,6 @@ import java.util.ArrayList;
 public class OnlineEndpoint extends GetEndpoint {
 
     @Override
-    public String lookup() {
-        return getJsonElement().toString();
-    }
-
-    @Override
     public JsonElement getJsonElement() {
         return EndpointUtils.getOnlinePlayerArray(new ArrayList<>(Bukkit.getOnlinePlayers()));
     }

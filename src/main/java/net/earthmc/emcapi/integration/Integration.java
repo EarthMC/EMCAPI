@@ -1,5 +1,6 @@
 package net.earthmc.emcapi.integration;
 
+import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.util.HttpExceptions;
 
 /**
@@ -8,9 +9,17 @@ import net.earthmc.emcapi.util.HttpExceptions;
 public abstract class Integration {
     private final String name;
     private boolean enabled;
+    protected final EMCAPI plugin = EMCAPI.instance;
 
     protected Integration(final String name) {
         this.name = name;
+    }
+
+    /**
+     * Allow overriding to use a custom identifier. {@code name()} will still be used for plugin names.
+     */
+    public void register() {
+        Integrations.addIntegration(name(), this);
     }
 
     /**
@@ -32,7 +41,7 @@ public abstract class Integration {
     }
 
     public void throwIfDisabled() {
-        if (!this.enabled) {
+        if (!isEnabled()) {
             throw HttpExceptions.MISSING_PLUGIN;
         }
     }

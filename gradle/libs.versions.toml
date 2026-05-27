@@ -8,6 +8,8 @@ mysterymaster-api = "1.0.0"
 superbvote = "0.6.0"
 quickshop = "6.2.0.11"
 hikaricp = "7.0.2"
+mcmmo = "2.2.040"
+lynchpin-api = "1.0-SNAPSHOT"
 
 # plugins
 conventions = "1.0.8"
@@ -24,6 +26,10 @@ superbvote = { group = "net.earthmc.superbvote", name = "SuperbVote", version.re
 quickshop = { group = "com.ghostchu", name = "quickshop-bukkit", version.ref = "quickshop" }
 quickshop-api = { group = "com.ghostchu", name = "quickshop-api", version.ref = "quickshop" }
 hikaricp = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikaricp" }
+mcmmo = { group = "com.gmail.nossr50.mcMMO", name = "mcMMO", version.ref = "mcmmo" }
+lynchpin-pursuits = { group = "net.earthmc.lynchpin.api", name = "pursuits", version.ref = "lynchpin-api"}
+lynchpin-towny = { group = "net.earthmc.lynchpin.api", name = "towny", version.ref = "lynchpin-api"}
+lynchpin-advancements = { group = "net.earthmc.lynchpin.api", name = "advancements", version.ref = "lynchpin-api"}
 
 [plugins]
 conventions-java = { id = "net.earthmc.conventions.java", version.ref = "conventions" }

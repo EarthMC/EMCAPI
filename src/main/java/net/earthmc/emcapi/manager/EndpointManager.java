@@ -12,6 +12,10 @@ import net.earthmc.emcapi.endpoint.NearbyEndpoint;
 import net.earthmc.emcapi.endpoint.OnlineEndpoint;
 import net.earthmc.emcapi.endpoint.ServerEndpoint;
 import net.earthmc.emcapi.endpoint.ShopEndpoint;
+import net.earthmc.emcapi.endpoint.McMMOEndpoint;
+import net.earthmc.emcapi.endpoint.McMMOTopEndpoint;
+import net.earthmc.emcapi.endpoint.PursuitsEndpoint;
+import net.earthmc.emcapi.endpoint.AdvancementsEndpoint;
 import net.earthmc.emcapi.endpoint.towny.NationsEndpoint;
 import net.earthmc.emcapi.endpoint.towny.PlayersEndpoint;
 import net.earthmc.emcapi.endpoint.towny.QuartersEndpoint;
@@ -20,9 +24,7 @@ import net.earthmc.emcapi.endpoint.towny.list.NationsListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.PlayersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.QuartersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.TownsListEndpoint;
-import net.earthmc.emcapi.integration.MysteryMasterIntegration;
-import net.earthmc.emcapi.integration.QuartersIntegration;
-import net.earthmc.emcapi.integration.QuickShopIntegration;
+import net.earthmc.emcapi.integration.*;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +41,8 @@ public class EndpointManager {
     }
 
     public void loadEndpoints() {
+        new SuperbVoteIntegration().register(); // Register integrations for usage in ServerEndpoint
+        new QuartersIntegration().register();
         ServerEndpoint serverEndpoint = new ServerEndpoint(plugin);
         javalin.get(URLPath, ctx -> ctx.json(serverEndpoint.lookup()));
 
@@ -51,6 +55,9 @@ public class EndpointManager {
         loadOnlinePlayersEndpoint();
         loadMysteryMasterEndpoint();
         loadShopsEndpoint();
+        loadmcMMoEndpoint();
+        loadPursuitsEndpoint();
+        loadAdvancementsEndpoint();
     }
 
     private QueryBody parseBody(String body) {
@@ -76,6 +83,7 @@ public class EndpointManager {
         PlayersListEndpoint ple = new PlayersListEndpoint();
         javalin.get(URLPath + "/players", ctx -> ctx.json(ple.lookup()));
 
+        new DiscordIntegration().register(); // Load the discord integration to check if DiscordSRV is enabled - checked when including discord for player
         PlayersEndpoint playersEndpoint = new PlayersEndpoint(plugin);
         javalin.post(URLPath + "/players", ctx -> {
             QueryBody parsedBody = parseBody(ctx.body());
@@ -87,6 +95,7 @@ public class EndpointManager {
         TownsListEndpoint tle = new TownsListEndpoint();
         javalin.get(URLPath + "/towns", ctx -> ctx.json(tle.lookup()));
 
+        new WarpsIntegration().register();
         TownsEndpoint townsEndpoint = new TownsEndpoint(plugin);
         javalin.post(URLPath + "/towns", ctx -> {
             QueryBody parsedBody = parseBody(ctx.body());
@@ -98,6 +107,8 @@ public class EndpointManager {
         NationsListEndpoint nle = new NationsListEndpoint();
         javalin.get(URLPath + "/nations", ctx -> ctx.json(nle.lookup()));
 
+        new EmbargoesIntegration().register();
+        new PactsIntegration().register();
         NationsEndpoint nationsEndpoint = new NationsEndpoint(plugin);
         javalin.post(URLPath + "/nations", ctx -> {
             QueryBody parsedBody = parseBody(ctx.body());
@@ -106,7 +117,7 @@ public class EndpointManager {
     }
 
     private void loadQuartersEndpoint() {
-        QuartersIntegration quartersIntegration = plugin.integrations().quartersIntegration();
+        QuartersIntegration quartersIntegration = Integrations.getIntegration("Quarters");
         QuartersListEndpoint qle = new QuartersListEndpoint(quartersIntegration);
 
         javalin.get(URLPath + "/quarters", ctx -> {
@@ -144,8 +155,9 @@ public class EndpointManager {
     }
 
     private void loadMysteryMasterEndpoint() {
+        MysteryMasterIntegration mysteryMasterIntegration = new MysteryMasterIntegration();
+        mysteryMasterIntegration.register();
         MysteryMasterEndpoint mysteryMasterEndpoint = new MysteryMasterEndpoint(plugin);
-        MysteryMasterIntegration mysteryMasterIntegration = plugin.integrations().mysteryMasterIntegration();
         javalin.get(URLPath + "/mm", ctx -> {
             mysteryMasterIntegration.throwIfDisabled();
 
@@ -154,13 +166,57 @@ public class EndpointManager {
     }
 
     private void loadShopsEndpoint() {
+        QuickShopIntegration quickShopIntegration = new QuickShopIntegration();
+        quickShopIntegration.register();
         ShopEndpoint shopEndpoint = new ShopEndpoint(plugin);
-        QuickShopIntegration quickShopIntegration = plugin.integrations().quickShopIntegration();;
         javalin.post(URLPath + "/shop", ctx -> {
             quickShopIntegration.throwIfDisabled();
 
             QueryBody parsedBody = parseBody(ctx.body());
             ctx.json(shopEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+        });
+    }
+
+    private void loadmcMMoEndpoint() {
+        McMMOIntegration mcMMOIntegration = new McMMOIntegration();
+        mcMMOIntegration.register();
+        McMMOEndpoint mcMMOEndpoint = new McMMOEndpoint(plugin);
+        javalin.post(URLPath + "/mcmmo", ctx -> {
+           mcMMOIntegration.throwIfDisabled();
+
+           QueryBody parsedBody = parseBody(ctx.body());
+           ctx.json(mcMMOEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+        });
+
+        McMMOTopEndpoint mcMMOTopEndpoint = new McMMOTopEndpoint(plugin);
+        javalin.post(URLPath + "/mcmmo-top", ctx -> {
+            mcMMOIntegration.throwIfDisabled();
+
+            QueryBody parsedBody = parseBody(ctx.body());
+            ctx.json(mcMMOTopEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+        });
+    }
+
+    private void loadPursuitsEndpoint() {
+        PursuitsIntegration pursuitsIntegration = new PursuitsIntegration();
+        pursuitsIntegration.register();
+        PursuitsEndpoint pursuitsEndpoint = new PursuitsEndpoint(plugin);
+        javalin.post(URLPath + "/pursuits", ctx -> {
+            pursuitsIntegration.throwIfDisabled();
+
+            QueryBody parsedBody = parseBody(ctx.body());
+            ctx.json(pursuitsEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+        });
+    }
+
+    private void loadAdvancementsEndpoint() {
+        AdvancementsIntegration advancementsIntegration = new AdvancementsIntegration();
+        advancementsIntegration.register();
+        AdvancementsEndpoint advancementsEndpoint = new AdvancementsEndpoint();
+        javalin.get(URLPath + "/advancements", ctx -> {
+            advancementsIntegration.throwIfDisabled();
+
+            ctx.json(advancementsEndpoint.lookup());
         });
     }
 }

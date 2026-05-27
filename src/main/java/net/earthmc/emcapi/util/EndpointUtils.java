@@ -8,6 +8,8 @@ import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyPermission;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.lynchpin.api.towny.pacts.Pact;
+import net.earthmc.lynchpin.api.towny.warps.Warp;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -175,6 +177,7 @@ public class EndpointUtils {
     public static JsonObject getShopObject(Shop shop) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("id", shop.getShopId());
+        jsonObject.addProperty("owner", String.valueOf(shop.getOwner().getUniqueId()));
         jsonObject.addProperty("item", shop.getItem().getType().name());
         jsonObject.addProperty("price", shop.getPrice());
         jsonObject.addProperty("amount", shop.getItem().getAmount());
@@ -189,5 +192,43 @@ public class EndpointUtils {
 
         jsonObject.add("location", locationObject);
         return jsonObject;
+    }
+
+    public static JsonObject getPactObject(Pact pact) {
+        JsonObject json = new JsonObject();
+
+        json.addProperty("sender", pact.getSenderNation().getName());
+        json.addProperty("receiver", pact.getReceivingNation().getName());
+        json.addProperty("status", pact.status().name());
+
+        JsonObject stats = new JsonObject();
+        stats.addProperty("createdAt", pact.getCreatedAt());
+        stats.addProperty("expiresAt", pact.getExpiresAt());
+        stats.addProperty("duration", pact.getDuration());
+        json.add("stats", stats);
+
+        return json;
+    }
+
+    public static JsonObject getWarpObject(Warp warp) {
+        JsonObject json = new JsonObject();
+
+        json.addProperty("name", warp.getName());
+        json.addProperty("uuid", warp.getUUID().toString());
+        json.addProperty("createdAt", warp.getCreatedAt());
+        json.addProperty("createdBy", warp.getCreatedBy());
+        json.addProperty("access", warp.getAccesslevel().name());
+
+        try {
+            Location location = warp.getLocation();
+            JsonObject locationObject = new JsonObject();
+            locationObject.addProperty("x", location.getBlockX());
+            locationObject.addProperty("y", location.getBlockY());
+            locationObject.addProperty("z", location.getBlockZ());
+
+            json.add("location", locationObject);
+        } catch (Throwable ignored) {} // getLocation() may throw an exception if the world couldn't be fetched
+
+        return json;
     }
 }

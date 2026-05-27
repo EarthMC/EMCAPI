@@ -12,11 +12,6 @@ public class QuartersListEndpoint extends GetEndpoint {
     }
 
     @Override
-    public String lookup() {
-        return getJsonElement().toString();
-    }
-
-    @Override
     public JsonArray getJsonElement() {
         return quartersIntegration.getAllQuartersArray();
     }

@@ -50,6 +50,7 @@ Example **POST** response
     "dynmapColour": "FFA500", // Nation's hex Dynmap colour
     "dynmapOutline": "FFFF00", // Nation's hex Dynmap outline
     "wiki": null, // The nation's wiki URL as a string if set, returns null if not
+    "discord": null, // The nation's discord URL
     "king": {
       "name": "tuzzzie",
       "uuid": "8391474f-4b57-412a-a835-96bd2c253219"
@@ -185,6 +186,30 @@ Example **POST** response
       ],
       "Colonist": [],
       "Diplomat": []
+    },
+    "embargoes": {
+      "own": [ // A JSON array representing all nations that this nation has placed an embargo on
+        {
+          "name": "woodland",
+          "uuid": "625a3d73-b179-4335-a512-58366c90dcfe"
+        }
+      ],
+      "against": [] // A JSON array representing all nations that have placed an embargo on this nation
+    },
+    "pacts": { // Container for 'active' and 'pending' JSON dictionaries for pacts this nation is involved in, where the key is the name of the other nation in the pact, and the value is a detailed pact object
+      "active": { // A JSON dictionary representing active pacts this nation has
+        "LizardLand": {
+          "sender": "dev",
+          "receiver": "LizardLand",
+          "status": "ACTIVE",
+          "stats": {
+            "createdAt": 1779459092037,
+            "expiresAt": 1779545525988,
+            "duration": 1
+          }
+        }
+      },
+      "pending": {} // A JSON dictionary representing pending pacts this nation has.
     }
   }
 ]
