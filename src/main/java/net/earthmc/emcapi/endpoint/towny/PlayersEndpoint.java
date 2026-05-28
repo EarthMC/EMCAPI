@@ -111,17 +111,17 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
     }
 
     private String getDiscordId(UUID uuid) {
-        if (!Integrations.getIntegration("DiscordSRV").isEnabled()) {
+        if (!Integrations.getIntegration("DiscordSRV").isEnabled() || DiscordSRV.getPlugin().getAccountLinkManager() == null) {
             return null;
         }
+
         return DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(uuid);
     }
 
     private UUID getUUIDFromDiscordId(String discordId) {
-        if (!Integrations.getIntegration("DiscordSRV").isEnabled()) {
+        if (!Integrations.getIntegration("DiscordSRV").isEnabled() || !DISCORD_ID_PATTERN.matcher(discordId).find() || DiscordSRV.getPlugin().getAccountLinkManager() == null) {
             return null;
         }
-        if (!DISCORD_ID_PATTERN.matcher(discordId).find()) return null;
 
         return DiscordSRV.getPlugin().getAccountLinkManager().getUuid(discordId);
     }
