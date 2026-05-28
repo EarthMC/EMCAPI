@@ -287,8 +287,30 @@ Example **POST** response
           "z": -9
         }
       }
+    ],
+    "bankhistory": [
+      {
+        "time": 1779962429347, // The time the transaction took place, in epoch milliseconds
+        "type": "WITHDRAW", // Transaction type (DEPOSIT, WITHDRAW, ADD, SUBTRACT)
+        "amount": 300.0, // Transaction amount
+        "balance": 700.0, // Balance after the transaction
+        "reason": "Withdraw by Veyronity" // The transaction reason. Either caused by a player or server-side action (e.g. upkeep)
+      },
+      {
+        "time": 1779962434994,
+        "type": "DEPOSIT",
+        "amount": 200.0,
+        "balance": 900.0,
+        "reason": "Deposit from Veyronity"
+      },
+      {
+        "time": 1779962436293,
+        "type": "DEPOSIT",
+        "amount": 100.0,
+        "balance": 1000.0,
+        "reason": "Deposit from Veyronity"
+      }
     ]
-  }
   }
 ]
 ```

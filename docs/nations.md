@@ -210,7 +210,23 @@ Example **POST** response
         }
       },
       "pending": {} // A JSON dictionary representing pending pacts this nation has.
-    }
+    },
+    "bankhistory": [
+      {
+        "time": 1779962429347, // The time the transaction took place, in epoch milliseconds
+        "type": "WITHDRAW", // Transaction type (DEPOSIT, WITHDRAW, ADD, SUBTRACT)
+        "amount": 270, // Transaction amount
+        "balance": 4500, // Balance after the transaction
+        "reason": "Withdraw by Veyronity" // The transaction reason. Either caused by a player or server-side action (e.g. upkeep)
+      },
+      {
+        "time": 1779962436293,
+        "type": "DEPOSIT",
+        "amount": 1000,
+        "balance": 5500,
+        "reason": "Deposit from Veyronity"
+      }
+    ]
   }
 ]
 ```

@@ -7,6 +7,8 @@ import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyPermission;
+import com.palmergames.bukkit.towny.object.Government;
+import com.palmergames.bukkit.towny.object.economy.BankTransaction;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.lynchpin.api.towny.pacts.Pact;
 import net.earthmc.lynchpin.api.towny.warps.Warp;
@@ -228,6 +230,32 @@ public class EndpointUtils {
 
             json.add("location", locationObject);
         } catch (Throwable ignored) {} // getLocation() may throw an exception if the world couldn't be fetched
+
+        return json;
+    }
+
+    public static JsonArray getBankHistoryArray(Government government) {
+        JsonArray json = new JsonArray();
+        List<BankTransaction> history = government.getAccount().getAuditor().getTransactions();
+        if (history.isEmpty()) {
+            return json;
+        }
+        for (int i = 0; i < Math.min(10, history.size()); i++) {
+            BankTransaction transaction = history.get(i);
+            json.add(getBankTransactionObject(transaction));
+        }
+
+        return json;
+    }
+
+    private static JsonObject getBankTransactionObject(BankTransaction transaction) {
+        JsonObject json = new JsonObject();
+
+        json.addProperty("time", transaction.time());
+        json.addProperty("type", transaction.getType().name());
+        json.addProperty("amount", transaction.getAmount());
+        json.addProperty("balance", transaction.getBalance());
+        json.addProperty("reason", transaction.getReason());
 
         return json;
     }

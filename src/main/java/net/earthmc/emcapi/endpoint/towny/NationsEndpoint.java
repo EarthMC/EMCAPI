@@ -14,6 +14,7 @@ import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.EmbargoesIntegration;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.PactsIntegration;
+import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.manager.NationMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
@@ -99,6 +100,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
 
         nationObject.add("embargoes", getEmbargoesObject(nation));
         nationObject.add("pacts", getPactsObject(nation));
+        nationObject.add("bankhistory", getBankHistory(nation, key));
 
         return nationObject;
     }
@@ -149,5 +151,22 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
         json.add("pending", pending);
 
         return json;
+    }
+
+    private JsonArray getBankHistory(Nation nation, @Nullable String key) {
+        JsonArray empty = new JsonArray();
+        if (!TownyEconomyHandler.isActive()) {
+            return empty;
+        }
+        UUID keyOwner = KeyManager.getKeyOwner(key);
+        if (keyOwner == null) {
+            return empty;
+        }
+        Resident res = TownyAPI.getInstance().getResident(keyOwner);
+        if (res == null || !nation.equals(res.getNationOrNull()) || !(nation.isKing(res) || res.hasNationRank("Chancellor") || res.hasNationRank("Treasurer"))) {
+            return empty;
+        }
+
+        return EndpointUtils.getBankHistoryArray(nation);
     }
 }

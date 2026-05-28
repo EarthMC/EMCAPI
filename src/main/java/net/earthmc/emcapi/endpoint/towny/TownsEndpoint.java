@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
+import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
@@ -13,6 +14,7 @@ import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuartersIntegration;
 import net.earthmc.emcapi.integration.WarpsIntegration;
+import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
@@ -125,6 +127,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         townObject.add("ranks", ranksObject);
 
         townObject.add("warps", getWarpsObject(town));
+        townObject.add("bankhistory", getBankHistory(town, key));
 
         return townObject;
     }
@@ -141,5 +144,22 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         }
 
         return json;
+    }
+
+    private JsonArray getBankHistory(Town town, @Nullable String key) {
+        JsonArray empty = new JsonArray();
+        if (!TownyEconomyHandler.isActive()) {
+            return empty;
+        }
+        UUID keyOwner = KeyManager.getKeyOwner(key);
+        if (keyOwner == null) {
+            return empty;
+        }
+        Resident res = TownyAPI.getInstance().getResident(keyOwner);
+        if (res == null || !town.equals(res.getTownOrNull()) || !(town.isMayor(res) || res.hasTownRank("Councillor") || res.hasTownRank("Treasurer"))) {
+            return empty;
+        }
+
+        return EndpointUtils.getBankHistoryArray(town);
     }
 }
