@@ -38,6 +38,8 @@ public class DiscordIntegration extends Integration {
                     DISCORD_TO_UUID.put(entry.getValue(), entry.getKey());
                 }
             }, 30, TimeUnit.SECONDS);
+
+            DiscordSRV.api.subscribe(this);
         }
     }
 
