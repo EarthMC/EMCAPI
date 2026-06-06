@@ -5,5 +5,6 @@ package net.earthmc.emcapi.object.nearby;
  */
 public enum NearbyType {
     COORDINATE,
-    TOWN
+    TOWN,
+    NATION
 }

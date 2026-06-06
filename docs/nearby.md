@@ -14,8 +14,9 @@ Example **POST** request with a nearby query based on a town
     {
       "target_type": "TOWN",
       "target": "Melbourne",
-      "search_type": "TOWN",
-      "radius": 100
+      "search_type": "TOWN", // Returns a list of towns within the specified radius
+      "radius": 100,
+      "strict": true // Optional field. Default is false. 
     }
   ]
 }
@@ -31,14 +32,17 @@ Example **POST** request with a nearby query based on coordinates
         2000,
         10000
       ],
-      "search_type": "TOWN",
+      "search_type": "NATION", // Returns a list of nations whose capitals fall within the specified radius
       "radius": 10000
     }
   ]
 }
 ```
 
-Example **POST** response for a nearby query with `search_type` set to `TOWN` (the only type currently available)
+Note: When checking if a town is in range, the distance between the center and the town's homeblock is checked. If the distance is smaller than the radius, the town is added to the response.  
+If it's out of range but only by <=300 blocks, and `strict` is set to false (or not specified), all the town's townblocks are checked
+
+Example **POST** response for a nearby query with `search_type` set to `TOWN`
 ```json5
 [
   [

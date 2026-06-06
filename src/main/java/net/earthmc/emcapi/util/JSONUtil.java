@@ -40,6 +40,17 @@ public class JSONUtil {
         return primitive.getAsInt();
     }
 
+    public static Boolean getJsonElementAsBooleanOrNull(JsonElement element) {
+        if (element == null) return null;
+
+        if (!element.isJsonPrimitive()) return null;
+
+        JsonPrimitive primitive = element.getAsJsonPrimitive();
+        if (!primitive.isBoolean()) return null;
+
+        return primitive.getAsBoolean();
+    }
+
     public static JsonArray getJsonElementAsJsonArrayOrNull(JsonElement element) {
         if (element == null) return null;
 
