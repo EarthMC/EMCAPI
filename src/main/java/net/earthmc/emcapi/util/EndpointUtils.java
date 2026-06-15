@@ -240,7 +240,8 @@ public class EndpointUtils {
         if (history.isEmpty()) {
             return json;
         }
-        for (int i = 0; i < Math.min(10, history.size()); i++) {
+        int start = Math.max(0, history.size() - 10);
+        for (int i = history.size() - 1; i >= start; i--) {
             BankTransaction transaction = history.get(i);
             json.add(getBankTransactionObject(transaction));
         }
