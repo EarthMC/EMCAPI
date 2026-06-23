@@ -57,7 +57,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         townObject.addProperty("discord", TownMetadataManager.getDiscordURL(town));
 
         townObject.add("mayor", EndpointUtils.getResidentJsonObject(town.getMayor()));
-        townObject.add("nation", EndpointUtils.getNationJsonObject(town.getNationOrNull()));
+        townObject.add("nation", EndpointUtils.getNameAndIdObject(town.getNationOrNull()));
 
         JsonObject timestampsObject = new JsonObject();
         timestampsObject.addProperty("registered", town.getRegistered());

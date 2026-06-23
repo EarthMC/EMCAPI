@@ -62,8 +62,8 @@ public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
 
         jsonObject.addProperty("isWilderness", townyAPI.isWilderness(location));
 
-        jsonObject.add("town", EndpointUtils.getTownJsonObject(town));
-        jsonObject.add("nation", EndpointUtils.getNationJsonObject(town == null ? null : town.getNationOrNull()));
+        jsonObject.add("town", EndpointUtils.getNameAndIdObject(town));
+        jsonObject.add("nation", EndpointUtils.getNameAndIdObject(town == null ? null : town.getNationOrNull()));
 
         return jsonObject;
     }

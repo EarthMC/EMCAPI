@@ -9,6 +9,6 @@ public class NationsListEndpoint extends GetEndpoint {
 
     @Override
     public JsonArray getJsonElement() {
-        return EndpointUtils.getNationArray(TownyAPI.getInstance().getNations());
+        return EndpointUtils.getGovernmentArray(TownyAPI.getInstance().getNations());
     }
 }

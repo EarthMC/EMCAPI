@@ -60,7 +60,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
         nationObject.addProperty("discord", NationMetadataManager.getDiscordURL(nation));
 
         nationObject.add("king", EndpointUtils.getResidentJsonObject(nation.getKing()));
-        nationObject.add("capital", EndpointUtils.getTownJsonObject(nation.getCapital()));
+        nationObject.add("capital", EndpointUtils.getNameAndIdObject(nation.getCapital()));
 
         JsonObject timestampsObject = new JsonObject();
         timestampsObject.addProperty("registered", nation.getRegistered());
@@ -86,11 +86,11 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
 
         nationObject.add("coordinates", EndpointUtils.getCoordinatesObject(nation.getSpawnOrNull()));
         nationObject.add("residents", EndpointUtils.getResidentArray(nation.getResidents()));
-        nationObject.add("towns", EndpointUtils.getTownArray(nation.getTowns()));
+        nationObject.add("towns", EndpointUtils.getGovernmentArray(nation.getTowns()));
         nationObject.add("outlaws", EndpointUtils.getResidentArray(nationOutlawedResidents));
-        nationObject.add("allies", EndpointUtils.getNationArray(nation.getAllies()));
-        nationObject.add("enemies", EndpointUtils.getNationArray(nation.getEnemies()));
-        nationObject.add("sanctioned", EndpointUtils.getTownArray(nation.getSanctionedTowns()));
+        nationObject.add("allies", EndpointUtils.getGovernmentArray(nation.getAllies()));
+        nationObject.add("enemies", EndpointUtils.getGovernmentArray(nation.getEnemies()));
+        nationObject.add("sanctioned", EndpointUtils.getGovernmentArray(nation.getSanctionedTowns()));
 
         JsonObject ranksObject = new JsonObject();
         for (String rank : TownyPerms.getNationRanks()) {
@@ -117,10 +117,10 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
         for (Embargo embargo : integration.getEmbargoes(nation)) {
             if (nation.equals(embargo.getSender())) {
                 Nation other = embargo.getAgainst();
-                byNation.add(EndpointUtils.getNationJsonObject(other));
+                byNation.add(EndpointUtils.getNameAndIdObject(other));
             } else {
                 Nation other = embargo.getSender();
-                againstNation.add(EndpointUtils.getNationJsonObject(other));
+                againstNation.add(EndpointUtils.getNameAndIdObject(other));
             }
         }
         json.add("own", byNation);

@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
-import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyPermission;
 import com.palmergames.bukkit.towny.object.Government;
 import com.palmergames.bukkit.towny.object.economy.BankTransaction;
@@ -22,6 +21,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class EndpointUtils {
+    private static final JsonObject NULL_UUID_NAME = Make.make(new JsonObject(), object -> {
+        object.add("name", null);
+        object.add("uuid", null);
+    });
+
     public static JsonObject getPermsObject(TownyPermission permissions) {
         JsonObject permsObject = new JsonObject();
 
@@ -88,57 +92,46 @@ public class EndpointUtils {
         return jsonArray;
     }
 
-    public static JsonObject getResidentJsonObject(Resident resident) {
-        JsonObject jsonObject = new JsonObject();
+    public static JsonObject getResidentJsonObject(@Nullable Resident resident) {
+        if (resident == null) {
+            return NULL_UUID_NAME;
+        }
 
-        jsonObject.addProperty("name", resident == null ? null : resident.getName());
-        jsonObject.addProperty("uuid", resident == null ? null : resident.getUUID().toString());
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("name", resident.getName());
+        jsonObject.addProperty("uuid", resident.hasUUID() ? resident.getUUID().toString() : null);
 
         return jsonObject;
     }
 
-    public static JsonArray getTownArray(List<Town> towns) {
+    /**
+     * Creates an array of name and id objects for the given collection of governments.
+     *
+     * @param governments Governments to put into an array
+     * @return A new JSON array
+     */
+    public static JsonArray getGovernmentArray(Iterable<? extends Government> governments) {
         JsonArray jsonArray = new JsonArray();
 
-        for (Town town : towns) {
-            if (town == null) {
+        for (Government government : governments) {
+            if (government == null) {
                 continue;
             }
 
-            jsonArray.add(getTownJsonObject(town));
+            jsonArray.add(getNameAndIdObject(government));
         }
 
         return jsonArray;
     }
 
-    public static JsonObject getTownJsonObject(@Nullable Town town) {
-        JsonObject jsonObject = new JsonObject();
-
-        jsonObject.addProperty("name", town == null || town.getName() == null ? null : town.getName());
-        jsonObject.addProperty("uuid", town == null || town.getUUID() == null ? null : town.getUUID().toString());
-
-        return jsonObject;
-    }
-
-    public static JsonArray getNationArray(List<Nation> nations) {
-        JsonArray jsonArray = new JsonArray();
-
-        for (Nation nation : nations) {
-            if (nation == null) {
-                continue;
-            }
-
-            jsonArray.add(getNationJsonObject(nation));
+    public static JsonObject getNameAndIdObject(@Nullable Government government) {
+        if (government == null) {
+            return NULL_UUID_NAME;
         }
 
-        return jsonArray;
-    }
-
-    public static JsonObject getNationJsonObject(@Nullable Nation nation) {
-        JsonObject jsonObject = new JsonObject();
-
-        jsonObject.addProperty("name", nation == null || nation.getName() == null ? null : nation.getName());
-        jsonObject.addProperty("uuid", nation == null || nation.getUUID() == null ? null : nation.getUUID().toString());
+        final JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("name", government.getName() == null ? null : government.getName());
+        jsonObject.addProperty("uuid", government.getUUID() == null ? null : government.getUUID().toString());
 
         return jsonObject;
     }

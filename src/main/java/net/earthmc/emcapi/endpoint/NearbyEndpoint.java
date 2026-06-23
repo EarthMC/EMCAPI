@@ -143,7 +143,7 @@ public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
             }
         }
 
-        return EndpointUtils.getTownArray(towns);
+        return EndpointUtils.getGovernmentArray(towns);
     }
 
     private JsonArray getNearbyNations(WorldCoord center, int radius, boolean strict, Nation excludeNation) {
@@ -160,7 +160,7 @@ public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
             }
         }
 
-        return EndpointUtils.getNationArray(nations);
+        return EndpointUtils.getGovernmentArray(nations);
     }
 
     private boolean isTownInRange(Town town, WorldCoord center, int radius, boolean strict) {

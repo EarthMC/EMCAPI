@@ -64,8 +64,8 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
         playerObject.addProperty("formattedName", resident.getFormattedName());
         playerObject.addProperty("about", resident.getAbout().isEmpty() ? null : resident.getAbout());
 
-        playerObject.add("town", EndpointUtils.getTownJsonObject(resident.getTownOrNull()));
-        playerObject.add("nation", EndpointUtils.getNationJsonObject(resident.getNationOrNull()));
+        playerObject.add("town", EndpointUtils.getNameAndIdObject(resident.getTownOrNull()));
+        playerObject.add("nation", EndpointUtils.getNameAndIdObject(resident.getNationOrNull()));
 
         JsonObject timestampsObject = new JsonObject();
         timestampsObject.addProperty("registered", resident.getRegistered());

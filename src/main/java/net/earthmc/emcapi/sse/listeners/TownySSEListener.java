@@ -43,9 +43,9 @@ public class TownySSEListener extends AbstractSSEListener {
     public void onNewNation(NewNationEvent event) {
         JsonObject message = new JsonObject();
         Nation nation = event.getNation();
-        message.add("nation", EndpointUtils.getNationJsonObject(nation));
+        message.add("nation", EndpointUtils.getNameAndIdObject(nation));
         message.add("king", EndpointUtils.getResidentJsonObject(nation.getKing()));
-        message.add("capital", EndpointUtils.getTownJsonObject(nation.getCapital()));
+        message.add("capital", EndpointUtils.getNameAndIdObject(nation.getCapital()));
         sse.sendEvent("NationCreated", message);
     }
 
@@ -55,14 +55,14 @@ public class TownySSEListener extends AbstractSSEListener {
         Nation nation = event.getNation();
         message.add("nation", EndpointUtils.generateNameUUIDJsonObject(nation.getName(), nation.getUUID()));
         message.add("king", EndpointUtils.getResidentJsonObject(nation.getKing()));
-        message.add("capital", EndpointUtils.getTownJsonObject(nation.getCapital()));
+        message.add("capital", EndpointUtils.getNameAndIdObject(nation.getCapital()));
         sse.sendEvent("NationDeleted", message);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onRenameNation(RenameNationEvent event) {
         JsonObject message = new JsonObject();
-        message.add("nation", EndpointUtils.getNationJsonObject(event.getNation()));
+        message.add("nation", EndpointUtils.getNameAndIdObject(event.getNation()));
         message.addProperty("oldName", event.getOldName());
         sse.sendEvent("NationRenamed", message);
     }
@@ -70,13 +70,13 @@ public class TownySSEListener extends AbstractSSEListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onNationKingChange(NationKingChangeEvent event) {
         JsonObject message = new JsonObject();
-        message.add("nation", EndpointUtils.getNationJsonObject(event.getNation()));
+        message.add("nation", EndpointUtils.getNameAndIdObject(event.getNation()));
         message.add("newKing", EndpointUtils.getResidentJsonObject(event.getNewKing()));
         message.add("oldKing", EndpointUtils.getResidentJsonObject(event.getOldKing()));
         message.addProperty("isCapitalChange", event.isCapitalChange());
         if (event.isCapitalChange()) {
-            message.add("newCapital", EndpointUtils.getTownJsonObject(event.getNewKing().getTownOrNull()));
-            message.add("oldCapital", EndpointUtils.getTownJsonObject(event.getOldKing().getTownOrNull()));
+            message.add("newCapital", EndpointUtils.getNameAndIdObject(event.getNewKing().getTownOrNull()));
+            message.add("oldCapital", EndpointUtils.getNameAndIdObject(event.getOldKing().getTownOrNull()));
         }
         sse.sendEvent("NationKingChanged", message);
     }
@@ -84,15 +84,15 @@ public class TownySSEListener extends AbstractSSEListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onNationMerge(NationMergeEvent event) {
         JsonObject message = new JsonObject();
-        message.add("oldNation", EndpointUtils.getNationJsonObject(event.getNation()));
-        message.add("remainingNation", EndpointUtils.getNationJsonObject(event.getRemainingnation()));
+        message.add("oldNation", EndpointUtils.getNameAndIdObject(event.getNation()));
+        message.add("remainingNation", EndpointUtils.getNameAndIdObject(event.getRemainingnation()));
         sse.sendEvent("NationMerged", message);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onNewTown(NewTownEvent event) {
         JsonObject message = new JsonObject();
-        message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
+        message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
         message.add("mayor", EndpointUtils.getResidentJsonObject(event.getTown().getMayor()));
         sse.sendEvent("TownCreated", message);
     }
@@ -108,7 +108,7 @@ public class TownySSEListener extends AbstractSSEListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onRenameTown(RenameTownEvent event) {
         JsonObject message = new JsonObject();
-        message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
+        message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
         message.addProperty("oldName", event.getOldName());
         sse.sendEvent("TownRenamed", message);
     }
@@ -116,7 +116,7 @@ public class TownySSEListener extends AbstractSSEListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTownMayorChanged(TownMayorChangedEvent event) {
         JsonObject message = new JsonObject();
-        message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
+        message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
         message.add("newMayor", EndpointUtils.getResidentJsonObject(event.getNewMayor()));
         message.add("oldMayor", EndpointUtils.getResidentJsonObject(event.getOldMayor()));
         sse.sendEvent("TownMayorChanged", message);
@@ -126,14 +126,14 @@ public class TownySSEListener extends AbstractSSEListener {
     public void onTownMerge(TownMergeEvent event) {
         JsonObject message = new JsonObject();
         message.add("oldTown", EndpointUtils.generateNameUUIDJsonObject(event.getSuccumbingTownName(), event.getSuccumbingTownUUID()));
-        message.add("remainingTown", EndpointUtils.getTownJsonObject(event.getRemainingTown()));
+        message.add("remainingTown", EndpointUtils.getNameAndIdObject(event.getRemainingTown()));
         sse.sendEvent("TownMerged", message);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTownRuined(TownPreRuinedEvent event) {
         JsonObject message = new JsonObject();
-        message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
+        message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
         message.add("oldMayor", EndpointUtils.getResidentJsonObject(event.getTown().getMayor()));
         sse.sendEvent("TownRuined", message);
     }
@@ -141,7 +141,7 @@ public class TownySSEListener extends AbstractSSEListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTownReclaimed(TownReclaimedEvent event) {
         JsonObject message = new JsonObject();
-        message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
+        message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
         message.add("newMayor", EndpointUtils.getResidentJsonObject(event.getResident()));
         sse.sendEvent("TownReclaimed", message);
     }
@@ -150,8 +150,8 @@ public class TownySSEListener extends AbstractSSEListener {
     public void onTownJoin(NationAddTownEvent event) {
         Nation nation = event.getNation();
         JsonObject message = new JsonObject();
-        message.add("nation", EndpointUtils.getNationJsonObject(nation));
-        message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
+        message.add("nation", EndpointUtils.getNameAndIdObject(nation));
+        message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
         try {
             UUID leader = nation.getCapital() != null
                 ? nation.getKing().getUUID()
@@ -168,8 +168,8 @@ public class TownySSEListener extends AbstractSSEListener {
         }
 
         JsonObject message = new JsonObject();
-        message.add("nation", EndpointUtils.getNationJsonObject(nation));
-        message.add("town", EndpointUtils.getTownJsonObject(event.getTown()));
+        message.add("nation", EndpointUtils.getNameAndIdObject(nation));
+        message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
         sse.sendEvent("TownLeftNation", message, nation.getKing().getUUID());
     }
 
@@ -181,7 +181,7 @@ public class TownySSEListener extends AbstractSSEListener {
         }
 
         JsonObject message = new JsonObject();
-        message.add("town", EndpointUtils.getTownJsonObject(town));
+        message.add("town", EndpointUtils.getNameAndIdObject(town));
         message.add("resident", EndpointUtils.getResidentJsonObject(event.getResident()));
         sse.sendEvent("ResidentJoinedTown", message, town.getMayor().getUUID());
     }
@@ -194,7 +194,7 @@ public class TownySSEListener extends AbstractSSEListener {
         }
 
         JsonObject message = new JsonObject();
-        message.add("town", EndpointUtils.getTownJsonObject(town));
+        message.add("town", EndpointUtils.getNameAndIdObject(town));
         message.add("resident", EndpointUtils.getResidentJsonObject(event.getResident()));
         sse.sendEvent("ResidentLeftTown", message, town.getMayor().getUUID());
     }

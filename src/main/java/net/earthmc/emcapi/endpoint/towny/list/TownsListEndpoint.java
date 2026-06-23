@@ -9,6 +9,6 @@ public class TownsListEndpoint extends GetEndpoint {
 
     @Override
     public JsonArray getJsonElement() {
-        return EndpointUtils.getTownArray(TownyAPI.getInstance().getTowns());
+        return EndpointUtils.getGovernmentArray(TownyAPI.getInstance().getTowns());
     }
 }
