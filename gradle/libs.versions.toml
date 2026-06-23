@@ -1,5 +1,5 @@
 [versions]
-paper = "1.21.1-R0.1-SNAPSHOT"
+paper = "1.21.11-R0.1-SNAPSHOT"
 javalin = "6.7.0"
 discordsrv = "1.27.0"
 quarters = "e9ed8a133a"
@@ -12,8 +12,8 @@ mcmmo = "2.2.040"
 lynchpin-api = "1.0-SNAPSHOT"
 
 # plugins
-conventions = "1.0.8"
-shadow = "9.3.0"
+conventions = "1.1.0"
+shadow = "9.4.2"
 
 [libraries]
 discordsrv = { group = "com.discordsrv", name = "discordsrv", version.ref = "discordsrv" }

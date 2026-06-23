@@ -59,10 +59,6 @@ dependencies {
 }
 
 tasks {
-    assemble {
-        dependsOn(shadowJar)
-    }
-
     shadowJar {
         archiveClassifier.set("")
 
