@@ -1,6 +1,6 @@
 [versions]
 paper = "1.21.11-R0.1-SNAPSHOT"
-javalin = "6.7.0"
+javalin = "7.2.2"
 discordsrv = "1.27.0"
 quarters = "e9ed8a133a"
 towny = "0.102.0.0"

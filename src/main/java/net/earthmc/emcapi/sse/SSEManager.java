@@ -1,7 +1,7 @@
 package net.earthmc.emcapi.sse;
 
 import com.google.gson.JsonObject;
-import io.javalin.Javalin;
+import io.javalin.config.RoutesConfig;
 import io.javalin.http.Context;
 import io.javalin.http.sse.SseClient;
 import net.earthmc.emcapi.EMCAPI;
@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 public class SSEManager {
     private final EMCAPI plugin;
-    private final Javalin javalin;
     private static final Map<String, ClientData> CLIENTS = new ConcurrentHashMap<>();
     private static final Map<String, Set<ClientData>> CLIENTS_BY_EVENT = new ConcurrentHashMap<>();
     private static final Map<UUID, ClientData> CLIENTS_BY_UUID = new ConcurrentHashMap<>();
@@ -36,11 +35,10 @@ public class SSEManager {
 
     public SSEManager(EMCAPI plugin) {
         this.plugin = plugin;
-        this.javalin = plugin.getJavalin();
     }
 
-    public void loadSSE() {
-        javalin.sse(plugin.getURLPath() + "/events", client -> {
+    public void loadSSE(final RoutesConfig routes) {
+        routes.sse(plugin.getURLPath() + "/events", client -> {
             Context ctx = client.ctx();
             String auth = ctx.header("Authorization");
 

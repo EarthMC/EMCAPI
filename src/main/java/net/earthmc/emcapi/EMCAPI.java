@@ -5,8 +5,6 @@ import io.javalin.Javalin;
 import io.javalin.http.TooManyRequestsResponse;
 import io.javalin.util.JavalinLogger;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import net.earthmc.emcapi.database.APIDatabase;
 import net.earthmc.emcapi.database.DatabaseSchema;
 import net.earthmc.emcapi.integration.Integrations;
@@ -20,15 +18,12 @@ import net.earthmc.emcapi.command.ApiCommand;
 import net.earthmc.emcapi.util.CooldownUtil;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +32,7 @@ public final class EMCAPI extends JavaPlugin {
 
     public static EMCAPI instance;
     private Javalin javalin;
-    private SSEManager sseManager;
+    private final SSEManager sseManager = new SSEManager(this);
     private final APIDatabase database = new APIDatabase();
     private final OptOut optOut = new OptOut(this);
 
@@ -66,12 +61,8 @@ public final class EMCAPI extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new Integrations(), this);
 
-        new EndpointManager(this).loadEndpoints();
-
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register(ApiCommand.create(this), "Allows you to opt in or out of your information being visible in the API."));
 
-        sseManager = new SSEManager(this);
-        sseManager.loadSSE();
         PluginManager pm = getServer().getPluginManager();
         if (pm.isPluginEnabled("Towny")) {
             pm.registerEvents(new TownySSEListener(sseManager), this);
@@ -94,27 +85,25 @@ public final class EMCAPI extends JavaPlugin {
     }
 
     private void initialiseJavalin() {
-        javalin = Javalin.create(config -> {
-            config.jetty.modifyServer(server -> {
-                disableServerVersionHeader(server);
+        javalin = Javalin.start(config -> {
+            config.jetty.modifyServer(this::disableServerVersionHeader);
 
-                WebAppContext context = new WebAppContext();
-                context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-                context.setErrorHandler(new ErrorHandler());
-                context.setWar(EMCAPI.class.getProtectionDomain().getCodeSource().getLocation().toExternalForm());
+            config.routes.exception(TooManyRequestsResponse.class, (e, ctx) -> {
+                final String retryAfter = e.getDetails().get("retry");
+                if (retryAfter != null) {
+                    ctx.header("Retry-After", retryAfter);
+                }
 
-                server.setHandler(context);
+                ctx.status(HttpStatus.TOO_MANY_REQUESTS_429);
+                ctx.result(e.getMessage()); // sending a json object may be nicer in the future
             });
-        });
 
-        javalin.exception(TooManyRequestsResponse.class, (e, ctx) -> {
-            final String retryAfter = e.getDetails().get("retry");
-            if (retryAfter != null) {
-                ctx.header("Retry-After", retryAfter);
-            }
-        });
+            config.jetty.host = getConfig().getString("networking.host");
+            config.jetty.port = getConfig().getInt("networking.port");
 
-        javalin.start(getConfig().getString("networking.host"), getConfig().getInt("networking.port"));
+            new EndpointManager(this).loadEndpoints(config.routes);
+            sseManager.loadSSE(config.routes);
+        });
     }
 
     private void loadConfig() {
@@ -158,17 +147,6 @@ public final class EMCAPI extends JavaPlugin {
                     .filter(cf -> cf instanceof HttpConnectionFactory)
                     .forEach(cf -> ((HttpConnectionFactory) cf)
                             .getHttpConfiguration().setSendServerVersion(false));
-        }
-    }
-
-    private static class ErrorHandler extends ErrorPageErrorHandler {
-
-        @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-            response.getWriter()
-                    .append("{\"status\":\"ERROR\",\"message\":\"HTTP ")
-                    .append(String.valueOf(response.getStatus()))
-                    .append("\"}");
         }
     }
 
