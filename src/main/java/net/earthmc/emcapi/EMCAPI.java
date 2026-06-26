@@ -47,13 +47,21 @@ public final class EMCAPI extends JavaPlugin {
         JavalinLogger.startupInfo = false;
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void onEnable() {
         instance = this;
 
         loadConfig();
         loadDatabase();
+
+        // Load keys & opt out before the webserver starts
+        try {
+            KeyManager.loadApiKeys(this);
+        } catch (SQLException e) {
+            getSLF4JLogger().warn("exception while loading API keys: ", e);
+        }
+        optOut.loadOptOut();
+
         initialiseJavalin();
 
         getServer().getPluginManager().registerEvents(new Integrations(), this);
@@ -61,8 +69,6 @@ public final class EMCAPI extends JavaPlugin {
         new EndpointManager(this).loadEndpoints();
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register(ApiCommand.create(this), "Allows you to opt in or out of your information being visible in the API."));
-
-        optOut.loadOptOut();
 
         sseManager = new SSEManager(this);
         sseManager.loadSSE();
@@ -72,12 +78,6 @@ public final class EMCAPI extends JavaPlugin {
         }
         if (pm.isPluginEnabled("QuickShop-Hikari")) {
             pm.registerEvents(new ShopSSEListener(sseManager), this);
-        }
-
-        try {
-            KeyManager.loadApiKeys(this);
-        } catch (SQLException e) {
-            getSLF4JLogger().warn("exception while loading API keys: ", e);
         }
 
         getServer().getAsyncScheduler().runAtFixedRate(this, t -> CooldownUtil.refresh(), 5, 5, TimeUnit.MINUTES);
