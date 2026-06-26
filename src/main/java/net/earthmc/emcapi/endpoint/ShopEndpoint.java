@@ -3,7 +3,6 @@ package net.earthmc.emcapi.endpoint;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuickShopIntegration;
@@ -34,13 +33,13 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     @Override
     public List<Shop> getObjectOrNull(JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
-        if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
+        if (string == null) throw HttpExceptions.NOT_A_STRING;;
 
         UUID player;
         try {
             player = UUID.fromString(string);
         } catch (IllegalArgumentException ignored) {
-            throw new BadRequestResponse("Your query contains an invalid UUID");
+            throw HttpExceptions.NOT_A_UUID;
         }
 
         UUID keyOwner = KeyManager.getKeyOwner(key);

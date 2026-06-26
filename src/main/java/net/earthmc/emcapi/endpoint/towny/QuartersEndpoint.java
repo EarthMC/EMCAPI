@@ -6,10 +6,10 @@ import au.lupine.quarters.object.entity.Quarter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
+import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +26,7 @@ public class QuartersEndpoint extends PostEndpoint<Quarter> {
     @Override
     public Quarter getObjectOrNull(JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
-        if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
+        if (string == null) throw HttpExceptions.NOT_A_STRING;;
 
         UUID uuid;
         try {

@@ -9,7 +9,6 @@ import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
-import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuartersIntegration;
@@ -18,6 +17,7 @@ import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
+import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
 import net.earthmc.lynchpin.api.towny.warps.Warp;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +33,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
     @Override
     public Town getObjectOrNull(JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
-        if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
+        if (string == null) throw HttpExceptions.NOT_A_STRING;;
 
         Town town;
         try {

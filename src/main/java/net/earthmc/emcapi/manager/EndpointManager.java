@@ -60,12 +60,15 @@ public class EndpointManager {
         loadAdvancementsEndpoint();
     }
 
+    private static final BadRequestResponse NO_QUERY_ARRAY = new BadRequestResponse("No query array provided");
+    private static final BadRequestResponse INVALID_QUERY_ARRAY = new BadRequestResponse("Provided query is not an array");
+
     private QueryBody parseBody(String body) {
         JsonObject jsonObject = JSONUtil.getJsonObjectFromString(body);
 
         JsonElement queryElement = jsonObject.get("query");
-        if (queryElement == null) throw new BadRequestResponse("No query array provided");
-        if (!queryElement.isJsonArray()) throw new BadRequestResponse("Provided query is not an array");
+        if (queryElement == null) throw NO_QUERY_ARRAY;
+        if (!queryElement.isJsonArray()) throw INVALID_QUERY_ARRAY;
         JsonArray queryArray = queryElement.getAsJsonArray();
 
         JsonElement templateElement = jsonObject.get("template");

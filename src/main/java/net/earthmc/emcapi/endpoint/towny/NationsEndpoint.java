@@ -9,7 +9,6 @@ import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
-import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.EmbargoesIntegration;
 import net.earthmc.emcapi.integration.Integrations;
@@ -18,6 +17,7 @@ import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.manager.NationMetadataManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
+import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
 import net.earthmc.lynchpin.api.towny.embargoes.Embargo;
 import net.earthmc.lynchpin.api.towny.pacts.Pact;
@@ -35,7 +35,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
     @Override
     public Nation getObjectOrNull(JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
-        if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
+        if (string == null) throw HttpExceptions.NOT_A_STRING;;
 
         Nation nation;
         try {

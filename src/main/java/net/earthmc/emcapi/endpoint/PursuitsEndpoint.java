@@ -32,7 +32,7 @@ public class PursuitsEndpoint extends PostEndpoint<PursuitsEndpoint.PursuitsLead
     @Override
     public PursuitsLeaderboard getObjectOrNull(JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
-        if (string == null) throw new BadRequestResponse("Your query contains a value that is not a string");
+        if (string == null) throw HttpExceptions.NOT_A_STRING;
 
         UUID keyOwner = KeyManager.getKeyOwner(key);
         if (keyOwner == null) {
