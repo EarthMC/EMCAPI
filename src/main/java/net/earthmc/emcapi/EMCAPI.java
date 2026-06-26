@@ -2,6 +2,7 @@ package net.earthmc.emcapi;
 
 import com.zaxxer.hikari.HikariConfig;
 import io.javalin.Javalin;
+import io.javalin.http.TooManyRequestsResponse;
 import io.javalin.util.JavalinLogger;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import jakarta.servlet.http.HttpServletRequest;
@@ -104,6 +105,13 @@ public final class EMCAPI extends JavaPlugin {
 
                 server.setHandler(context);
             });
+        });
+
+        javalin.exception(TooManyRequestsResponse.class, (e, ctx) -> {
+            final String retryAfter = e.getDetails().get("retry");
+            if (retryAfter != null) {
+                ctx.header("Retry-After", retryAfter);
+            }
         });
 
         javalin.start(getConfig().getString("networking.host"), getConfig().getInt("networking.port"));

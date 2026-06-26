@@ -20,7 +20,7 @@ public class CooldownUtil {
         if (cooldowns != null && cooldowns.containsKey(id)) {
             long timeUntilNext = cooldowns.get(id) - now;
             if (timeUntilNext > 0) {
-                throw new TooManyRequestsResponse("Too Many Requests. Try again in " + timeUntilNext + " second(s)");
+                throw new TooManyRequestsResponse("Too Many Requests. Try again in " + timeUntilNext + " second(s)", Map.of("retry", String.valueOf(timeUntilNext)));
             }
         }
         COOLDOWNS.computeIfAbsent(type, k -> new ConcurrentHashMap<>()).put(id, now + seconds);
