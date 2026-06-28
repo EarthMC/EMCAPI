@@ -5,6 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
+import com.palmergames.bukkit.towny.TownySettings;
+import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
@@ -57,7 +59,8 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         townObject.addProperty("discord", TownMetadataManager.getDiscordURL(town));
 
         townObject.add("mayor", EndpointUtils.getResidentJsonObject(town.getMayor()));
-        townObject.add("nation", EndpointUtils.getNameAndIdObject(town.getNationOrNull()));
+        Nation nation = town.getNationOrNull();
+        townObject.add("nation", EndpointUtils.getNameAndIdObject(nation));
 
         JsonObject timestampsObject = new JsonObject();
         timestampsObject.addProperty("registered", town.getRegistered());
@@ -84,9 +87,10 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         statsObject.addProperty("numTownBlocks", town.getNumTownBlocks());
         statsObject.addProperty("maxTownBlocks", town.getMaxTownBlocks());
         statsObject.addProperty("bonusBlocks", town.getBonusBlocks());
-        statsObject.addProperty("numResidents", town.getNumResidents());
-        statsObject.addProperty("numTrusted", town.getTrustedResidents().size());
-        statsObject.addProperty("numOutlaws", town.getOutlaws().size());
+        statsObject.addProperty("nationBonus", nation == null ? 0 : TownySettings.getNationBonusBlocks(nation));
+        statsObject.addProperty("numResidents", EndpointUtils.getActiveResidentCount(town.getResidents()));
+        statsObject.addProperty("numTrusted", EndpointUtils.getActiveResidentCount(town.getTrustedResidents()));
+        statsObject.addProperty("numOutlaws", EndpointUtils.getActiveResidentCount(town.getOutlaws()));
         statsObject.addProperty("balance", TownyEconomyHandler.isActive() ? town.getAccount().getHoldingBalance() : 0);
         statsObject.addProperty("forSalePrice", !town.isForSale() ? null : town.getForSalePrice());
         townObject.add("stats", statsObject);

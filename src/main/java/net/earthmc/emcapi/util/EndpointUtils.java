@@ -3,6 +3,7 @@ package net.earthmc.emcapi.util;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.TownyPermission;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -85,7 +87,7 @@ public class EndpointUtils {
     public static JsonArray getResidentArray(List<Resident> residents) {
         JsonArray jsonArray = new JsonArray();
 
-        for (Resident resident : residents) {
+        for (Resident resident : filterActiveResidents(residents)) {
             jsonArray.add(getResidentJsonObject(resident));
         }
 
@@ -252,5 +254,22 @@ public class EndpointUtils {
         json.addProperty("reason", transaction.getReason());
 
         return json;
+    }
+
+    public static List<Resident> filterActiveResidents(Collection<Resident> residents) {
+        long cutoff = System.currentTimeMillis() - (TownySettings.getDeleteTime() * 1000L);
+
+        return residents.stream().filter(res -> isResidentActive(res, cutoff)).toList();
+    }
+
+    public static int getActiveResidentCount(Collection<Resident> residents) {
+        return filterActiveResidents(residents).size();
+    }
+
+    private static boolean isResidentActive(Resident resident, long cutoff) {
+        if (resident == null || resident.isNPC() || resident.isOnline() || resident.isMayor()) {
+            return true;
+        }
+        return resident.getLastOnline() > cutoff;
     }
 }

@@ -76,9 +76,9 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
         JsonObject statsObject = new JsonObject();
         statsObject.addProperty("nationBonus", TownySettings.getNationBonusBlocks(nation));
         statsObject.addProperty("numTownBlocks", nation.getNumTownblocks());
-        statsObject.addProperty("numResidents", nation.getNumResidents());
+        statsObject.addProperty("numResidents", EndpointUtils.getActiveResidentCount(nation.getResidents()));
         statsObject.addProperty("numTowns", nation.getNumTowns());
-        statsObject.addProperty("numOutlaws", nationOutlawedResidents.size());
+        statsObject.addProperty("numOutlaws", EndpointUtils.getActiveResidentCount(nationOutlawedResidents));
         statsObject.addProperty("numAllies", nation.getAllies().size());
         statsObject.addProperty("numEnemies", nation.getEnemies().size());
         statsObject.addProperty("balance", TownyEconomyHandler.isActive() ? nation.getAccount().getHoldingBalance() : 0);
