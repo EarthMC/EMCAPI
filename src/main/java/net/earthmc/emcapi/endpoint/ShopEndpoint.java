@@ -8,6 +8,7 @@ import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuickShopIntegration;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
+import net.earthmc.emcapi.object.optout.OptOutSettings;
 import net.earthmc.emcapi.util.CooldownUtil;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
@@ -46,7 +47,8 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
         if (keyOwner == null) {
             throw HttpExceptions.MISSING_API_KEY;
         }
-        if (!player.equals(KeyManager.getKeyOwner(key))) {
+        OptOutSettings settings = plugin.getOptOut().getPlayerSettings(player);
+        if (!player.equals(keyOwner) && (settings == null || settings.quickShops())) {
             throw HttpExceptions.FORBIDDEN;
         }
         CooldownUtil.checkAndAddCooldownOrThrow("shop", keyOwner.toString(), COOLDOWN_SECONDS);
@@ -57,10 +59,6 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     public JsonElement getJsonElement(List<Shop> object, @Nullable String key) {
         final Map<String, JsonElement> shops = new ConcurrentHashMap<>();
         int counter = 0;
-        UUID keyOwner = KeyManager.getKeyOwner(key);
-        if (keyOwner == null) {
-            throw HttpExceptions.MISSING_API_KEY;
-        }
         if (object.isEmpty()) {
             return null;
         }
@@ -68,8 +66,6 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
         final List<CompletableFuture<Void>> shopFutures = new ArrayList<>();
 
         for (Shop shop : object) {
-            if (!keyOwner.equals(shop.getOwner().getUniqueId())) continue;
-
             final CompletableFuture<Void> shopFuture = new CompletableFuture<>();
             shopFutures.add(shopFuture);
 

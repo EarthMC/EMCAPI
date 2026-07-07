@@ -1,6 +1,7 @@
 package net.earthmc.emcapi;
 
 import com.zaxxer.hikari.HikariConfig;
+import dev.warriorrr.inventories.Inventories;
 import io.javalin.Javalin;
 import io.javalin.http.TooManyRequestsResponse;
 import io.javalin.util.JavalinLogger;
@@ -70,8 +71,10 @@ public final class EMCAPI extends JavaPlugin {
         if (pm.isPluginEnabled("QuickShop-Hikari")) {
             pm.registerEvents(new ShopSSEListener(sseManager), this);
         }
+        pm.registerEvents(optOut, this);
 
         getServer().getAsyncScheduler().runAtFixedRate(this, t -> CooldownUtil.refresh(), 5, 5, TimeUnit.MINUTES);
+        Inventories.forPlugin(this).build();
     }
 
     @Override

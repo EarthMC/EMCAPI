@@ -46,37 +46,14 @@ public class ApiCommand {
                 return Command.SINGLE_SUCCESS;
             })
             .then(Commands.literal("opt-out")
-                .requires(ctx -> ctx.getSender() instanceof Player)
+                .requires(ctx -> ctx.getSender() instanceof Player player && player.hasPermission("emcapi.opt-out.editor"))
                 .executes(ctx -> {
                     final Player player = (Player) ctx.getSource().getSender();
-
-                    if (plugin.getOptOut().playerOptedOut(player.getUniqueId())) {
-                        player.sendMessage(Component.text("You have already opted out previously!", NamedTextColor.RED));
-                    } else {
-                        if (isOnCooldown(player, CooldownType.OPT_OUT_CHANGE)) {
-                            return Command.SINGLE_SUCCESS;
-                        }
-
-                        player.sendMessage(Component.text("You have opted out of having your information being public on the API.", NamedTextColor.GREEN));
-                        plugin.getOptOut().setOptedOut(player.getUniqueId(), true);
+                    if (isOnCooldown(player, CooldownType.OPT_OUT_CHANGE)) {
+                        return Command.SINGLE_SUCCESS;
                     }
-                    return Command.SINGLE_SUCCESS;
-                }))
-            .then(Commands.literal("opt-in")
-                .requires(ctx -> ctx.getSender() instanceof Player)
-                .executes(ctx -> {
-                    final Player player = (Player) ctx.getSource().getSender();
-
-                    if (plugin.getOptOut().playerOptedOut(player.getUniqueId())) {
-                        if (isOnCooldown(player, CooldownType.OPT_OUT_CHANGE)) {
-                            return Command.SINGLE_SUCCESS;
-                        }
-
-                        player.sendMessage(Component.text("You have opted back in to your information being public on the API.", NamedTextColor.GREEN));
-                        plugin.getOptOut().setOptedOut(player.getUniqueId(), false);
-                    } else {
-                        player.sendMessage(Component.text("You are currently not opted out!", NamedTextColor.RED));
-                    }
+                    player.sendMessage(Component.text("Opening Editor", NamedTextColor.GREEN));
+                    plugin.getOptOut().openEditor(player);
                     return Command.SINGLE_SUCCESS;
                 }))
             .then(Commands.literal("key")
