@@ -100,7 +100,7 @@ public class ShopSSEListener extends AbstractSSEListener {
         JsonObject alertMessage = new JsonObject();
         alertMessage.addProperty("action", isSelling ? "out_of_stock" : "out_of_space");
         alertMessage.add("shop", EndpointUtils.getShopObject(shop));
-        sse.sendEvent("ShopOutOf" + (isSelling ? "Stock " : "Space"), alertMessage, shop.getOwner().getUniqueId());
+        sse.sendEvent("ShopOutOf" + (isSelling ? "Stock" : "Space"), alertMessage, shop.getOwner().getUniqueId());
     }
 
     private String getPlayerName(QUser user) {
