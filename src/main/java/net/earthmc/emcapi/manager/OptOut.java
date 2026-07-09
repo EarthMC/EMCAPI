@@ -84,7 +84,10 @@ public class OptOut implements Listener {
     }
 
     public void loadOptOut() {
-        try (final Connection connection = plugin.getDatabase().getConnection(); PreparedStatement ps = connection.prepareStatement("SELECT uuid FROM opt_out"); final ResultSet rs = ps.executeQuery()) {
+        try (final Connection connection = plugin.getDatabase().getConnection();
+             PreparedStatement ps = connection.prepareStatement("SELECT * FROM opt_out");
+             final ResultSet rs = ps.executeQuery()
+        ) {
             while (rs.next()) {
                 try {
                     UUID uuid = UUID.fromString(rs.getString("uuid"));
@@ -101,7 +104,7 @@ public class OptOut implements Listener {
         }
     }
 
-    public void openEditor(Player player) {
+    public MenuInventory createEditor(Player player) {
         OptOutSettings settings = opted.getOrDefault(player.getUniqueId(), OptOutSettings.DEFAULT);
         MenuInventory.Builder menu = MenuInventory.builder()
             .title(Component.text("Manage your API privacy", NamedTextColor.DARK_GREEN, TextDecoration.BOLD))
@@ -118,10 +121,10 @@ public class OptOut implements Listener {
             .name(name)
             .lore(lore)
             .withGlint(override)
-            .action(ClickAction.run(() -> {
+            .action(ClickAction.openSilent(() -> {
                 opted.put(player.getUniqueId(), settings.override(!override));
                 pending.add(player.getUniqueId());
-                openEditor(player);
+                return createEditor(player);
             }))
             .build());
 
@@ -129,15 +132,16 @@ public class OptOut implements Listener {
         name = Component.text("Resident Status", resident ? NamedTextColor.RED : NamedTextColor.GREEN);
         lore = resident ? Component.text("Click to show your resident data", NamedTextColor.DARK_GREEN)
             : Component.text("Click to hide your resident data", NamedTextColor.DARK_RED);
+
         menu.addItem(MenuItem.builder(Material.PLAYER_HEAD)
             .slot(10)
             .skullOwner(player.getUniqueId())
             .name(name)
             .lore(lore)
-            .action(ClickAction.run(() -> {
+            .action(ClickAction.openSilent(() -> {
                 opted.put(player.getUniqueId(), settings.update(OptOutType.TOWNY_RESIDENT, !resident));
                 pending.add(player.getUniqueId());
-                openEditor(player);
+                return createEditor(player);
             }))
             .build());
 
@@ -145,51 +149,54 @@ public class OptOut implements Listener {
         name = Component.text("Online Status", online ? NamedTextColor.RED : NamedTextColor.GREEN);
         lore = online ? Component.text("Click to re-enable your online status", NamedTextColor.DARK_GREEN)
             : Component.text("Click to disable your online status", NamedTextColor.DARK_RED);
+
         menu.addItem(MenuItem.builder(Material.EMERALD)
             .slot(12)
             .name(name)
             .lore(lore)
-            .withGlint(online)
-            .action(ClickAction.run(() -> {
+            .action(ClickAction.openSilent(() -> {
                 opted.put(player.getUniqueId(), settings.update(OptOutType.ONLINE_STATUS, !online));
                 pending.add(player.getUniqueId());
-                openEditor(player);
+                return createEditor(player);
             }))
+            .withGlint(online)
             .build());
 
         boolean shops = settings.quickShops();
         name = Component.text("QuickShops", shops ? NamedTextColor.RED : NamedTextColor.GREEN);
         lore = shops ? Component.text("Click to make your shop data public", NamedTextColor.DARK_GREEN, TextDecoration.BOLD)
             : Component.text("Click to make your shop data private, only accessible with your API key", NamedTextColor.DARK_RED, TextDecoration.BOLD);
+
         menu.addItem(MenuItem.builder(Material.CHEST)
             .slot(14)
             .name(name)
             .lore(lore)
-            .withGlint(shops)
-            .action(ClickAction.run(() -> {
+            .action(ClickAction.openSilent(() -> {
                 opted.put(player.getUniqueId(), settings.update(OptOutType.QUICKSHOPS, !shops));
                 pending.add(player.getUniqueId());
-                openEditor(player);
+                return createEditor(player);
             }))
+            .withGlint(shops)
             .build());
 
         boolean mcmmo = settings.mcmmo();
         name = Component.text("McMMO Stats", mcmmo ? NamedTextColor.RED : NamedTextColor.GREEN);
         lore = mcmmo ? Component.text("Click to make your mcMMO stats public", NamedTextColor.DARK_GREEN)
             : Component.text("Click to make your mcMMO stats private, only accessible with your API key", NamedTextColor.DARK_RED);
+
         menu.addItem(MenuItem.builder(Material.DIAMOND_AXE)
             .slot(16)
             .name(name)
             .lore(lore)
-            .withGlint(mcmmo)
-            .action(ClickAction.run(() -> {
+            .action(ClickAction.openSilent(() -> {
                 opted.put(player.getUniqueId(), settings.update(OptOutType.MCMMO, !mcmmo));
                 pending.add(player.getUniqueId());
-                openEditor(player);
+                return createEditor(player);
             }))
+            .withGlint(mcmmo)
             .build());
 
-        menu.build().open(player);
+        return menu.build();
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -204,6 +211,6 @@ public class OptOut implements Listener {
                 saveOptOut(player.getUniqueId());
                 player.sendMessage(Component.text("Successfully saved your new API opt out settings", NamedTextColor.GREEN));
             }
-        }, null, 50);
+        }, () -> pending.remove(player.getUniqueId()), 50);
     }
 }

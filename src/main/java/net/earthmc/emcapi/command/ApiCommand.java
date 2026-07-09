@@ -53,7 +53,7 @@ public class ApiCommand {
                         return Command.SINGLE_SUCCESS;
                     }
                     player.sendMessage(Component.text("Opening Editor", NamedTextColor.GREEN));
-                    plugin.getOptOut().openEditor(player);
+                    plugin.getOptOut().createEditor(player).openAsRoot(player);
                     return Command.SINGLE_SUCCESS;
                 }))
             .then(Commands.literal("key")
@@ -115,7 +115,7 @@ public class ApiCommand {
         final Instant lastCommandUse = COOLDOWNS.asMap().putIfAbsent(new CommandCooldown(player.getUniqueId(), type), now);
 
         if (lastCommandUse != null) {
-            final long seconds = Duration.between(now, lastCommandUse.plusSeconds(60)).getSeconds();
+            final long seconds = Duration.between(now, lastCommandUse.plusSeconds(type.cooldown)).getSeconds();
 
             if (seconds > 0) {
                 player.sendMessage(Component.text("Please wait " + seconds + " more second" + (seconds == 1 ? "" : "s") + " before trying this command again.", NamedTextColor.RED));
@@ -127,8 +127,14 @@ public class ApiCommand {
     }
 
     private enum CooldownType {
-        MODIFY_KEY,
-        OPT_OUT_CHANGE
+        MODIFY_KEY(60),
+        OPT_OUT_CHANGE(15);
+
+        final int cooldown;
+
+        CooldownType(int cooldown) {
+            this.cooldown = cooldown;
+        }
     }
 
     private record CommandCooldown(UUID uuid, CooldownType type) {}
