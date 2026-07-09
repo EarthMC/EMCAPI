@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 
 import java.util.UUID;
+import java.util.List;
 
 public class ShopSSEListener extends AbstractSSEListener {
 
