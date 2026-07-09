@@ -6,6 +6,7 @@ import com.ghostchu.quickshop.api.event.management.ShopCreateEvent;
 import com.ghostchu.quickshop.api.event.management.ShopDeleteEvent;
 import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.Shop;
+import com.ghostchu.quickshop.api.shop.permission.BuiltInShopPermissionGroup;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
@@ -29,6 +30,7 @@ public class ShopSSEListener extends AbstractSSEListener {
         if (owner == null) {
             return;
         }
+        final List<UUID> staffs = shop.playersCanAuthorize(BuiltInShopPermissionGroup.STAFF);
 
         boolean isSelling = shop.isSelling();
         String purchaser = getPlayerName(event.getPurchaser());
@@ -38,9 +40,15 @@ public class ShopSSEListener extends AbstractSSEListener {
         if (isSelling) {
             saleMessage.addProperty("buyer", purchaser);
             sse.sendEvent("ShopSoldItem", saleMessage, owner);
+            for (UUID staff : staffs) {
+                sse.sendEvent("ShopSoldItem", saleMessage, staff);
+            }
         } else {
             saleMessage.addProperty("seller", purchaser);
             sse.sendEvent("ShopBoughtItem", saleMessage, owner);
+            for (UUID staff : staffs) {
+                sse.sendEvent("ShopBoughtItem", saleMessage, staff);
+            }
         }
 
         checkOwnerBalance(owner);
@@ -79,10 +87,14 @@ public class ShopSSEListener extends AbstractSSEListener {
         }
         UUID owner = shop.getOwner().getUniqueId();
         if (owner == null) return;
+        final List<UUID> staffs = shop.playersCanAuthorize(BuiltInShopPermissionGroup.STAFF);
 
         JsonObject message = new JsonObject();
         message.add("shop", EndpointUtils.getShopObject(shop));
         sse.sendEvent("ShopDeleted", message, owner);
+        for (UUID staff : staffs) {
+            sse.sendEvent("ShopDeleted", message, staff);
+        }
     }
 
     private void checkOwnerBalance(UUID owner) {
@@ -100,7 +112,13 @@ public class ShopSSEListener extends AbstractSSEListener {
         JsonObject alertMessage = new JsonObject();
         alertMessage.addProperty("action", isSelling ? "out_of_stock" : "out_of_space");
         alertMessage.add("shop", EndpointUtils.getShopObject(shop));
-        sse.sendEvent("ShopOutOf" + (isSelling ? "Stock" : "Space"), alertMessage, shop.getOwner().getUniqueId());
+        
+        String eventName = "ShopOutOf" + (isSelling ? "Stock" : "Space");
+        sse.sendEvent(eventName, alertMessage, shop.getOwner().getUniqueId());
+        final List<UUID> staffs = shop.playersCanAuthorize(BuiltInShopPermissionGroup.STAFF);
+        for (UUID staff : staffs) {
+            sse.sendEvent(eventName, alertMessage, staff);
+        }
     }
 
     private String getPlayerName(QUser user) {
