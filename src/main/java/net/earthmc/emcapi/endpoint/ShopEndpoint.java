@@ -8,6 +8,7 @@ import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuickShopIntegration;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
+import net.earthmc.emcapi.object.optout.AuthSettings;
 import net.earthmc.emcapi.object.optout.OptOutSettings;
 import net.earthmc.emcapi.util.CooldownUtil;
 import net.earthmc.emcapi.util.EndpointUtils;
@@ -48,7 +49,7 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
             throw HttpExceptions.MISSING_API_KEY;
         }
         OptOutSettings settings = plugin.getOptOut().getPlayerSettings(player);
-        if (!player.equals(keyOwner) && (settings == null || settings.quickShops())) {
+        if (!player.equals(keyOwner) && (settings == null || settings.quickShops() && !plugin.getAuth().authorize(player, AuthSettings.Type.SHOP_QUERY, keyOwner))) {
             throw HttpExceptions.FORBIDDEN;
         }
         CooldownUtil.checkAndAddCooldownOrThrow("shop", keyOwner.toString(), COOLDOWN_SECONDS);

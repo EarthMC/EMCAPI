@@ -42,6 +42,10 @@ public class ApiCommand {
         return Commands.literal("api")
             .requires(ctx -> ctx.getSender().hasPermission("emcapi.command"))
             .executes(ctx -> {
+                if (ctx.getSource().getSender() instanceof Player player) {
+                    plugin.getGUIManager().createRoot(player).openAsRoot(player);
+                    return Command.SINGLE_SUCCESS;
+                }
                 ctx.getSource().getSender().sendMessage(INFO_MESSAGE);
                 return Command.SINGLE_SUCCESS;
             })
@@ -52,8 +56,19 @@ public class ApiCommand {
                     if (isOnCooldown(player, CooldownType.OPT_OUT_CHANGE)) {
                         return Command.SINGLE_SUCCESS;
                     }
-                    player.sendMessage(Component.text("Opening Editor", NamedTextColor.GREEN));
-                    plugin.getOptOut().createEditor(player).openAsRoot(player);
+                    player.sendMessage(Component.text("Opening Opt out Editor", NamedTextColor.GREEN));
+                    plugin.getGUIManager().createOptOutMenu(player).openAsRoot(player);
+                    return Command.SINGLE_SUCCESS;
+                }))
+            .then(Commands.literal("auth")
+                .requires(ctx -> ctx.getSender() instanceof Player player && player.hasPermission("emcapi.auth.editor"))
+                .executes(ctx -> {
+                    final Player player = (Player) ctx.getSource().getSender();
+                    if (isOnCooldown(player, CooldownType.AUTH_CHANGE)) {
+                        return Command.SINGLE_SUCCESS;
+                    }
+                    player.sendMessage(Component.text("Opening Auth Editor", NamedTextColor.GREEN));
+                    plugin.getGUIManager().createAuthMenu(player).openAsRoot(player);
                     return Command.SINGLE_SUCCESS;
                 }))
             .then(Commands.literal("key")
@@ -128,7 +143,8 @@ public class ApiCommand {
 
     private enum CooldownType {
         MODIFY_KEY(60),
-        OPT_OUT_CHANGE(15);
+        OPT_OUT_CHANGE(15),
+        AUTH_CHANGE(15);
 
         final int cooldown;
 

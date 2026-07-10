@@ -9,7 +9,9 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.earthmc.emcapi.database.APIDatabase;
 import net.earthmc.emcapi.database.DatabaseSchema;
 import net.earthmc.emcapi.integration.Integrations;
+import net.earthmc.emcapi.manager.Authorisation;
 import net.earthmc.emcapi.manager.EndpointManager;
+import net.earthmc.emcapi.manager.GUIManager;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.manager.OptOut;
 import net.earthmc.emcapi.sse.SSEManager;
@@ -36,6 +38,8 @@ public final class EMCAPI extends JavaPlugin {
     private final SSEManager sseManager = new SSEManager(this);
     private final APIDatabase database = new APIDatabase();
     private final OptOut optOut = new OptOut(this);
+    private final Authorisation auth = new Authorisation(this);
+    private final GUIManager guiManager = new GUIManager(this);
 
     @Override
     public void onLoad() {
@@ -57,6 +61,7 @@ public final class EMCAPI extends JavaPlugin {
             getSLF4JLogger().warn("exception while loading API keys: ", e);
         }
         optOut.loadOptOut();
+        auth.loadAuthSettings();
 
         initialiseJavalin();
 
@@ -71,7 +76,7 @@ public final class EMCAPI extends JavaPlugin {
         if (pm.isPluginEnabled("QuickShop-Hikari")) {
             pm.registerEvents(new ShopSSEListener(sseManager), this);
         }
-        pm.registerEvents(optOut, this);
+        pm.registerEvents(guiManager, this);
 
         getServer().getAsyncScheduler().runAtFixedRate(this, t -> CooldownUtil.refresh(), 5, 5, TimeUnit.MINUTES);
         Inventories.forPlugin(this).build();
@@ -169,5 +174,13 @@ public final class EMCAPI extends JavaPlugin {
 
     public OptOut getOptOut() {
         return optOut;
+    }
+
+    public Authorisation getAuth() {
+        return auth;
+    }
+
+    public GUIManager getGUIManager() {
+        return guiManager;
     }
 }

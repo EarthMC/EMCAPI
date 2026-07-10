@@ -24,6 +24,13 @@ public class DatabaseSchema {
                     statement.executeUpdate("alter table opt_out add column " + column);
                 } catch (SQLException ignored) {}
             }
+
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS authorised(`uuid` CHAR(36) NOT NULL, PRIMARY KEY (`uuid`))");
+            for (String column : getAuthorisedColumns()) {
+                try {
+                    statement.executeUpdate("alter table authorised add column " + column);
+                } catch (SQLException ignored) {}
+            }
         }
     }
 
@@ -47,6 +54,13 @@ public class DatabaseSchema {
             "`online_status` BOOLEAN DEFAULT TRUE",
             "`quickshops` BOOLEAN DEFAULT TRUE",
             "`mcmmo_stats` BOOLEAN DEFAULT TRUE"
+        );
+    }
+
+    private static List<String> getAuthorisedColumns() {
+        return List.of(
+            "`shop_sse` TEXT DEFAULT ''",
+            "`shop_query` TEXT DEFAULT ''"
         );
     }
 }

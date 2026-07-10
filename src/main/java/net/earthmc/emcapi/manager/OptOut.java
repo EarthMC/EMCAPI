@@ -1,20 +1,8 @@
 package net.earthmc.emcapi.manager;
 
-import dev.warriorrr.inventories.gui.MenuInventory;
-import dev.warriorrr.inventories.gui.MenuItem;
-import dev.warriorrr.inventories.gui.action.ClickAction;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.optout.OptOutSettings;
 import net.earthmc.emcapi.object.optout.OptOutType;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
@@ -22,13 +10,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class OptOut implements Listener {
-    private final Map<UUID, OptOutSettings> opted = new ConcurrentHashMap<>();
-    private final Set<UUID> pending = ConcurrentHashMap.newKeySet();
+public class OptOut {
+    public final Map<UUID, OptOutSettings> opted = new ConcurrentHashMap<>();
     private final EMCAPI plugin;
 
     public OptOut(final EMCAPI plugin) {
@@ -102,115 +88,5 @@ public class OptOut implements Listener {
         } catch (SQLException e) {
             plugin.getSLF4JLogger().warn("Failed to load opted out players", e);
         }
-    }
-
-    public MenuInventory createEditor(Player player) {
-        OptOutSettings settings = opted.getOrDefault(player.getUniqueId(), OptOutSettings.DEFAULT);
-        MenuInventory.Builder menu = MenuInventory.builder()
-            .title(Component.text("Manage your API privacy", NamedTextColor.DARK_GREEN, TextDecoration.BOLD))
-            .rows(3);
-
-        boolean override = settings.override();
-        Component name = override ? Component.text("Override: All data disabled.", NamedTextColor.RED, TextDecoration.BOLD)
-            : Component.text("Override is disabled. Data is shared per-feature.", NamedTextColor.GREEN);
-        Component lore = override ? Component.text("Click to disable your override settings", NamedTextColor.DARK_GREEN)
-            : Component.text("Enabling this will override your other preferences", NamedTextColor.DARK_RED);
-
-        menu.addItem(MenuItem.builder(Material.BARRIER)
-            .slot(4)
-            .name(name)
-            .lore(lore)
-            .withGlint(override)
-            .action(ClickAction.openSilent(() -> {
-                opted.put(player.getUniqueId(), settings.override(!override));
-                pending.add(player.getUniqueId());
-                return createEditor(player);
-            }))
-            .build());
-
-        boolean resident = settings.townyResident();
-        name = Component.text("Resident Status", resident ? NamedTextColor.RED : NamedTextColor.GREEN);
-        lore = resident ? Component.text("Click to show your resident data", NamedTextColor.DARK_GREEN)
-            : Component.text("Click to hide your resident data", NamedTextColor.DARK_RED);
-
-        menu.addItem(MenuItem.builder(Material.PLAYER_HEAD)
-            .slot(10)
-            .skullOwner(player.getUniqueId())
-            .name(name)
-            .lore(lore)
-            .action(ClickAction.openSilent(() -> {
-                opted.put(player.getUniqueId(), settings.update(OptOutType.TOWNY_RESIDENT, !resident));
-                pending.add(player.getUniqueId());
-                return createEditor(player);
-            }))
-            .build());
-
-        boolean online = settings.onlineStatus();
-        name = Component.text("Online Status", online ? NamedTextColor.RED : NamedTextColor.GREEN);
-        lore = online ? Component.text("Click to re-enable your online status", NamedTextColor.DARK_GREEN)
-            : Component.text("Click to disable your online status", NamedTextColor.DARK_RED);
-
-        menu.addItem(MenuItem.builder(Material.EMERALD)
-            .slot(12)
-            .name(name)
-            .lore(lore)
-            .action(ClickAction.openSilent(() -> {
-                opted.put(player.getUniqueId(), settings.update(OptOutType.ONLINE_STATUS, !online));
-                pending.add(player.getUniqueId());
-                return createEditor(player);
-            }))
-            .withGlint(online)
-            .build());
-
-        boolean shops = settings.quickShops();
-        name = Component.text("QuickShops", shops ? NamedTextColor.RED : NamedTextColor.GREEN);
-        lore = shops ? Component.text("Click to make your shop data public", NamedTextColor.DARK_GREEN, TextDecoration.BOLD)
-            : Component.text("Click to make your shop data private, only accessible with your API key", NamedTextColor.DARK_RED, TextDecoration.BOLD);
-
-        menu.addItem(MenuItem.builder(Material.CHEST)
-            .slot(14)
-            .name(name)
-            .lore(lore)
-            .action(ClickAction.openSilent(() -> {
-                opted.put(player.getUniqueId(), settings.update(OptOutType.QUICKSHOPS, !shops));
-                pending.add(player.getUniqueId());
-                return createEditor(player);
-            }))
-            .withGlint(shops)
-            .build());
-
-        boolean mcmmo = settings.mcmmo();
-        name = Component.text("McMMO Stats", mcmmo ? NamedTextColor.RED : NamedTextColor.GREEN);
-        lore = mcmmo ? Component.text("Click to make your mcMMO stats public", NamedTextColor.DARK_GREEN)
-            : Component.text("Click to make your mcMMO stats private, only accessible with your API key", NamedTextColor.DARK_RED);
-
-        menu.addItem(MenuItem.builder(Material.DIAMOND_AXE)
-            .slot(16)
-            .name(name)
-            .lore(lore)
-            .action(ClickAction.openSilent(() -> {
-                opted.put(player.getUniqueId(), settings.update(OptOutType.MCMMO, !mcmmo));
-                pending.add(player.getUniqueId());
-                return createEditor(player);
-            }))
-            .withGlint(mcmmo)
-            .build());
-
-        return menu.build();
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onInventoryClose(InventoryCloseEvent event) {
-        if (!(event.getView().getTopInventory().getHolder(false) instanceof MenuInventory)) {
-            return;
-        }
-        Player player = (Player) event.getPlayer();
-        player.getScheduler().runDelayed(plugin, t -> {
-            if (pending.contains(player.getUniqueId()) && !(player.getOpenInventory().getTopInventory().getHolder(false) instanceof MenuInventory)) {
-                pending.remove(player.getUniqueId());
-                saveOptOut(player.getUniqueId());
-                player.sendMessage(Component.text("Successfully saved your new API opt out settings", NamedTextColor.GREEN));
-            }
-        }, () -> pending.remove(player.getUniqueId()), 50);
     }
 }
