@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -72,8 +73,8 @@ public class Authorisation {
                 try {
                     UUID uuid = UUID.fromString(rs.getString("uuid"));
                     Map<AuthSettings.Type, String> map = Map.of(
-                        AuthSettings.Type.SHOP_SSE, rs.getString("shop_sse"),
-                        AuthSettings.Type.SHOP_QUERY, rs.getString("shop_query")
+                        AuthSettings.Type.SHOP_SSE, Objects.requireNonNullElse(rs.getString("shop_sse"), ""),
+                        AuthSettings.Type.SHOP_QUERY, Objects.requireNonNullElse(rs.getString("shop_query"), "")
                     );
 
                     AuthSettings settings = AuthSettings.parse(map);

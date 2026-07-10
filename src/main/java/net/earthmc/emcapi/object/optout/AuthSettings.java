@@ -67,7 +67,7 @@ public record AuthSettings(Map<Type, List<UUID>> authorised) {
     }
 
     public String getStringForType(Type type) {
-        return authorised.containsKey(type) ? authorised.get(type).stream().map(UUID::toString).collect(Collectors.joining(",")) : null;
+        return authorised.containsKey(type) ? authorised.get(type).stream().map(UUID::toString).collect(Collectors.joining(",")) : "";
     }
 
     public enum Type {
