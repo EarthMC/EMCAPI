@@ -2,10 +2,10 @@ package net.earthmc.emcapi.manager;
 
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
-import dev.warriorrr.inventories.event.input.StartAwaitingInputEvent;
 import dev.warriorrr.inventories.gui.MenuInventory;
 import dev.warriorrr.inventories.gui.MenuItem;
 import dev.warriorrr.inventories.gui.action.ClickAction;
+import dev.warriorrr.inventories.gui.input.BuiltinInputMethods;
 import dev.warriorrr.inventories.gui.input.response.InputResponse;
 import dev.warriorrr.inventories.gui.slot.Slot;
 import dev.warriorrr.inventories.gui.slot.anchor.HorizontalAnchor;
@@ -29,6 +29,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -41,7 +42,6 @@ public class GUIManager implements Listener {
     private final Authorisation auth;
     private final Set<UUID> authPending = ConcurrentHashMap.newKeySet();
     private final Set<UUID> optOutPending = ConcurrentHashMap.newKeySet();
-    private final Set<UUID> signInputs = ConcurrentHashMap.newKeySet();
 
     public GUIManager(EMCAPI plugin) {
         this.plugin = plugin;
@@ -50,7 +50,6 @@ public class GUIManager implements Listener {
     }
 
     public MenuInventory createRoot(Player player) {
-        signInputs.remove(player.getUniqueId()); // In case of any bugs, re-using the command from the beginning will allow a fresh start
         MenuInventory.Builder menu = MenuInventory.builder()
             .title(Component.text("API Help Menu", NamedTextColor.AQUA, TextDecoration.BOLD))
             .rows(3);
@@ -194,7 +193,6 @@ public class GUIManager implements Listener {
             .slot(slot(1, 4))
             .build();
 
-        UUID playerUUID = player.getUniqueId();
         MenuItem sse = MenuItem.builder(Material.GOAT_HORN)
             .name(Component.text("Shop SSE", NamedTextColor.GREEN))
             .lore(Component.text("• Players authorised here will be able to connect to the server's /sse endpoint", NamedTextColor.GREEN))
@@ -264,38 +262,35 @@ public class GUIManager implements Listener {
         MenuItem add = MenuItem.builder(Material.GREEN_WOOL)
             .name(Component.text("Add a player", NamedTextColor.GREEN))
             .lore(Component.text("Currently authorised: " + settings.size(type), NamedTextColor.GRAY))
-            .action(ClickAction.userInput(Component.text("The name or UUID of the player", NamedTextColor.GREEN), input -> {
-                String text = input.getText();
-                InputResponse response = InputResponse.reOpen(() -> {
-                    signInputs.remove(playerUUID);
-                    return editAuthorisedMenu(player, settings, type);
-                });
-                UUID uuid;
-                String name;
-                try {
-                    Pair<UUID, String> pair = parsePlayer(text);
-                    uuid = pair.getFirst();
-                    name = pair.getSecond();
-                } catch (IllegalStateException e) {
-                    player.sendMessage(Component.text(e.getMessage(), NamedTextColor.RED));
-                    return response;
-                }
-                if (playerUUID.equals(uuid)) {
-                    player.sendMessage(Component.text("You cannot authorise yourself! You already have full access to your own information.", NamedTextColor.RED));
-                    return response;
-                }
-                if (settings.authorize(AuthSettings.Type.SHOP_SSE, uuid)) {
-                    player.sendMessage(Component.text(name + " is already authorised for " + type.name(), NamedTextColor.RED));
-                    return response;
-                }
-                auth.authMap.put(playerUUID, settings.add(type, uuid));
-                authPending.add(playerUUID);
-                player.sendMessage(Component.text("Successfully authorised player " + name + " for " + type.name(), NamedTextColor.GREEN)
-                    .appendNewline()
-                    .append(Component.text("(UUID: " + uuid + ")", NamedTextColor.GRAY))
-                );
-                return response;
-            }))
+            .action(ClickAction.userInput(BuiltinInputMethods.DIALOG, dialog -> dialog
+                .title(Component.text("The name or UUID of the player", NamedTextColor.GREEN))
+                .onInput(input -> {
+                    String text = input.getText();
+                    InputResponse reOpen = InputResponse.reOpen(() -> editAuthorisedMenu(player, settings, type));
+                    UUID uuid;
+                    String name;
+                    try {
+                        Pair<UUID, String> pair = parsePlayer(text);
+                        uuid = pair.getFirst();
+                        name = pair.getSecond();
+                    } catch (IllegalStateException e) {
+                        return List.of(reOpen, InputResponse.errorMessage(Component.text(e.getMessage(), NamedTextColor.RED)));
+                    }
+                    if (playerUUID.equals(uuid)) {
+                        return List.of(reOpen, InputResponse.errorMessage(Component.text("You cannot authorise yourself! You already have full access to your own information.", NamedTextColor.RED)));
+                    }
+                    if (settings.authorize(AuthSettings.Type.SHOP_SSE, uuid)) {
+                        return List.of(reOpen, InputResponse.errorMessage(Component.text(name + " is already authorised for " + type.name(), NamedTextColor.RED)));
+                    }
+                    auth.authMap.put(playerUUID, settings.add(type, uuid));
+                    authPending.add(playerUUID);
+                    player.sendMessage(Component.text("Successfully authorised player " + name + " for " + type.name(), NamedTextColor.GREEN)
+                        .appendNewline()
+                        .append(Component.text("(UUID: " + uuid + ")", NamedTextColor.GRAY))
+                    );
+                    return List.of(reOpen);
+                })
+            ))
             .slot(slot(1, 2))
             .withGlint()
             .build();
@@ -403,16 +398,10 @@ public class GUIManager implements Listener {
         return res != null ? res.getUUID() : null;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onInputStart(StartAwaitingInputEvent event) {
-        signInputs.add(event.getPlayer().getUniqueId());
-    }
-
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
 
-        signInputs.remove(uuid);
         authPending.remove(uuid);
         optOutPending.remove(uuid);
     }
@@ -425,7 +414,7 @@ public class GUIManager implements Listener {
         Player player = (Player) event.getPlayer();
         player.getScheduler().runDelayed(plugin, t -> {
             UUID uuid = player.getUniqueId();
-            if (signInputs.contains(uuid) || player.getOpenInventory().getTopInventory().getHolder(false) instanceof MenuInventory) {
+            if (player.getOpenInventory().getTopInventory().getHolder(false) instanceof MenuInventory) {
                 return; // Player is still editing
             }
             if (optOutPending.contains(uuid)) {
