@@ -44,11 +44,9 @@ public record AuthSettings(Map<Type, List<UUID>> authorised) {
     }
 
     public AuthSettings remove(Type type, UUID uuid) {
-        if (authorised.containsKey(type)) {
-            authorised.get(type).remove(uuid);
-            if (authorised.get(type).isEmpty()) {
-                authorised.remove(type);
-            }
+        final Collection<UUID> authorizedUUIDs = authorised.get(type);
+        if (authorizedUUIDs != null && authorizedUUIDs.remove(uuid) && authorizedUUIDs.isEmpty()) {
+            authorized.remove(type);
         }
         return this;
     }
