@@ -27,7 +27,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -328,7 +327,7 @@ public class GUIManager implements Listener {
 
         menu.addItem(createBackButton(() -> editAuthorisedMenu(player, settings, type)));
         int index = 0;
-        List<UUID> authorised = settings.authorised().get(type);
+        Set<UUID> authorised = settings.authorised().get(type);
         if (authorised == null || authorised.isEmpty()) {
             MenuItem empty = MenuItem.builder(Material.WRITTEN_BOOK)
                 .name(Component.text("No authorised players", NamedTextColor.RED))

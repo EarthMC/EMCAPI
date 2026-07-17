@@ -68,6 +68,7 @@ tasks {
         archiveClassifier.set("")
 
         relocate("com.zaxxer.hikari", "net.earthmc.emcapi.libs.hikari")
+        relocate("dev.warriorrr.inventories", "net.earthmc.emcapi.libs.inventories")
     }
 
     processResources {

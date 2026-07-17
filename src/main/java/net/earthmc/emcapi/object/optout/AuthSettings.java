@@ -1,13 +1,13 @@
 package net.earthmc.emcapi.object.optout;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public record AuthSettings(Map<Type, List<UUID>> authorised) {
+public record AuthSettings(Map<Type, Set<UUID>> authorised) {
 
     public static AuthSettings getNew() {
         return new AuthSettings(new HashMap<>());
@@ -16,7 +16,7 @@ public record AuthSettings(Map<Type, List<UUID>> authorised) {
     public static AuthSettings parse(Map<Type, String> map) {
         AuthSettings settings = new AuthSettings(new HashMap<>());
         for (Map.Entry<Type, String> entry : map.entrySet()) {
-            List<UUID> uuids = parseUUIDs(entry.getValue());
+            Set<UUID> uuids = parseUUIDs(entry.getValue());
             if (uuids.isEmpty()) continue;
             settings.authorised.put(entry.getKey(), uuids);
         }
@@ -24,14 +24,14 @@ public record AuthSettings(Map<Type, List<UUID>> authorised) {
         return settings;
     }
 
-    private static List<UUID> parseUUIDs(String string) {
-        List<UUID> list = new ArrayList<>();
+    private static Set<UUID> parseUUIDs(String string) {
+        Set<UUID> uuids = new HashSet<>();
         for (String str : string.split(",")) {
             try {
-                list.add(UUID.fromString(str));
+                uuids.add(UUID.fromString(str));
             } catch (IllegalArgumentException ignored) {}
         }
-        return list;
+        return uuids;
     }
 
     public boolean authorize(Type type, UUID uuid) {
@@ -39,14 +39,14 @@ public record AuthSettings(Map<Type, List<UUID>> authorised) {
     }
 
     public AuthSettings add(Type type, UUID uuid) {
-        authorised.computeIfAbsent(type, k -> new ArrayList<>()).add(uuid);
+        authorised.computeIfAbsent(type, k -> new HashSet<>()).add(uuid);
         return this;
     }
 
     public AuthSettings remove(Type type, UUID uuid) {
-        final Collection<UUID> authorizedUUIDs = authorised.get(type);
+        final Set<UUID> authorizedUUIDs = authorised.get(type);
         if (authorizedUUIDs != null && authorizedUUIDs.remove(uuid) && authorizedUUIDs.isEmpty()) {
-            authorized.remove(type);
+            authorised.remove(type);
         }
         return this;
     }

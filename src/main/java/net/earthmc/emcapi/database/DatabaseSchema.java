@@ -25,7 +25,7 @@ public class DatabaseSchema {
                 } catch (SQLException ignored) {}
             }
 
-            statement.executeUpdate("CREATE TABLE IF NOT EXISTS authorised(`uuid` CHAR(36) NOT NULL, PRIMARY KEY (`uuid`))");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS authorised(`uuid` UUID NOT NULL, PRIMARY KEY (`uuid`))");
             for (String column : getAuthorisedColumns()) {
                 try {
                     statement.executeUpdate("alter table authorised add column " + column);
