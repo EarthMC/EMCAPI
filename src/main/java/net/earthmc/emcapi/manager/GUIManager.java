@@ -11,6 +11,8 @@ import dev.warriorrr.inventories.gui.slot.Slot;
 import dev.warriorrr.inventories.gui.slot.anchor.HorizontalAnchor;
 import dev.warriorrr.inventories.gui.slot.anchor.SlotAnchor;
 import dev.warriorrr.inventories.gui.slot.anchor.VerticalAnchor;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import kotlin.Pair;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.optout.AuthSettings;
@@ -177,6 +179,7 @@ public class GUIManager implements Listener {
         return menu.build();
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public MenuInventory createAuthMenu(Player player) {
         AuthSettings settings = auth.authMap.containsKey(player.getUniqueId()) ? auth.authMap.get(player.getUniqueId()) : AuthSettings.getNew();
         MenuInventory.Builder menu = MenuInventory.builder()
@@ -201,6 +204,7 @@ public class GUIManager implements Listener {
             .action(ClickAction.openSilent(() -> editAuthorisedMenu(player, settings, AuthSettings.Type.SHOP_SSE)))
             .slot(slot(3, 2))
             .withGlint()
+            .mutateItem(item -> item.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay().addHiddenComponents(DataComponentTypes.INSTRUMENT).build()))
             .build();
 
         MenuItem query = MenuItem.builder(Material.BARREL)
