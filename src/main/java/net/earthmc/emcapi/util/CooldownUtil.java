@@ -25,4 +25,11 @@ public class CooldownUtil {
         }
         COOLDOWNS.computeIfAbsent(type, k -> new ConcurrentHashMap<>()).put(id, now + seconds);
     }
+
+    public static void remove(String type, String id) {
+        Map<String, Long> cooldowns = COOLDOWNS.get(type);
+        if (cooldowns != null) {
+            cooldowns.remove(id);
+        }
+    }
 }
