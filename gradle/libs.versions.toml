@@ -10,6 +10,7 @@ quickshop = "6.2.0.11"
 hikaricp = "7.0.2"
 mcmmo = "2.2.040"
 lynchpin-api = "1.0-SNAPSHOT"
+inventories = "1.1.2"
 
 # plugins
 conventions = "1.1.0"
@@ -30,6 +31,7 @@ mcmmo = { group = "com.gmail.nossr50.mcMMO", name = "mcMMO", version.ref = "mcmm
 lynchpin-pursuits = { group = "net.earthmc.lynchpin.api", name = "pursuits", version.ref = "lynchpin-api"}
 lynchpin-towny = { group = "net.earthmc.lynchpin.api", name = "towny", version.ref = "lynchpin-api"}
 lynchpin-advancements = { group = "net.earthmc.lynchpin.api", name = "advancements", version.ref = "lynchpin-api"}
+inventories = { group = "dev.warriorrr.inventories", name = "inventories", version.ref = "inventories" }
 
 [plugins]
 conventions-java = { id = "net.earthmc.conventions.java", version.ref = "conventions" }

@@ -10,6 +10,7 @@ import com.palmergames.bukkit.towny.object.TownyPermission;
 import com.palmergames.bukkit.towny.object.Government;
 import com.palmergames.bukkit.towny.object.economy.BankTransaction;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.object.optout.OptOutType;
 import net.earthmc.lynchpin.api.towny.pacts.Pact;
 import net.earthmc.lynchpin.api.towny.warps.Warp;
 import org.bukkit.Location;
@@ -143,7 +144,7 @@ public class EndpointUtils {
         JsonArray jsonArray = new JsonArray();
 
         for (Player player : players) {
-            if (EMCAPI.instance.getOptOut().playerOptedOut(player.getUniqueId())) {
+            if (EMCAPI.instance.getOptOut().playerOptedOut(player.getUniqueId(), OptOutType.ONLINE_STATUS)) {
                 continue;
             }
 

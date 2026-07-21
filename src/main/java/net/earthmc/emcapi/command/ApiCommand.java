@@ -42,41 +42,33 @@ public class ApiCommand {
         return Commands.literal("api")
             .requires(ctx -> ctx.getSender().hasPermission("emcapi.command"))
             .executes(ctx -> {
+                if (ctx.getSource().getSender() instanceof Player player) {
+                    plugin.getGUIManager().createRoot(player).openAsRoot(player);
+                    return Command.SINGLE_SUCCESS;
+                }
                 ctx.getSource().getSender().sendMessage(INFO_MESSAGE);
                 return Command.SINGLE_SUCCESS;
             })
             .then(Commands.literal("opt-out")
-                .requires(ctx -> ctx.getSender() instanceof Player)
+                .requires(ctx -> ctx.getSender() instanceof Player player && player.hasPermission("emcapi.opt-out.editor"))
                 .executes(ctx -> {
                     final Player player = (Player) ctx.getSource().getSender();
-
-                    if (plugin.getOptOut().playerOptedOut(player.getUniqueId())) {
-                        player.sendMessage(Component.text("You have already opted out previously!", NamedTextColor.RED));
-                    } else {
-                        if (isOnCooldown(player, CooldownType.OPT_OUT_CHANGE)) {
-                            return Command.SINGLE_SUCCESS;
-                        }
-
-                        player.sendMessage(Component.text("You have opted out of having your information being public on the API.", NamedTextColor.GREEN));
-                        plugin.getOptOut().setOptedOut(player.getUniqueId(), true);
+                    if (isOnCooldown(player, CooldownType.OPT_OUT_CHANGE)) {
+                        return Command.SINGLE_SUCCESS;
                     }
+                    player.sendMessage(Component.text("Opening Opt out Editor", NamedTextColor.GREEN));
+                    plugin.getGUIManager().createOptOutMenu(player).openAsRoot(player);
                     return Command.SINGLE_SUCCESS;
                 }))
-            .then(Commands.literal("opt-in")
-                .requires(ctx -> ctx.getSender() instanceof Player)
+            .then(Commands.literal("auth")
+                .requires(ctx -> ctx.getSender() instanceof Player player && player.hasPermission("emcapi.auth.editor"))
                 .executes(ctx -> {
                     final Player player = (Player) ctx.getSource().getSender();
-
-                    if (plugin.getOptOut().playerOptedOut(player.getUniqueId())) {
-                        if (isOnCooldown(player, CooldownType.OPT_OUT_CHANGE)) {
-                            return Command.SINGLE_SUCCESS;
-                        }
-
-                        player.sendMessage(Component.text("You have opted back in to your information being public on the API.", NamedTextColor.GREEN));
-                        plugin.getOptOut().setOptedOut(player.getUniqueId(), false);
-                    } else {
-                        player.sendMessage(Component.text("You are currently not opted out!", NamedTextColor.RED));
+                    if (isOnCooldown(player, CooldownType.AUTH_CHANGE)) {
+                        return Command.SINGLE_SUCCESS;
                     }
+                    player.sendMessage(Component.text("Opening Auth Editor", NamedTextColor.GREEN));
+                    plugin.getGUIManager().createAuthMenu(player).openAsRoot(player);
                     return Command.SINGLE_SUCCESS;
                 }))
             .then(Commands.literal("key")
@@ -138,7 +130,7 @@ public class ApiCommand {
         final Instant lastCommandUse = COOLDOWNS.asMap().putIfAbsent(new CommandCooldown(player.getUniqueId(), type), now);
 
         if (lastCommandUse != null) {
-            final long seconds = Duration.between(now, lastCommandUse.plusSeconds(60)).getSeconds();
+            final long seconds = Duration.between(now, lastCommandUse.plusSeconds(type.cooldown)).getSeconds();
 
             if (seconds > 0) {
                 player.sendMessage(Component.text("Please wait " + seconds + " more second" + (seconds == 1 ? "" : "s") + " before trying this command again.", NamedTextColor.RED));
@@ -150,8 +142,15 @@ public class ApiCommand {
     }
 
     private enum CooldownType {
-        MODIFY_KEY,
-        OPT_OUT_CHANGE
+        MODIFY_KEY(60),
+        OPT_OUT_CHANGE(15),
+        AUTH_CHANGE(15);
+
+        final int cooldown;
+
+        CooldownType(int cooldown) {
+            this.cooldown = cooldown;
+        }
     }
 
     private record CommandCooldown(UUID uuid, CooldownType type) {}

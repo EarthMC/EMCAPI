@@ -11,6 +11,7 @@ import net.earthmc.emcapi.integration.DiscordIntegration;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
+import net.earthmc.emcapi.object.optout.OptOutType;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
@@ -46,7 +47,7 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
             }
         }
 
-        if (resident != null && plugin.getOptOut().playerOptedOut(resident.getUUID()) && !resident.getUUID().equals(KeyManager.getKeyOwner(key))) {
+        if (resident != null && plugin.getOptOut().playerOptedOut(resident.getUUID(), OptOutType.TOWNY_RESIDENT) && !resident.getUUID().equals(KeyManager.getKeyOwner(key))) {
             return null;
         }
 
@@ -74,7 +75,7 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
         playerObject.add("timestamps", timestampsObject);
 
         JsonObject statusObject = new JsonObject();
-        statusObject.addProperty("isOnline", resident.isOnline());
+        statusObject.addProperty("isOnline", resident.isOnline() && !plugin.getOptOut().playerOptedOut(resident.getUUID(), OptOutType.ONLINE_STATUS));
         statusObject.addProperty("isNPC", resident.isNPC());
         statusObject.addProperty("isMayor", resident.isMayor());
         statusObject.addProperty("isKing", resident.isKing());

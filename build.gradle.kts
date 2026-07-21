@@ -32,6 +32,10 @@ repositories {
     maven("https://nexus.neetgames.com/repository/maven-releases/") {
         mavenContent { includeGroup("com.gmail.nossr50.mcMMO") }
     }
+
+    maven("https://repo.warriorrr.dev/releases") {
+        mavenContent { includeGroupAndSubgroups("dev.warriorrr") }
+    }
 }
 
 dependencies {
@@ -56,6 +60,7 @@ dependencies {
     compileOnly(libs.lynchpin.pursuits)
     compileOnly(libs.lynchpin.towny)
     compileOnly(libs.lynchpin.advancements)
+    implementation(libs.inventories)
 }
 
 tasks {
@@ -63,6 +68,7 @@ tasks {
         archiveClassifier.set("")
 
         relocate("com.zaxxer.hikari", "net.earthmc.emcapi.libs.hikari")
+        relocate("dev.warriorrr.inventories", "net.earthmc.emcapi.libs.inventories")
     }
 
     processResources {

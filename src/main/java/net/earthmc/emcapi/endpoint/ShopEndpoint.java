@@ -1,29 +1,48 @@
 package net.earthmc.emcapi.endpoint;
 
 import com.ghostchu.quickshop.api.shop.Shop;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.javalin.http.InternalServerErrorResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuickShopIntegration;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
+import net.earthmc.emcapi.object.optout.AuthSettings;
+import net.earthmc.emcapi.object.optout.OptOutSettings;
 import net.earthmc.emcapi.util.CooldownUtil;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
-public class ShopEndpoint extends PostEndpoint<List<Shop>> {
+public class ShopEndpoint extends PostEndpoint<ShopEndpoint.ShopData> {
     private final QuickShopIntegration integration;
     private static final int COOLDOWN_SECONDS = 3600;
+    private final LoadingCache<UUID, ShopData> shopCache = CacheBuilder.newBuilder()
+        .expireAfterWrite(Duration.ofHours(1))
+        .build(new CacheLoader<>() {
+            @Override
+            public @NotNull ShopData load(@NotNull UUID uuid) {
+                List<Shop> shops = integration.getPlayerShops(uuid);
+
+                return new ShopData(getShopsJson(shops));
+            }
+        });
 
     public ShopEndpoint(EMCAPI plugin) {
         super(plugin);
@@ -31,9 +50,9 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
     }
 
     @Override
-    public List<Shop> getObjectOrNull(JsonElement element, @Nullable String key) {
+    public ShopData getObjectOrNull(JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
-        if (string == null) throw HttpExceptions.NOT_A_STRING;;
+        if (string == null) throw HttpExceptions.NOT_A_STRING;
 
         UUID player;
         try {
@@ -46,21 +65,35 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
         if (keyOwner == null) {
             throw HttpExceptions.MISSING_API_KEY;
         }
-        if (!player.equals(KeyManager.getKeyOwner(key))) {
+        OptOutSettings settings = plugin.getOptOut().getPlayerSettings(player);
+        if (!player.equals(keyOwner) && (settings == null || settings.quickShops() && !plugin.getAuth().authorize(player, AuthSettings.Type.SHOP_QUERY, keyOwner))) {
             throw HttpExceptions.FORBIDDEN;
         }
         CooldownUtil.checkAndAddCooldownOrThrow("shop", keyOwner.toString(), COOLDOWN_SECONDS);
-        return integration.getPlayerShops(player);
+
+        ShopData data = shopCache.getIfPresent(player);
+        if (data != null) {
+            return data;
+        }
+        try {
+            return shopCache.get(player);
+        } catch (ExecutionException e) {
+            plugin.getSLF4JLogger().warn("ExecutionException while fetching shop cache for {}", player, e);
+            CooldownUtil.remove("shop", keyOwner.toString());
+            throw new InternalServerErrorResponse("Unexpected exception while loading " + player + "'s shops");
+        }
     }
 
     @Override
-    public JsonElement getJsonElement(List<Shop> object, @Nullable String key) {
+    public JsonElement getJsonElement(ShopData object, @Nullable String ignored) {
+        return object.json;
+    }
+
+    public record ShopData(JsonElement json) {} // Wrapper to clarify what this endpoint returns
+
+    private JsonElement getShopsJson(List<Shop> object) {
         final Map<String, JsonElement> shops = new ConcurrentHashMap<>();
         int counter = 0;
-        UUID keyOwner = KeyManager.getKeyOwner(key);
-        if (keyOwner == null) {
-            throw HttpExceptions.MISSING_API_KEY;
-        }
         if (object.isEmpty()) {
             return null;
         }
@@ -68,8 +101,6 @@ public class ShopEndpoint extends PostEndpoint<List<Shop>> {
         final List<CompletableFuture<Void>> shopFutures = new ArrayList<>();
 
         for (Shop shop : object) {
-            if (!keyOwner.equals(shop.getOwner().getUniqueId())) continue;
-
             final CompletableFuture<Void> shopFuture = new CompletableFuture<>();
             shopFutures.add(shopFuture);
 

@@ -10,6 +10,7 @@ import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.McMMOIntegration;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
+import net.earthmc.emcapi.object.optout.OptOutSettings;
 import net.earthmc.emcapi.util.CooldownUtil;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
@@ -29,7 +30,7 @@ public class McMMOEndpoint extends PostEndpoint<PlayerProfile> {
     @Override
     public PlayerProfile getObjectOrNull(JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
-        if (string == null) throw HttpExceptions.NOT_A_STRING;;
+        if (string == null) throw HttpExceptions.NOT_A_STRING;
 
         UUID player;
         try {
@@ -42,7 +43,8 @@ public class McMMOEndpoint extends PostEndpoint<PlayerProfile> {
         if (keyOwner == null) {
             throw HttpExceptions.MISSING_API_KEY;
         }
-        if (!player.equals(keyOwner)) {
+        OptOutSettings settings = plugin.getOptOut().getPlayerSettings(player);
+        if (!player.equals(keyOwner) && (settings == null || settings.mcmmo())) {
             throw HttpExceptions.FORBIDDEN;
         }
 

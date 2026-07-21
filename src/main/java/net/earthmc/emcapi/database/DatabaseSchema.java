@@ -19,6 +19,18 @@ public class DatabaseSchema {
             }
 
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS opt_out(`uuid` CHAR(36) NOT NULL, PRIMARY KEY (`uuid`))");
+            for (String column : getOptOutColumns()) {
+                try {
+                    statement.executeUpdate("alter table opt_out add column " + column);
+                } catch (SQLException ignored) {}
+            }
+
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS authorised(`uuid` UUID NOT NULL, PRIMARY KEY (`uuid`))");
+            for (String column : getAuthorisedColumns()) {
+                try {
+                    statement.executeUpdate("alter table authorised add column " + column);
+                } catch (SQLException ignored) {}
+            }
         }
     }
 
@@ -32,6 +44,23 @@ public class DatabaseSchema {
     private static List<String> getApiKeysColumns() {
         return List.of(
             "`api_key` VARCHAR(" + KeyManager.MAX_KEY_LENGTH + ") NOT NULL"
+        );
+    }
+
+    private static List<String> getOptOutColumns() {
+        return List.of(
+            "`override_all` BOOLEAN DEFAULT TRUE", // If true, the player is deemed to have opted out of all the options, without checking each one
+            "`towny_resident` BOOLEAN DEFAULT TRUE",
+            "`online_status` BOOLEAN DEFAULT TRUE",
+            "`quickshops` BOOLEAN DEFAULT TRUE",
+            "`mcmmo_stats` BOOLEAN DEFAULT TRUE"
+        );
+    }
+
+    private static List<String> getAuthorisedColumns() {
+        return List.of(
+            "`shop_sse` TEXT DEFAULT ''",
+            "`shop_query` TEXT DEFAULT ''"
         );
     }
 }
