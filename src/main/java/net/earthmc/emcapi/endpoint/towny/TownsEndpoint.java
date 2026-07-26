@@ -91,7 +91,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         statsObject.addProperty("numResidents", EndpointUtils.getActiveResidentCount(town.getResidents()));
         statsObject.addProperty("numTrusted", EndpointUtils.getActiveResidentCount(town.getTrustedResidents()));
         statsObject.addProperty("numOutlaws", EndpointUtils.getActiveResidentCount(town.getOutlaws()));
-        statsObject.addProperty("balance", TownyEconomyHandler.isActive() ? town.getAccount().getHoldingBalance() : 0);
+        statsObject.addProperty("balance", TownyEconomyHandler.isActive() ? town.getAccount().getCachedBalance() : 0);
         statsObject.addProperty("forSalePrice", !town.isForSale() ? null : town.getForSalePrice());
         townObject.add("stats", statsObject);
 
