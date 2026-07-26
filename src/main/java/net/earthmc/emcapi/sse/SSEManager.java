@@ -5,6 +5,8 @@ import io.javalin.config.RoutesConfig;
 import io.javalin.http.Context;
 import io.javalin.http.sse.SseClient;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.object.optout.AuthSettings;
+import net.earthmc.emcapi.manager.Authorisation;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.jetbrains.annotations.Nullable;
@@ -141,28 +143,47 @@ public class SSEManager {
     }
 
     public void sendEvent(String event, JsonObject data) {
-        sendEvent(event, data, null);
+        sendEvent(event, data, CLIENTS_BY_EVENT.getOrDefault(event, Set.of()));
     }
 
     public void sendEvent(String event, JsonObject data, @Nullable UUID targetPlayerId) {
-        final ClientData targetClient = targetPlayerId != null ? CLIENTS_BY_UUID.get(targetPlayerId) : null;
-        if (targetPlayerId != null && (targetClient == null || !targetClient.events.contains(event))) {
-            return; // No client is active to hear it
+        Set<ClientData> listeningClients = ConcurrentHashMap.newKeySet();
+
+        final ClientData targetClient = CLIENTS_BY_UUID.get(targetPlayerId);
+        if (targetClient != null && targetClient.events.contains(event)) {
+            listeningClients.add(targetClient);
+        }
+
+        if (event.contains("Shop")) {
+            Authorisation auth = plugin.getAuth();
+            AuthSettings settings = auth.getAuthSettings(targetPlayerId);
+
+            if (settings != null) {
+                for (UUID authorizedPlayerId : settings.getAuthorizedForType(AuthSettings.Type.SHOP_SSE)) {
+                    final ClientData authorizedClient = CLIENTS_BY_UUID.get(authorizedPlayerId);
+                    if (authorizedClient != null && authorizedClient.events.contains(event)) {
+                        listeningClients.add(authorizedClient);
+                    }
+                }
+            }
+        }
+
+        sendEvent(event, data, listeningClients);
+    }
+
+    public void sendEvent(String event, JsonObject data, Set<ClientData> listeningClients) {
+        if (listeningClients.isEmpty()) {
+            return;
         }
 
         data.addProperty("timestamp", Instant.now().getEpochSecond());
         String message = data.toString();
 
         plugin.getServer().getAsyncScheduler().runNow(plugin, t -> {
-            if (targetClient != null) {
-                targetClient.client.sendEvent(event, message);
-                return;
-            }
-
-            final Set<ClientData> listeningClients = CLIENTS_BY_EVENT.getOrDefault(event, Set.of());
-
-            for (ClientData clientData : listeningClients) {
-                clientData.client.sendEvent(event, message);
+            for (final ClientData clientData : listeningClients) {
+                if (clientData != null) {
+                    clientData.client.sendEvent(event, message);
+                }
             }
         });
     }

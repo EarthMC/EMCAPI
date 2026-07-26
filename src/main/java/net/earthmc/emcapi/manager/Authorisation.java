@@ -30,6 +30,10 @@ public class Authorisation {
         return authMap.containsKey(owner) && authMap.get(owner).authorize(type, target);
     }
 
+    public AuthSettings getAuthSettings(UUID owner) {
+        return authMap.get(owner);
+    }
+
     public void saveAuthSettings(UUID uuid) {
         AuthSettings settings = authMap.get(uuid);
         if (settings == null) {

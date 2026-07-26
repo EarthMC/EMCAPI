@@ -64,6 +64,10 @@ public record AuthSettings(Map<Type, Set<UUID>> authorised) {
         return authorised.isEmpty();
     }
 
+    public Set<UUID> getAuthorizedForType(Type type) {
+        return authorised.getOrDefault(type, Set.of());
+    }
+    
     public String getStringForType(Type type) {
         return authorised.containsKey(type) ? authorised.get(type).stream().map(UUID::toString).collect(Collectors.joining(",")) : "";
     }
