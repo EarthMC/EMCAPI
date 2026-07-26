@@ -65,7 +65,7 @@ public record AuthSettings(Map<Type, Set<UUID>> authorised) {
     }
 
     public Set<UUID> getAuthorizedForType(Type type) {
-        return authorised.getOrDefault(type, Set.of())
+        return authorised.getOrDefault(type, Set.of());
     }
 
     public String getStringForType(Type type) {
