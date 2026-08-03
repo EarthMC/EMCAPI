@@ -11,6 +11,7 @@ hikaricp = "7.0.2"
 mcmmo = "2.2.040"
 lynchpin-api = "1.0-SNAPSHOT"
 inventories = "1.1.2"
+swagger-webjar = "5.32.8"
 
 # plugins
 conventions = "1.1.0"
@@ -32,6 +33,10 @@ lynchpin-pursuits = { group = "net.earthmc.lynchpin.api", name = "pursuits", ver
 lynchpin-towny = { group = "net.earthmc.lynchpin.api", name = "towny", version.ref = "lynchpin-api"}
 lynchpin-advancements = { group = "net.earthmc.lynchpin.api", name = "advancements", version.ref = "lynchpin-api"}
 inventories = { group = "dev.warriorrr.inventories", name = "inventories", version.ref = "inventories" }
+javalin-openapi = { group = "io.javalin.community.openapi", name = "javalin-openapi-plugin", version.ref = "javalin" }
+javalin-openapi-annotation = { group = "io.javalin.community.openapi", name = "openapi-annotation-processor", version.ref = "javalin" }
+javalin-swagger = { group = "io.javalin.community.openapi", name = "javalin-swagger-plugin", version.ref = "javalin" }
+javalin-swagger-webjar = { group = "org.webjars", name = "swagger-ui", version.ref = "swagger-webjar" }
 
 [plugins]
 conventions-java = { id = "net.earthmc.conventions.java", version.ref = "conventions" }

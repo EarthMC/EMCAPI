@@ -61,6 +61,10 @@ dependencies {
     compileOnly(libs.lynchpin.towny)
     compileOnly(libs.lynchpin.advancements)
     implementation(libs.inventories)
+    implementation(libs.javalin.openapi)
+    compileOnly(libs.javalin.swagger)
+    compileOnly(libs.javalin.swagger.webjar)
+    annotationProcessor(libs.javalin.openapi.annotation)
 }
 
 tasks {
@@ -78,7 +82,8 @@ tasks {
         expand(
             "version" to shortCommitId,
             "commit" to commitId,
-            "javalin_version" to libs.versions.javalin.get()
+            "javalin_version" to libs.versions.javalin.get(),
+            "swagger_version" to libs.versions.swagger.webjar.get()
         )
     }
 

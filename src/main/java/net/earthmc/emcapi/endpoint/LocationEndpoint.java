@@ -6,15 +6,71 @@ import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import io.javalin.http.BadRequestResponse;
+import io.javalin.openapi.ContentType;
+import io.javalin.openapi.HttpMethod;
+import io.javalin.openapi.OpenApi;
+import io.javalin.openapi.OpenApiContent;
+import io.javalin.openapi.OpenApiRequestBody;
+import io.javalin.openapi.OpenApiResponse;
 import kotlin.Pair;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
+import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@OpenApi(
+    path = "/v4/location",
+    methods = HttpMethod.POST,
+    summary = "Query location data",
+    requestBody = @OpenApiRequestBody(
+        description = "Specify a pair of x & coordinates",
+        required = true,
+        content = {
+            @OpenApiContent(
+                from = int[].class,
+                mimeType = ContentType.JSON,
+                example = "[0, 0]"
+            )
+        }
+    ),
+    responses = {
+        @OpenApiResponse(
+            status = "200",
+            content = {
+                @OpenApiContent(
+                    from = ContentTypes.Location[].class,
+                    mimeType = ContentType.JSON,
+                    example = """
+                        [{
+                            "location": {
+                              "x":0,
+                              "z":0
+                            },
+                            "isWilderness":false,
+                            "town": {
+                              "name":"Jyväskylä",
+                              "uuid":"0b69c00d-c112-4ca0-a16c-ce551120e464"
+                            },
+                            "nation": {
+                              "name":"Finland",
+                              "uuid":"ae16c3c0-f8ab-4715-8553-019168008c49"
+                            }
+                        }]
+                        """
+                )
+            }
+        ),
+        @OpenApiResponse(
+            status = "400",
+            description = "BadRequestResponse is thrown if your query is invalid. One 'pair' (array) of coordinates (E.g. [0, 0]) or an array of pairs (E.g. [[0, 0], [100, 100] is expected."
+        )
+    }
+)
 public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
 
     public LocationEndpoint(final EMCAPI plugin) {
@@ -22,7 +78,7 @@ public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
     }
 
     @Override
-    public Pair<Integer, Integer> getObjectOrNull(JsonElement element, @Nullable String key) {
+    public Pair<Integer, Integer> getObjectOrNull(@NotNull JsonElement element, @Nullable String key) {
         JsonArray jsonArray = JSONUtil.getJsonElementAsJsonArrayOrNull(element);
         if (jsonArray == null) throw new BadRequestResponse("Your query contains a value that is not a JSON array");
 
@@ -46,11 +102,11 @@ public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
     }
 
     @Override
-    public JsonElement getJsonElement(Pair<Integer, Integer> pair, @Nullable String key) {
+    public JsonElement getJsonElement(@NotNull Pair<Integer, Integer> pair, @Nullable String key) {
         int x = pair.getFirst();
         int z = pair.getSecond();
 
-        Location location = new Location(Bukkit.getWorlds().get(0), x, 0, z);
+        Location location = new Location(Bukkit.getWorlds().getFirst(), x, 0, z);
         TownyAPI townyAPI = TownyAPI.getInstance();
         Town town = townyAPI.getTown(location);
 

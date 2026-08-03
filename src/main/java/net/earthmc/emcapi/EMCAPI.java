@@ -4,6 +4,8 @@ import com.zaxxer.hikari.HikariConfig;
 import dev.warriorrr.inventories.Inventories;
 import io.javalin.Javalin;
 import io.javalin.http.TooManyRequestsResponse;
+import io.javalin.openapi.plugin.OpenApiPlugin;
+import io.javalin.openapi.plugin.swagger.SwaggerPlugin;
 import io.javalin.util.JavalinLogger;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.earthmc.emcapi.database.APIDatabase;
@@ -95,6 +97,25 @@ public final class EMCAPI extends JavaPlugin {
     private void initialiseJavalin() {
         javalin = Javalin.start(config -> {
             config.jetty.modifyServer(this::disableServerVersionHeader);
+
+            config.registerPlugin(new OpenApiPlugin(openApi -> {
+                openApi.withDocumentationPath("/docs");
+                openApi.withDefinitionConfiguration((string, builder) -> {
+                    builder.info(info -> {
+                        info.title("EMCAPI");
+                        info.description("The official API for EarthMC");
+                        info.contact("EarthMC", "https://earthmc.net/");
+                        info.version("4");
+                    });
+                    builder.openApiVersion("3.2.0");
+                });
+            }));
+            config.registerPlugin(new SwaggerPlugin(swagger -> {
+                swagger.documentationPath = "/docs";
+                swagger.uiPath = "/ui";
+                swagger.title = "EMCAPI Docs";
+                swagger.version = "5.32.8"; // Needed to properly access webjar
+            }));
 
             config.routes.exception(TooManyRequestsResponse.class, (e, ctx) -> {
                 final String retryAfter = e.getDetails().get("retry");

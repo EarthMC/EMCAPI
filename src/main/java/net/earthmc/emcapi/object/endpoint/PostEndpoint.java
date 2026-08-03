@@ -4,7 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.javalin.http.NotFoundResponse;
 import net.earthmc.emcapi.EMCAPI;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -16,7 +18,25 @@ public abstract class PostEndpoint<T> {
         this.plugin = plugin;
     }
 
-    public String lookup(JsonArray queryArray, @Nullable JsonObject template, @Nullable String key) {
+    public final String lookup(JsonElement element, @Nullable JsonObject template, @Nullable String key) {
+        if (element.isJsonArray()) {
+            return lookup(element.getAsJsonArray(), template, key);
+        }
+
+        T object = getObjectOrNull(element, key);
+        if (object == null) {
+            throw new NotFoundResponse();
+        }
+        JsonElement formatted = getTemplateJsonElement(object, template, key);
+        if (formatted == null) {
+            throw new NotFoundResponse();
+        }
+        JsonArray jsonArray = new JsonArray();
+        jsonArray.add(formatted);
+        return jsonArray.toString();
+    }
+
+    private String lookup(JsonArray queryArray, @Nullable JsonObject template, @Nullable String key) {
         JsonArray jsonArray = new JsonArray();
 
         int numLoops = Math.min(EMCAPI.instance.getConfig().getInt("behaviour.max_lookup_size"), queryArray.size());
@@ -34,6 +54,9 @@ public abstract class PostEndpoint<T> {
             jsonArray.add(formatted);
         }
 
+        if (jsonArray.isEmpty()) {
+            throw new NotFoundResponse("No items in your query array returned a valid object");
+        }
         return jsonArray.toString();
     }
 
@@ -42,16 +65,16 @@ public abstract class PostEndpoint<T> {
      * @param key The API key, if any provided
      * @return The queried object if found, otherwise null
      */
-    public abstract T getObjectOrNull(JsonElement element, @Nullable String key);
+    protected abstract T getObjectOrNull(@NotNull JsonElement element, @Nullable String key);
 
     /**
      * @param object The object to describe
      * @param key The API key, if any provided
      * @return A JsonElement describing this object, or null if anything went wrong (E.g. cooldown, unauthorized key)
      */
-    public abstract JsonElement getJsonElement(T object, @Nullable String key);
+    protected abstract JsonElement getJsonElement(@NotNull T object, @Nullable String key);
 
-    public JsonElement getTemplateJsonElement(T object, JsonObject template, @Nullable String key) {
+    private JsonElement getTemplateJsonElement(T object, JsonObject template, @Nullable String key) {
         JsonElement fullJson = getJsonElement(object, key);
 
         if (!(fullJson instanceof JsonObject) || template == null || template.entrySet().isEmpty()) {

@@ -4,6 +4,13 @@ import com.google.gson.JsonObject;
 import io.javalin.config.RoutesConfig;
 import io.javalin.http.Context;
 import io.javalin.http.sse.SseClient;
+import io.javalin.openapi.HttpMethod;
+import io.javalin.openapi.OpenApi;
+import io.javalin.openapi.OpenApiContent;
+import io.javalin.openapi.OpenApiParam;
+import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
+import jdk.jfr.consumer.EventStream;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.optout.AuthSettings;
 import net.earthmc.emcapi.manager.Authorisation;
@@ -20,6 +27,37 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+@OpenApi(
+    path = "/v4/events",
+    methods = HttpMethod.GET,
+    summary = "Server-Sent-Events (SSE) endpoint, providing real time events as they happen on the server",
+    queryParams = {
+        @OpenApiParam(
+            name = "listen",
+            description = "Comma-separated list of the events you wish to listen to",
+            example = "NewDay,TownCreated,NationCreated",
+            required = true
+        )
+    },
+    security = @OpenApiSecurity(name = "BearerAuth"),
+    headers = @OpenApiParam(
+        name = "Authorization",
+        description = "You must include a valid EarthMC API key to connect, in the format 'Bearer <key>'",
+        required = true
+    ),
+    responses = {
+        @OpenApiResponse(
+            status = "200",
+            description = "SSE stream established",
+            content = {
+                @OpenApiContent(
+                    from = EventStream.class,
+                    mimeType = "text/event-stream"
+                )
+            }
+        )
+    }
+)
 public class SSEManager {
     private final EMCAPI plugin;
     private static final Map<String, ClientData> CLIENTS = new ConcurrentHashMap<>();

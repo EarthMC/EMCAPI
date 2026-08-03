@@ -11,8 +11,15 @@ import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.object.WorldCoord;
 import com.palmergames.util.MathUtil;
 import io.javalin.http.BadRequestResponse;
+import io.javalin.openapi.ContentType;
+import io.javalin.openapi.HttpMethod;
+import io.javalin.openapi.OpenApi;
+import io.javalin.openapi.OpenApiContent;
+import io.javalin.openapi.OpenApiRequestBody;
+import io.javalin.openapi.OpenApiResponse;
 import kotlin.Pair;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.object.nearby.NearbyContext;
 import net.earthmc.emcapi.object.nearby.NearbyType;
@@ -20,12 +27,66 @@ import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@OpenApi(
+    path = "/v4/location",
+    methods = HttpMethod.POST,
+    summary = "Query location data",
+    requestBody = @OpenApiRequestBody(
+        required = true,
+        description = "Target and type, search type, radius",
+        content = {
+            @OpenApiContent(
+                from = ContentTypes.NearbyQuery.class,
+                mimeType = ContentType.JSON,
+                example = """
+                    {
+                          "target_type": "TOWN",
+                          "target": "Melbourne",
+                          "search_type": "TOWN",
+                          "radius": 100,
+                          "strict": true
+                    }
+                    """
+            )
+        }
+    ),
+    responses = {
+        @OpenApiResponse(
+            status = "200",
+            content = {
+                @OpenApiContent(
+                    from = ContentTypes.NameUUID[].class,
+                    mimeType = ContentType.JSON,
+                    example = """
+                        [
+                          [
+                            {
+                              "name":"Jyväskylä",
+                              "uuid":"0b69c00d-c112-4ca0-a16c-ce551120e464"
+                            },
+                            {
+                              "name":"Watson",
+                              "uuid":"5851f859-0c4e-49bb-9e5c-5a2f9121585c"
+                            }
+                          ]
+                        ]
+                        """
+                )
+            }
+        ),
+        @OpenApiResponse(
+            status = "400",
+            description = "BadRequestResponse is thrown if your query is invalid. One 'pair' (array) of coordinates (E.g. [0, 0]) or an array of pairs (E.g. [[0, 0], [100, 100] is expected."
+        )
+    }
+)
 public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
 
     public NearbyEndpoint(final EMCAPI plugin) {
@@ -33,7 +94,7 @@ public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
     }
 
     @Override
-    public NearbyContext getObjectOrNull(JsonElement element, @Nullable String key) {
+    public NearbyContext getObjectOrNull(@NotNull JsonElement element, @Nullable String key) {
         JsonObject jsonObject = JSONUtil.getJsonElementAsJsonObjectOrNull(element);
         if (jsonObject == null) throw new BadRequestResponse("Your query contains a value that is not a JSON object");
 
@@ -81,7 +142,7 @@ public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
     }
 
     @Override
-    public JsonElement getJsonElement(NearbyContext context, @Nullable String key) {
+    public JsonElement getJsonElement(@NotNull NearbyContext context, @Nullable String key) {
         NearbyType targetType = context.getTargetType();
         int radius = context.getRadius();
         NearbyType searchType = context.getSearchType();
@@ -89,7 +150,7 @@ public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
 
         return switch (targetType) {
             case COORDINATE -> {
-                Pair<Integer, Integer> pair = context.getTargetCoordinate();
+                Pair<Integer, Integer> pair = context.getTargetCoordinate().toPair();
 
                 yield lookupNearCoordinates(pair.getFirst(), pair.getSecond(), radius, strict, searchType);
             }

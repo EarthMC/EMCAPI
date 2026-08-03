@@ -24,7 +24,7 @@ Example **POST** request
   "key": "API_KEY"
 }
 ```
-The player UUID must match the API key's owner, otherwise an empty list is returned.
+The target player must have their data public, authorize the API key's owner, or be the owner themselves. Otherwise, an empty list is returned.
 
 Example **POST** response
 ```json5

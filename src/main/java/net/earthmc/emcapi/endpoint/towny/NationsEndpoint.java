@@ -9,23 +9,68 @@ import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
+import io.javalin.openapi.ContentType;
+import io.javalin.openapi.HttpMethod;
+import io.javalin.openapi.OpenApi;
+import io.javalin.openapi.OpenApiContent;
+import io.javalin.openapi.OpenApiRequestBody;
+import io.javalin.openapi.OpenApiResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.EmbargoesIntegration;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.PactsIntegration;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.manager.NationMetadataManager;
+import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
 import net.earthmc.lynchpin.api.towny.embargoes.Embargo;
 import net.earthmc.lynchpin.api.towny.pacts.Pact;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
 
+@OpenApi(
+    path = "/v4/nations",
+    methods = HttpMethod.POST,
+    summary = "Query nation data",
+    requestBody = @OpenApiRequestBody(
+        description = "Specify a nation name or UUID to query, optionally include API key",
+        required = true,
+        content = {
+            @OpenApiContent(
+                from = ContentTypes.UUIDKey.class,
+                mimeType = ContentType.JSON,
+                example = """
+                    {
+                      "query": "Egypt",
+                      "key": "<key>"
+                    }
+                    """
+            )
+        }
+    ),
+    responses = {
+        @OpenApiResponse(
+            status = "200",
+            content = {
+                @OpenApiContent(
+                    from = ContentTypes.Nation[].class,
+                    mimeType = ContentType.JSON
+                )
+            },
+            description = "When using multi-querying with an array, some may fail silently, as not to disrupt the other successful queries"
+        ),
+        @OpenApiResponse(
+            status = "404",
+            description = "If the item(s) in your query (all) return null, a NotFound error is thrown instead of returning an empty array"
+        )
+    }
+)
 public class NationsEndpoint extends PostEndpoint<Nation> {
 
     public NationsEndpoint(final EMCAPI plugin) {
@@ -33,9 +78,9 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
     }
 
     @Override
-    public Nation getObjectOrNull(JsonElement element, @Nullable String key) {
+    public Nation getObjectOrNull(@NotNull JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
-        if (string == null) throw HttpExceptions.NOT_A_STRING;;
+        if (string == null) throw HttpExceptions.NOT_A_STRING;
 
         Nation nation;
         try {
@@ -48,7 +93,7 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
     }
 
     @Override
-    public JsonElement getJsonElement(Nation nation, @Nullable String key) {
+    public JsonElement getJsonElement(@NotNull Nation nation, @Nullable String key) {
         JsonObject nationObject = new JsonObject();
 
         nationObject.addProperty("name", nation.getName());

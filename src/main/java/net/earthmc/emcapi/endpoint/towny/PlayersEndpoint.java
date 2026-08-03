@@ -6,21 +6,66 @@ import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.object.Resident;
+import io.javalin.openapi.ContentType;
+import io.javalin.openapi.HttpMethod;
+import io.javalin.openapi.OpenApi;
+import io.javalin.openapi.OpenApiContent;
+import io.javalin.openapi.OpenApiRequestBody;
+import io.javalin.openapi.OpenApiResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.DiscordIntegration;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.KeyManager;
+import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.object.optout.OptOutType;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+@OpenApi(
+    path = "/v4/players",
+    methods = HttpMethod.POST,
+    summary = "Query player data",
+    requestBody = @OpenApiRequestBody(
+        description = "Specify a player name or UUID to query, optionally include API key",
+        required = true,
+        content = {
+            @OpenApiContent(
+                from = ContentTypes.UUIDKey.class,
+                mimeType = ContentType.JSON,
+                example = """
+                    {
+                      "query": "Veyronity",
+                      "key": "<key>"
+                    }
+                    """
+            )
+        }
+    ),
+    responses = {
+        @OpenApiResponse(
+            status = "200",
+            content = {
+                @OpenApiContent(
+                    from = ContentTypes.Player[].class,
+                    mimeType = ContentType.JSON
+                )
+            },
+            description = "When using multi-querying with an array, some may fail silently, as not to disrupt the other successful queries"
+        ),
+        @OpenApiResponse(
+            status = "404",
+            description = "If the item(s) in your query (all) return null, a NotFound error is thrown instead of returning an empty array"
+        )
+    }
+)
 public class PlayersEndpoint extends PostEndpoint<Resident> {
     private static final Pattern DISCORD_ID_PATTERN = Pattern.compile("^\\d{17,19}$");
     private final DiscordIntegration integration = Integrations.getIntegration("DiscordSRV");
@@ -30,7 +75,7 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
     }
 
     @Override
-    public Resident getObjectOrNull(JsonElement element, @Nullable String key) {
+    public Resident getObjectOrNull(@NotNull JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw HttpExceptions.NOT_A_STRING;;
 
@@ -55,7 +100,7 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
     }
 
     @Override
-    public JsonElement getJsonElement(Resident resident, @Nullable String key) {
+    public JsonElement getJsonElement(@NotNull Resident resident, @Nullable String key) {
         JsonObject playerObject = new JsonObject();
 
         playerObject.addProperty("name", resident.getName());

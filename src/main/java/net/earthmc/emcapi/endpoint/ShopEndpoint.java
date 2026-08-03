@@ -7,10 +7,17 @@ import com.google.common.cache.LoadingCache;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.javalin.http.InternalServerErrorResponse;
+import io.javalin.openapi.ContentType;
+import io.javalin.openapi.HttpMethod;
+import io.javalin.openapi.OpenApi;
+import io.javalin.openapi.OpenApiContent;
+import io.javalin.openapi.OpenApiRequestBody;
+import io.javalin.openapi.OpenApiResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuickShopIntegration;
 import net.earthmc.emcapi.manager.KeyManager;
+import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.object.optout.AuthSettings;
 import net.earthmc.emcapi.object.optout.OptOutSettings;
@@ -26,6 +33,70 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+@OpenApi(
+    path = "/v4/shop",
+    methods = HttpMethod.POST,
+    summary = "Query shop data",
+    requestBody = @OpenApiRequestBody(
+        description = "Specify a player UUID to query and include a valid API key",
+        required = true,
+        content = {
+            @OpenApiContent(
+                from = ContentTypes.UUIDKey.class,
+                mimeType = ContentType.JSON,
+                example = """
+                    {
+                      "query": "5b8274bf-b162-4336-85a0-48f9d5380a78",
+                      "key": "<key>"
+                    }
+                    """
+            )
+        }
+    ),
+    responses = {
+        @OpenApiResponse(
+            status = "200",
+            content = {
+                @OpenApiContent(
+                    from = ContentTypes.Shops[].class,
+                    mimeType = ContentType.JSON,
+                    example = """
+                        [{
+                          "1": {
+                            "id": 120,
+                            "item": "COPPER_BLOCK",
+                            "price": 2,
+                            "amount": 4,
+                            "type": "selling",
+                            "stock": 5
+                          }
+                        }]
+                        """
+                )
+            }
+        ),
+        @OpenApiResponse(
+            status = "401",
+            description = "If you don't specify an API key or the key doesn't match a known player"
+        ),
+        @OpenApiResponse(
+            status = "403",
+            description = "If the owner of the API key doesn't match with the queried player, and the queried player has their information private"
+        ),
+        @OpenApiResponse(
+            status = "404",
+            description = "If the item in your query returns null, a NotFound error is thrown instead of returning an empty array"
+        ),
+        @OpenApiResponse(
+            status = "429",
+            description = "This endpoint has a cooldown of 1 hour for loading information, and 60 seconds for reading cached information"
+        ),
+        @OpenApiResponse(
+            status = "500",
+            description = "If the target player's shops could not be loaded due to an internal error"
+        )
+    }
+)
 public class ShopEndpoint extends PostEndpoint<ShopEndpoint.ShopData> {
     private final QuickShopIntegration integration;
     private static final int LOAD_COOLDOWN_SECONDS = 3600;
@@ -47,7 +118,7 @@ public class ShopEndpoint extends PostEndpoint<ShopEndpoint.ShopData> {
     }
 
     @Override
-    public ShopData getObjectOrNull(JsonElement element, @Nullable String key) {
+    public ShopData getObjectOrNull(@NotNull JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw HttpExceptions.NOT_A_STRING;
 
@@ -86,7 +157,7 @@ public class ShopEndpoint extends PostEndpoint<ShopEndpoint.ShopData> {
     }
 
     @Override
-    public JsonElement getJsonElement(ShopData object, @Nullable String ignored) {
+    public JsonElement getJsonElement(@NotNull ShopData object, @Nullable String ignored) {
         return object.json;
     }
 

@@ -11,21 +11,66 @@ import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
+import io.javalin.openapi.ContentType;
+import io.javalin.openapi.HttpMethod;
+import io.javalin.openapi.OpenApi;
+import io.javalin.openapi.OpenApiContent;
+import io.javalin.openapi.OpenApiRequestBody;
+import io.javalin.openapi.OpenApiResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuartersIntegration;
 import net.earthmc.emcapi.integration.WarpsIntegration;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.manager.TownMetadataManager;
+import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
 import net.earthmc.lynchpin.api.towny.warps.Warp;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
+@OpenApi(
+    path = "/v4/towns",
+    methods = HttpMethod.POST,
+    summary = "Query town data",
+    requestBody = @OpenApiRequestBody(
+        description = "Specify a town name or UUID to query, optionally include API key",
+        required = true,
+        content = {
+            @OpenApiContent(
+                from = ContentTypes.UUIDKey.class,
+                mimeType = ContentType.JSON,
+                example = """
+                    {
+                      "query": "Giza",
+                      "key": "<key>"
+                    }
+                    """
+            )
+        }
+    ),
+    responses = {
+        @OpenApiResponse(
+            status = "200",
+            content = {
+                @OpenApiContent(
+                    from = ContentTypes.Town[].class,
+                    mimeType = ContentType.JSON
+                )
+            },
+            description = "When using multi-querying with an array, some may fail silently, as not to disrupt the other successful queries"
+        ),
+        @OpenApiResponse(
+            status = "404",
+            description = "If the item(s) in your query (all) return null, a NotFound error is thrown instead of returning an empty array"
+        )
+    }
+)
 public class TownsEndpoint extends PostEndpoint<Town> {
 
     public TownsEndpoint(EMCAPI plugin) {
@@ -33,7 +78,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
     }
 
     @Override
-    public Town getObjectOrNull(JsonElement element, @Nullable String key) {
+    public Town getObjectOrNull(@NotNull JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw HttpExceptions.NOT_A_STRING;;
 
@@ -48,7 +93,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
     }
 
     @Override
-    public JsonElement getJsonElement(Town town, @Nullable String key) {
+    public JsonElement getJsonElement(@NotNull Town town, @Nullable String key) {
         JsonObject townObject = new JsonObject();
 
         townObject.addProperty("name", town.getName());

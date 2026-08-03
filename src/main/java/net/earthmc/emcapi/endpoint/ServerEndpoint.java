@@ -4,10 +4,16 @@ import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Resident;
+import io.javalin.openapi.ContentType;
+import io.javalin.openapi.HttpMethod;
+import io.javalin.openapi.OpenApi;
+import io.javalin.openapi.OpenApiContent;
+import io.javalin.openapi.OpenApiResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuartersIntegration;
 import net.earthmc.emcapi.integration.SuperbVoteIntegration;
+import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -16,6 +22,29 @@ import org.bukkit.entity.Player;
 import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
 
+@OpenApi(
+    path = "/v4",
+    methods = HttpMethod.GET,
+    summary = "Get live information about the server",
+    responses = {
+        @OpenApiResponse(
+            status = "200",
+            content = {
+                @OpenApiContent(
+                    from = ContentTypes.Server.class,
+                    mimeType = ContentType.JSON,
+                    example = """
+                        {"version":"1.21.11","moonPhase":"LAST_QUARTER","timestamps":{"newDayTime":36000,"serverTimeOfDay":60073},"status":{"hasStorm":false,"isThundering":false},"stats":{"time":12648,"fullTime":180924648,"maxPlayers":800,"numOnlinePlayers":715,"numOnlineNomads":26,"numResidents":72913,"numNomads":29605,"numTowns":5563,"numTownBlocks":368175,"numNations":199,"numQuarters":14824,"numCuboids":21000},"voteParty":{"target":5000,"numRemaining":4967}}
+                        """
+                )
+            }
+        ),
+        @OpenApiResponse(
+            status = "502",
+            description = "If the game server is down or the API is disabled"
+        )
+    }
+)
 public class ServerEndpoint extends GetEndpoint {
 
     private final EMCAPI plugin;

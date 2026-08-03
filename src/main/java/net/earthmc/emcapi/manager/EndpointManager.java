@@ -1,10 +1,8 @@
 package net.earthmc.emcapi.manager;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.javalin.config.RoutesConfig;
-import io.javalin.http.BadRequestResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.endpoint.LocationEndpoint;
 import net.earthmc.emcapi.endpoint.MysteryMasterEndpoint;
@@ -25,6 +23,7 @@ import net.earthmc.emcapi.endpoint.towny.list.PlayersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.QuartersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.TownsListEndpoint;
 import net.earthmc.emcapi.integration.*;
+import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,27 +57,21 @@ public class EndpointManager {
         loadAdvancementsEndpoint(routes);
     }
 
-    private static final BadRequestResponse NO_QUERY_ARRAY = new BadRequestResponse("No query array provided");
-    private static final BadRequestResponse INVALID_QUERY_ARRAY = new BadRequestResponse("Provided query is not an array");
-
     private QueryBody parseBody(String body) {
         JsonObject jsonObject = JSONUtil.getJsonObjectFromString(body);
 
         JsonElement queryElement = jsonObject.get("query");
-        if (queryElement == null) throw NO_QUERY_ARRAY;
-        if (!queryElement.isJsonArray()) throw INVALID_QUERY_ARRAY;
-        JsonArray queryArray = queryElement.getAsJsonArray();
-
+        if (queryElement == null) throw HttpExceptions.NO_QUERY;
         JsonElement templateElement = jsonObject.get("template");
         JsonObject templateObject = templateElement != null && templateElement.isJsonObject() ? templateElement.getAsJsonObject() : null;
 
         JsonElement keyElement = jsonObject.get("key");
         String key = keyElement != null && keyElement.isJsonPrimitive() ? keyElement.getAsString() : null;
 
-        return new QueryBody(queryArray, templateObject, key);
+        return new QueryBody(queryElement, templateObject, key);
     }
 
-    private record QueryBody(JsonArray query, @Nullable JsonObject template, @Nullable String key) {}
+    private record QueryBody(JsonElement query, @Nullable JsonObject template, @Nullable String key) {}
 
     private void loadPlayersEndpoint(RoutesConfig routes) {
         PlayersListEndpoint ple = new PlayersListEndpoint();

@@ -4,15 +4,23 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.NotFoundResponse;
+import io.javalin.openapi.ContentType;
+import io.javalin.openapi.HttpMethod;
+import io.javalin.openapi.OpenApi;
+import io.javalin.openapi.OpenApiContent;
+import io.javalin.openapi.OpenApiRequestBody;
+import io.javalin.openapi.OpenApiResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.PursuitsIntegration;
 import net.earthmc.emcapi.manager.KeyManager;
+import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.CooldownUtil;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
 import net.earthmc.lynchpin.api.pursuits.Pursuit;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -20,6 +28,58 @@ import java.util.UUID;
 import java.util.ArrayList;
 import java.util.Map;
 
+@OpenApi(
+    path = "/v4/pursuits",
+    methods = HttpMethod.POST,
+    summary = "Query pursuits leaderboard data",
+    requestBody = @OpenApiRequestBody(
+        description = "Specify a player UUID to query and include a valid API key",
+        required = true,
+        content = {
+            @OpenApiContent(
+                from = ContentTypes.StringKey.class,
+                mimeType = ContentType.JSON,
+                example = """
+                    {
+                      "query": "ALL",
+                      "key": "<key>"
+                    }
+                    """
+            )
+        }
+    ),
+    responses = {
+        @OpenApiResponse(
+            status = "200",
+            content = {
+                @OpenApiContent(
+                    from = ContentTypes.Pursuits[].class,
+                    mimeType = ContentType.JSON
+                )
+            }
+        ),
+        @OpenApiResponse(
+            status = "401",
+            description = "If you don't specify an API key or the key doesn't match a known player"
+        ),
+        @OpenApiResponse(
+            status = "400",
+            description = "If you specify an invalid pursuit type. Allowed types: player, town, nation, all"
+        ),
+        @OpenApiResponse(
+            status = "404",
+            description = "If no server pursuits were found"
+        ),
+        @OpenApiResponse(
+            status = "429",
+            description = "This endpoint has a cooldown of 60 seconds"
+        ),
+        @OpenApiResponse(
+            status = "503",
+            description = "If the pursuits service is currently unavailable or disabled"
+        )
+    }
+)
 public class PursuitsEndpoint extends PostEndpoint<PursuitsEndpoint.PursuitsLeaderboard> {
     private static final long COOLDOWN_SECONDS = 60;
     private final PursuitsIntegration integration;
@@ -30,7 +90,7 @@ public class PursuitsEndpoint extends PostEndpoint<PursuitsEndpoint.PursuitsLead
     }
 
     @Override
-    public PursuitsLeaderboard getObjectOrNull(JsonElement element, @Nullable String key) {
+    public PursuitsLeaderboard getObjectOrNull(@NotNull JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw HttpExceptions.NOT_A_STRING;
 
@@ -46,7 +106,7 @@ public class PursuitsEndpoint extends PostEndpoint<PursuitsEndpoint.PursuitsLead
             try {
                 specifiedType = Pursuit.Type.valueOf(string.toUpperCase());
             } catch (IllegalArgumentException ignored) {
-                throw new BadRequestResponse("Invalid Pursuit Type specified. ");
+                throw new BadRequestResponse("Invalid Pursuit Type specified.");
             }
         }
 
@@ -67,7 +127,7 @@ public class PursuitsEndpoint extends PostEndpoint<PursuitsEndpoint.PursuitsLead
     }
 
     @Override
-    public JsonElement getJsonElement(PursuitsLeaderboard object, @Nullable String key) {
+    public JsonElement getJsonElement(@NotNull PursuitsLeaderboard object, @Nullable String key) {
         JsonObject json = new JsonObject();
         for (Pursuit pursuit : object.pursuits) {
             json.add(pursuit.type().name(), formatPursuit(pursuit));

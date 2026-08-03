@@ -6,7 +6,7 @@ public class NearbyContext {
 
     private final NearbyType targetType;
     private final String targetString;
-    private final Pair<Integer, Integer> targetCoordinate;
+    private final Coordinates targetCoordinate;
     private final NearbyType searchType;
     private final int radius;
     private final boolean strict;
@@ -23,7 +23,7 @@ public class NearbyContext {
     public NearbyContext(NearbyType targetType, Pair<Integer, Integer> targetCoordinate, NearbyType searchType, int radius, boolean strict) {
         this.targetType = targetType;
         this.targetString = null;
-        this.targetCoordinate = targetCoordinate;
+        this.targetCoordinate = new Coordinates(targetCoordinate.getFirst(), targetCoordinate.getSecond());
         this.searchType = searchType;
         this.radius = radius;
         this.strict = strict;
@@ -37,7 +37,7 @@ public class NearbyContext {
         return targetString;
     }
 
-    public Pair<Integer, Integer> getTargetCoordinate() {
+    public Coordinates getTargetCoordinate() {
         return targetCoordinate;
     }
 

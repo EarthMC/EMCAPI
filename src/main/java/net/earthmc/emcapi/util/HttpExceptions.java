@@ -13,4 +13,5 @@ public class HttpExceptions {
     public static final BadRequestResponse NOT_A_JSON_OBJECT = new BadRequestResponse("Your query contains a value that is not a JSON object");
     public static final BadRequestResponse NOT_A_UUID = new BadRequestResponse("Your query contains an invalid UUID");
     public static final BadRequestResponse NOT_A_STRING = new BadRequestResponse("Your query contains a value that is not a string");
+    public static final BadRequestResponse NO_QUERY = new BadRequestResponse("No query provided");
 }

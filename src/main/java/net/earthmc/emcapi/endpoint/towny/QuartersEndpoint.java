@@ -6,17 +6,62 @@ import au.lupine.quarters.object.entity.Quarter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.javalin.openapi.ContentType;
+import io.javalin.openapi.HttpMethod;
+import io.javalin.openapi.OpenApi;
+import io.javalin.openapi.OpenApiContent;
+import io.javalin.openapi.OpenApiRequestBody;
+import io.javalin.openapi.OpenApiResponse;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
+import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.UUID;
 
+@OpenApi(
+    path = "/v4/quarters",
+    methods = HttpMethod.POST,
+    summary = "Query quarters data",
+    requestBody = @OpenApiRequestBody(
+        description = "Specify a quarter UUID to query, optionally include API key",
+        required = true,
+        content = {
+            @OpenApiContent(
+                from = ContentTypes.UUIDKey.class,
+                mimeType = ContentType.JSON,
+                example = """
+                    {
+                      "query": "5fb3b17a-c67e-476e-b8ad-f030955ef8ea",
+                      "key": "<key>"
+                    }
+                    """
+            )
+        }
+    ),
+    responses = {
+        @OpenApiResponse(
+            status = "200",
+            content = {
+                @OpenApiContent(
+                    from = ContentTypes.Quarter[].class,
+                    mimeType = ContentType.JSON
+                )
+            },
+            description = "When using multi-querying with an array, some may fail silently, as not to disrupt the other successful queries"
+        ),
+        @OpenApiResponse(
+            status = "404",
+            description = "If the item(s) in your query (all) return null, a NotFound error is thrown instead of returning an empty array"
+        )
+    }
+)
 public class QuartersEndpoint extends PostEndpoint<Quarter> {
 
     public QuartersEndpoint(final EMCAPI plugin) {
@@ -24,7 +69,7 @@ public class QuartersEndpoint extends PostEndpoint<Quarter> {
     }
 
     @Override
-    public Quarter getObjectOrNull(JsonElement element, @Nullable String key) {
+    public Quarter getObjectOrNull(@NotNull JsonElement element, @Nullable String key) {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw HttpExceptions.NOT_A_STRING;;
 
@@ -39,7 +84,7 @@ public class QuartersEndpoint extends PostEndpoint<Quarter> {
     }
 
     @Override
-    public JsonElement getJsonElement(Quarter quarter, @Nullable String key) {
+    public JsonElement getJsonElement(@NotNull Quarter quarter, @Nullable String key) {
         JsonObject quarterObject = new JsonObject();
 
         quarterObject.addProperty("name", quarter.getName());
