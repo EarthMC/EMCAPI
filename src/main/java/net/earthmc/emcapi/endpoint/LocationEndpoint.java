@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
     methods = HttpMethod.POST,
     summary = "Query location data",
     requestBody = @OpenApiRequestBody(
-        description = "Specify a pair of x & coordinates",
+        description = "Specify a pair of x & z coordinates",
         required = true,
         content = {
             @OpenApiContent(
