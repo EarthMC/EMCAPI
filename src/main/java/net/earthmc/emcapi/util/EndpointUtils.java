@@ -10,10 +10,12 @@ import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.TownyPermission;
 import com.palmergames.bukkit.towny.object.Government;
 import com.palmergames.bukkit.towny.object.economy.BankTransaction;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.optout.OptOutType;
 import net.earthmc.lynchpin.api.towny.pacts.Pact;
 import net.earthmc.lynchpin.api.towny.warps.Warp;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -180,12 +182,18 @@ public class EndpointUtils {
         return getShopObject(shop, false);
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     public static JsonObject getShopObject(Shop shop, boolean useCache) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("id", shop.getShopId());
         jsonObject.addProperty("owner", String.valueOf(shop.getOwner().getUniqueId()));
+
         final ItemStack item = shop.getItem();
         jsonObject.addProperty("item", item.getType().name());
+
+        item.unsetData(DataComponentTypes.CUSTOM_NAME); // the item is a clone so this is fine
+        jsonObject.addProperty("item_name", PlainTextComponentSerializer.plainText().serialize(item.effectiveName()));
+
         jsonObject.addProperty("price", shop.getPrice());
         jsonObject.addProperty("amount", item.getAmount());
         jsonObject.addProperty("type", shop.isSelling() ? "selling" : "buying");

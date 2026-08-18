@@ -18,6 +18,8 @@ import com.palmergames.bukkit.towny.event.town.TownMayorChangedEvent;
 import com.palmergames.bukkit.towny.event.town.TownMergeEvent;
 import com.palmergames.bukkit.towny.event.town.TownPreRuinedEvent;
 import com.palmergames.bukkit.towny.event.town.TownReclaimedEvent;
+import com.palmergames.bukkit.towny.event.town.TownSetForSaleEvent;
+import com.palmergames.bukkit.towny.event.town.TownSetNotForSaleEvent;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Town;
 import net.earthmc.emcapi.sse.SSEManager;
@@ -144,6 +146,21 @@ public class TownySSEListener extends AbstractSSEListener {
         message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
         message.add("newMayor", EndpointUtils.getResidentJsonObject(event.getResident()));
         sse.sendEvent("TownReclaimed", message);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTownSetForSale(TownSetForSaleEvent event) {
+        JsonObject message = new JsonObject();
+        message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
+        message.addProperty("price", event.getPrice());
+        sse.sendEvent("TownSetForSale", message);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTownSetNotForSale(TownSetNotForSaleEvent event) {
+        JsonObject message = new JsonObject();
+        message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
+        sse.sendEvent("TownSetNotForSale", message);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

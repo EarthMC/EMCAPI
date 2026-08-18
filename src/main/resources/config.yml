@@ -8,7 +8,7 @@ networking:
   port: 8080
 
   # The version number for endpoints
-  api_version: 3
+  api_version: 4
 
 behaviour:
   # The maximum entries a player can enter when looking up objects by name

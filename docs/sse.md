@@ -14,6 +14,7 @@ These are the current events available:
 "NewDay",
 "NationCreated", "NationDeleted", "NationRenamed", "NationKingChanged", "NationMerged",
 "TownCreated", "TownDeleted", "TownRenamed", "TownMayorChanged", "TownMerged", "TownRuined", "TownReclaimed",
+"TownSetForSale", "TownSetNotForSale",
 "TownJoinedNation", "TownLeftNation",
 "ResidentJoinedTown", "ResidentLeftTown",
 "ShopSoldItem", "ShopBoughtItem", "ShopOutOfStock", "ShopOutOfSpace", "ShopOutOfGold", "ShopCreated", "ShopDeleted"
