@@ -100,6 +100,7 @@ public final class EMCAPI extends JavaPlugin {
 
             config.registerPlugin(new OpenApiPlugin(openApi -> {
                 openApi.withDocumentationPath("/docs");
+                openApi.resourceClassLoader = this.getClassLoader();
                 openApi.withDefinitionConfiguration((string, builder) -> {
                     builder.info(info -> {
                         info.title("EarthMC API");
@@ -114,6 +115,7 @@ public final class EMCAPI extends JavaPlugin {
                 swagger.uiPath = "/ui";
                 swagger.title = "EarthMC API Docs";
                 swagger.version = BuildConstants.SWAGGER_VERSION; // Needed to properly access webjar
+                swagger.resourceClassLoader = this.getClassLoader();
             }));
 
             config.routes.exception(TooManyRequestsResponse.class, (e, ctx) -> {

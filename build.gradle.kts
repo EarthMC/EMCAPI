@@ -62,7 +62,7 @@ dependencies {
     compileOnly(libs.lynchpin.towny)
     compileOnly(libs.lynchpin.advancements)
     implementation(libs.inventories)
-    implementation(libs.javalin.openapi)
+    compileOnly(libs.javalin.openapi)
     compileOnly(libs.javalin.swagger)
     compileOnly(libs.javalin.swagger.webjar)
     annotationProcessor(libs.javalin.openapi.annotation)
