@@ -105,16 +105,15 @@ public final class EMCAPI extends JavaPlugin {
                         info.title("EMCAPI");
                         info.description("The official API for EarthMC");
                         info.contact("EarthMC", "https://earthmc.net/");
-                        info.version("4");
+                        info.version(getApiVersion());
                     });
-                    builder.openApiVersion("3.2.0");
                 });
             }));
             config.registerPlugin(new SwaggerPlugin(swagger -> {
                 swagger.documentationPath = "/docs";
                 swagger.uiPath = "/ui";
                 swagger.title = "EMCAPI Docs";
-                swagger.version = "5.32.8"; // Needed to properly access webjar
+                swagger.version = BuildConstants.SWAGGER_VERSION; // Needed to properly access webjar
             }));
 
             config.routes.exception(TooManyRequestsResponse.class, (e, ctx) -> {
@@ -185,8 +184,11 @@ public final class EMCAPI extends JavaPlugin {
     }
 
     public String getURLPath() {
-        String version = getConfig().getString("networking.api_version", "3");
-        return "v" + version;
+        return "v" + getApiVersion();
+    }
+
+    public String getApiVersion() {
+        return getConfig().getString("networking.api_version");
     }
 
     public APIDatabase getDatabase() {

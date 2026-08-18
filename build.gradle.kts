@@ -3,6 +3,7 @@
 plugins {
     alias(libs.plugins.conventions.java)
     alias(libs.plugins.shadow)
+    alias(libs.plugins.blossom)
 }
 
 repositories {
@@ -61,7 +62,7 @@ dependencies {
     compileOnly(libs.lynchpin.towny)
     compileOnly(libs.lynchpin.advancements)
     implementation(libs.inventories)
-    implementation(libs.javalin.openapi)
+    compileOnly(libs.javalin.openapi)
     compileOnly(libs.javalin.swagger)
     compileOnly(libs.javalin.swagger.webjar)
     annotationProcessor(libs.javalin.openapi.annotation)
@@ -75,21 +76,29 @@ tasks {
         relocate("dev.warriorrr.inventories", "net.earthmc.emcapi.libs.inventories")
     }
 
-    processResources {
-        val shortCommitId = providers.exec { commandLine("git", "rev-parse", "--short", "HEAD") }.standardOutput.asText.get().trim()
-        val commitId = providers.exec { commandLine("git", "rev-parse", "HEAD") }.standardOutput.asText.get().trim()
-
-        expand(
-            "version" to shortCommitId,
-            "commit" to commitId,
-            "javalin_version" to libs.versions.javalin.get(),
-            "swagger_version" to libs.versions.swagger.webjar.get()
-        )
-    }
-
     jar {
         manifest {
             attributes["paperweight-mappings-namespace"] = "mojang"
+        }
+    }
+}
+
+sourceSets.main {
+    blossom {
+        javaSources {
+            property("swaggerVersion", libs.versions.swagger.webjar)
+        }
+
+        resources {
+            trimNewlines = false
+
+            val shortCommitId: Provider<String> = providers.exec { commandLine("git", "rev-parse", "--short", "HEAD") }.standardOutput.asText.map { it.trim() }
+            val commitId: Provider<String> = providers.exec { commandLine("git", "rev-parse", "HEAD") }.standardOutput.asText.map { it.trim() }
+
+            property("version", shortCommitId)
+            property("commit", commitId)
+            property("javalin_version", libs.versions.javalin)
+            property("swagger_version", libs.versions.swagger.webjar)
         }
     }
 }

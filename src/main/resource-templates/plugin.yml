@@ -1,5 +1,5 @@
 name: EMCAPI
-version: "${version}"
+version: "{{ version }}"
 main: net.earthmc.emcapi.EMCAPI
 api-version: "1.20"
 depend: [Towny]
@@ -7,7 +7,7 @@ softdepend: [MysteryMaster, Quarters, DiscordSRV, SuperbVote, QuickShop-Hikari, 
 authors: [Fruitloopins]
 contributors: [Warriorrr, Yoditi, Veyronity]
 description: API for EarthMC using Javalin
-website: "https://github.com/EarthMC/EMCAPI/commit/${commit}"
+website: "https://github.com/EarthMC/EMCAPI/commit/{{ commit }}"
 folia-supported: true
 
 permissions:
@@ -19,6 +19,7 @@ permissions:
     description: Allow players to create API keys
 
 libraries:
-  - io.javalin:javalin:${javalin_version}
-  - io.javalin.community.openapi:javalin-swagger-plugin:${javalin_version}
-  - org.webjars:swagger-ui:${swagger_version}
+  - io.javalin:javalin:{{ javalin_version }}
+  - io.javalin.community.openapi:javalin-swagger-plugin:{{ javalin_version }}
+  - io.javalin.community.openapi:javalin-openapi-plugin:{{ javalin_version }}
+  - org.webjars:swagger-ui:{{ swagger_version }}

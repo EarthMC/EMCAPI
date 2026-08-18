@@ -1,0 +1,5 @@
+package net.earthmc.emcapi;
+
+class BuildConstants {
+    public static final String SWAGGER_VERSION = "{{ swaggerVersion }}";
+}
