@@ -102,7 +102,7 @@ public final class EMCAPI extends JavaPlugin {
                 openApi.withDocumentationPath("/docs");
                 openApi.withDefinitionConfiguration((string, builder) -> {
                     builder.info(info -> {
-                        info.title("EMCAPI");
+                        info.title("EarthMC API");
                         info.description("The official API for EarthMC");
                         info.contact("EarthMC", "https://earthmc.net/");
                         info.version(getApiVersion());
@@ -112,7 +112,7 @@ public final class EMCAPI extends JavaPlugin {
             config.registerPlugin(new SwaggerPlugin(swagger -> {
                 swagger.documentationPath = "/docs";
                 swagger.uiPath = "/ui";
-                swagger.title = "EMCAPI Docs";
+                swagger.title = "EarthMC API Docs";
                 swagger.version = BuildConstants.SWAGGER_VERSION; // Needed to properly access webjar
             }));
 
