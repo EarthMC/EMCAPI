@@ -21,5 +21,4 @@ permissions:
 libraries:
   - io.javalin:javalin:{{ javalin_version }}
   - io.javalin.community.openapi:javalin-swagger-plugin:{{ javalin_version }}
-  - io.javalin.community.openapi:javalin-openapi-plugin:{{ javalin_version }}
   - org.webjars:swagger-ui:{{ swagger_version }}
