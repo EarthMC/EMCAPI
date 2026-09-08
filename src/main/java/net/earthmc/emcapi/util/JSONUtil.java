@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import io.javalin.http.BadRequestResponse;
+import kotlin.Pair;
 
 public class JSONUtil {
 
@@ -38,6 +39,25 @@ public class JSONUtil {
         if (!primitive.isNumber()) return null;
 
         return primitive.getAsInt();
+    }
+
+    public static Pair<Integer, Integer> parseCoordinates(JsonElement element) {
+        JsonArray array = getJsonElementAsJsonArrayOrNull(element);
+        if (array == null || array.size() != 2) {
+            throw new BadRequestResponse("Coordinates must be an array of two integers: [x, z]");
+        }
+
+        for (JsonElement coordinate : array) {
+            if (!coordinate.isJsonPrimitive() || !coordinate.getAsJsonPrimitive().isNumber()) {
+                throw new BadRequestResponse("Coordinates must contain only integers");
+            }
+        }
+
+        try {
+            return new Pair<>(array.get(0).getAsBigDecimal().intValueExact(), array.get(1).getAsBigDecimal().intValueExact());
+        } catch (ArithmeticException | NumberFormatException e) {
+            throw new BadRequestResponse("Coordinates must be whole numbers within the 32-bit integer range");
+        }
     }
 
     public static Boolean getJsonElementAsBooleanOrNull(JsonElement element) {

@@ -15,6 +15,7 @@ import io.javalin.openapi.ContentType;
 import io.javalin.openapi.HttpMethod;
 import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
+import io.javalin.openapi.OpenApiContentProperty;
 import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
 import kotlin.Pair;
@@ -35,23 +36,27 @@ import java.util.List;
 import java.util.Objects;
 
 @OpenApi(
-    path = "/v4/location",
+    path = "/v4/nearby",
     methods = HttpMethod.POST,
-    summary = "Query location data",
+    summary = "Find nearby towns or nations",
     requestBody = @OpenApiRequestBody(
         required = true,
         description = "Target and type, search type, radius",
         content = {
             @OpenApiContent(
-                from = ContentTypes.NearbyQuery.class,
+                properties = @OpenApiContentProperty(name = "query", from = ContentTypes.NearbyQuery.class, isArray = true),
                 mimeType = ContentType.JSON,
                 example = """
                     {
+                      "query": [
+                        {
                           "target_type": "TOWN",
                           "target": "Melbourne",
                           "search_type": "TOWN",
                           "radius": 100,
                           "strict": true
+                        }
+                      ]
                     }
                     """
             )
@@ -60,6 +65,7 @@ import java.util.Objects;
     responses = {
         @OpenApiResponse(
             status = "200",
+            description = "An array containing one array of matching name/UUID objects per query",
             content = {
                 @OpenApiContent(
                     from = ContentTypes.NameUUID[].class,
@@ -125,10 +131,7 @@ public class NearbyEndpoint extends PostEndpoint<NearbyContext> {
         JsonElement targetElement = jsonObject.get("target");
         return switch (targetType) {
             case COORDINATE -> {
-                JsonArray jsonArray = JSONUtil.getJsonElementAsJsonArrayOrNull(targetElement);
-                if (jsonArray == null) throw new BadRequestResponse("Your target is not a valid JSON array");
-
-                Pair<Integer, Integer> pair = new Pair<>(jsonArray.get(0).getAsInt(), jsonArray.get(1).getAsInt());
+                Pair<Integer, Integer> pair = JSONUtil.parseCoordinates(targetElement);
 
                 yield new NearbyContext(targetType, pair, searchType, radius, strict);
             }

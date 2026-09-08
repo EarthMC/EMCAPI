@@ -1,11 +1,9 @@
 package net.earthmc.emcapi.endpoint;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
-import io.javalin.http.BadRequestResponse;
 import io.javalin.openapi.ContentType;
 import io.javalin.openapi.HttpMethod;
 import io.javalin.openapi.OpenApi;
@@ -79,26 +77,7 @@ public class LocationEndpoint extends PostEndpoint<Pair<Integer, Integer>> {
 
     @Override
     public Pair<Integer, Integer> getObjectOrNull(@NotNull JsonElement element, @Nullable String key) {
-        JsonArray jsonArray = JSONUtil.getJsonElementAsJsonArrayOrNull(element);
-        if (jsonArray == null) throw new BadRequestResponse("Your query contains a value that is not a JSON array");
-
-        int x;
-        int z;
-        try {
-            JsonElement xElement = jsonArray.get(0);
-            JsonElement zElement = jsonArray.get(1);
-
-            Integer xInner = JSONUtil.getJsonElementAsIntegerOrNull(xElement);
-            Integer zInner = JSONUtil.getJsonElementAsIntegerOrNull(zElement);
-            if (xInner == null || zInner == null) throw new BadRequestResponse("A JSON array in your query contained a value that was not an int");
-
-            x = xInner;
-            z = zInner;
-        } catch (IndexOutOfBoundsException oobe) {
-            throw new BadRequestResponse("A JSON array in your query did not contain two values");
-        }
-
-        return new Pair<>(x, z);
+        return JSONUtil.parseCoordinates(element);
     }
 
     @Override
