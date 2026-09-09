@@ -57,7 +57,8 @@ public class ContentTypes {
     public record TownStats(int numTownBlocks, int maxTownBlocks, int numResidents, int numTrusted, int numOutlaws,
                             double balance, @OpenApiNullable Double forSalePrice) {}
     public record BankHistory(long time, String type, int amount, int balance, String reason) {}
-    public record TownCoordinates(SpawnCoordinates spawn, int[] homeBlock, int[][] townBlocks) {}
+    public record TownCoordinates(SpawnCoordinates spawn, int[] homeBlock, int[][] townBlocks, Map<String, TownCoordinatesWorldEntry> worlds) {}
+    public record TownCoordinatesWorldEntry(@OpenApiNullable @OpenApiName("townblocks") int[][] townBlocks) {}
     public record TownWarp(String name, UUID uuid, long createdAt, String createdBy, String access, WarpLocation location) {}
     public record WarpLocation(int x, int y, int z) {}
 

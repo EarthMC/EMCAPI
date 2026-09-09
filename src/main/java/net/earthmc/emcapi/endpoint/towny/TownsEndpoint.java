@@ -10,6 +10,7 @@ import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
+import com.palmergames.bukkit.towny.object.TownyWorld;
 import com.palmergames.bukkit.towny.permissions.TownyPerms;
 import io.javalin.openapi.ContentType;
 import io.javalin.openapi.HttpMethod;
@@ -29,9 +30,14 @@ import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
 import net.earthmc.lynchpin.api.towny.warps.Warp;
+import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @OpenApi(
@@ -72,9 +78,11 @@ import java.util.UUID;
     }
 )
 public class TownsEndpoint extends PostEndpoint<Town> {
+    private final TownyWorld primaryWorld;
 
     public TownsEndpoint(EMCAPI plugin) {
         super(plugin);
+        primaryWorld = TownyAPI.getInstance().getTownyWorld(plugin.getServer().getWorlds().getFirst());
     }
 
     @Override
@@ -150,14 +158,43 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         coordinatesObject.add("homeBlock", homeBlockArray);
 
         JsonArray townBlocksArray = new JsonArray();
+        final Map<TownyWorld, Set<JsonArray>> townBlockWorlds = new HashMap<>();
+
         for (TownBlock townBlock : town.getTownBlocks()) {
             JsonArray townBlockArray = new JsonArray();
             townBlockArray.add(townBlock.getX());
             townBlockArray.add(townBlock.getZ());
 
-            townBlocksArray.add(townBlockArray);
+            final TownyWorld townyWorld = townBlock.getWorld();
+            if (townyWorld.equals(this.primaryWorld)) {
+                townBlocksArray.add(townBlockArray);
+            } else {
+                townBlockWorlds.computeIfAbsent(townyWorld, k -> new HashSet<>()).add(townBlockArray);
+            }
         }
+
         coordinatesObject.add("townBlocks", townBlocksArray);
+
+        final JsonObject worlds = new JsonObject();
+
+        for (final Map.Entry<TownyWorld, Set<JsonArray>> entry : townBlockWorlds.entrySet()) {
+            final World bukkitWorld = entry.getKey().getBukkitWorld();
+            if (bukkitWorld == null) {
+                continue;
+            }
+
+            final JsonObject worldTownBlocks = new JsonObject();
+
+            final String worldKey = bukkitWorld.getKey().asString();
+            final JsonArray array = new JsonArray();
+            entry.getValue().forEach(array::add);
+
+            worldTownBlocks.add("townblocks", array);
+
+            worlds.add(worldKey, worldTownBlocks);
+        }
+
+        coordinatesObject.add("worlds", worlds);
 
         townObject.add("coordinates", coordinatesObject);
 
