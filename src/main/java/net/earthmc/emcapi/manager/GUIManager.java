@@ -201,7 +201,7 @@ public class GUIManager implements Listener {
         MenuItem sse = MenuItem.builder(Material.GOAT_HORN)
             .name(Component.text("Shop SSE", NamedTextColor.GREEN))
             .lore(Component.text("• Players authorised here will be able to connect to the server's /sse endpoint", NamedTextColor.GREEN))
-            .lore(Component.text("• and receive events fired by your QuickShops", NamedTextColor.GREEN))
+            .lore(Component.text("and receive events fired by your QuickShops", NamedTextColor.GREEN))
             .lore(Component.text("• For example, when your shop sells an item or is out of stock", NamedTextColor.GREEN))
             .lore(Component.text("Click to add or remove players", NamedTextColor.WHITE))
             .action(ClickAction.openSilent(() -> editAuthorisedMenu(player, settings, AuthSettings.Type.SHOP_SSE)))
@@ -284,7 +284,7 @@ public class GUIManager implements Listener {
                     if (playerUUID.equals(uuid)) {
                         return List.of(reOpen, InputResponse.errorMessage(Component.text("You cannot authorise yourself! You already have full access to your own information.", NamedTextColor.RED)));
                     }
-                    if (settings.authorize(AuthSettings.Type.SHOP_SSE, uuid)) {
+                    if (settings.authorize(type, uuid)) {
                         return List.of(reOpen, InputResponse.errorMessage(Component.text(name + " is already authorised for " + type.name(), NamedTextColor.RED)));
                     }
                     auth.authMap.put(playerUUID, settings.add(type, uuid));
