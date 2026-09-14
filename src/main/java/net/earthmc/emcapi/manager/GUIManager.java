@@ -22,6 +22,7 @@ import net.earthmc.emcapi.object.optout.OptOutType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -224,333 +225,260 @@ public class GUIManager implements Listener {
         return menu.build();
     }
 
-public MenuInventory createHelpMenu(Player player) {
-    MenuInventory.Builder menu = MenuInventory.builder()
-        .title(Component.text("API Guide", NamedTextColor.DARK_AQUA, TextDecoration.BOLD))
-        .rows(3);
-
-    MenuItem generalHelp = MenuItem.builder(Material.BOOK)
-        .name(Component.text("General Info & Privacy", NamedTextColor.GOLD, TextDecoration.BOLD))
-        .lore(
-            Component.text("Learn what the API is and", NamedTextColor.GRAY),
-            Component.text("how your data is handled.", NamedTextColor.GRAY)
-        )
-        .slot(slot(1, 2))
-        .action(ClickAction.openSilent(() -> createGeneralInfoMenu(player)))
-        .build();
-
-    MenuItem endpointsHelp = MenuItem.builder(Material.ENDER_EYE)
-        .name(Component.text("Endpoints", NamedTextColor.AQUA, TextDecoration.BOLD))
-        .lore(
-            Component.text("Discover available API", NamedTextColor.GRAY),
-            Component.text("endpoints and features.", NamedTextColor.GRAY)
-        )
-        .slot(slot(1, 4))
-        .action(ClickAction.openSilent(() -> createEndpointsMenu(player)))
-        .build();
-
-    MenuItem sseHelp = MenuItem.builder(Material.REPEATER)
-        .name(Component.text("SSE Events", NamedTextColor.RED, TextDecoration.BOLD))
-        .lore(
-            Component.text("Learn about real-time", NamedTextColor.GRAY),
-            Component.text("Server-Sent Events.", NamedTextColor.GRAY)
-        )
-        .slot(slot(1, 6))
-        .action(ClickAction.openSilent(() -> createSseEventsMenu(player)))
-        .build();
-
-    menu.addItem(generalHelp)
-        .addItem(endpointsHelp)
-        .addItem(sseHelp)
-        .addItem(createMainMenuButton(player));
-
-    return menu.build();
-}
-
-public MenuInventory createGeneralInfoMenu(Player player) {
-    MenuInventory.Builder menu = MenuInventory.builder()
-        .title(Component.text("General & Privacy", NamedTextColor.DARK_AQUA, TextDecoration.BOLD))
-        .rows(3);
-
-    MenuItem whatIsApi = MenuItem.builder(Material.KNOWLEDGE_BOOK)
-        .name(Component.text("What is an API?", NamedTextColor.GOLD, TextDecoration.BOLD))
-        .lore(
-            Component.text("An API (Application Programming Interface)", NamedTextColor.GRAY),
-            Component.text("allows external tools to read data.", NamedTextColor.GRAY)
-        )
-        .slot(slot(1, 2))
-        .build();
-
-    MenuItem useCases = MenuItem.builder(Material.ARMOR_STAND)
-        .name(Component.text("Use Cases", NamedTextColor.YELLOW, TextDecoration.BOLD))
-        .lore(
-            Component.text("The API can be used for", NamedTextColor.GRAY),
-            Component.text("Discord bots, maps, and more.", NamedTextColor.GRAY)
-        )
-        .slot(slot(1, 4))
-        .build();
-
-    MenuItem privacy = MenuItem.builder(Material.SHIELD)
-        .name(Component.text("Privacy", NamedTextColor.GREEN, TextDecoration.BOLD))
-        .lore(
-            Component.text("Learn how your data is handled", NamedTextColor.GRAY),
-            Component.text("and what information may be exposed.", NamedTextColor.GRAY),
-            Component.text("", NamedTextColor.GRAY),
-            Component.text("Click to read the Privacy Policy!", NamedTextColor.YELLOW)
-        )
-        .slot(slot(1, 6))
-        .action(click -> {
-            player.closeInventory();
-            player.sendMessage(
-                Component.text("Privacy Policy: ", NamedTextColor.GRAY)
-                    .append(
-                        Component.text(
-                            "https://earthmc.net/privacy",
-                            NamedTextColor.AQUA,
-                            TextDecoration.UNDERLINED
-                        ).clickEvent(
-                            net.kyori.adventure.text.event.ClickEvent.openUrl(
-                                "https://earthmc.net/privacy"
-                            )
+    public MenuInventory createHelpMenu(Player player) {
+        MenuInventory.Builder menu = MenuInventory.builder()
+            .title(Component.text("API Guide", NamedTextColor.DARK_AQUA, TextDecoration.BOLD))
+            .rows(3);
+    
+        MenuItem generalHelp = MenuItem.builder(Material.BOOK)
+            .name(Component.text("General Info & Privacy", NamedTextColor.GOLD, TextDecoration.BOLD))
+            .lore(
+                Component.text("Learn what the API is and how your data is handled.", NamedTextColor.GRAY)
+            )
+            .slot(slot(1, 2))
+            .action(ClickAction.openSilent(() -> createGeneralInfoMenu(player)))
+            .build();
+    
+        MenuItem endpointsHelp = MenuItem.builder(Material.ENDER_EYE)
+            .name(Component.text("Endpoints", NamedTextColor.AQUA, TextDecoration.BOLD))
+            .lore(
+                Component.text("Discover available API endpoints and features.", NamedTextColor.GRAY)
+            )
+            .slot(slot(1, 4))
+            .action(ClickAction.openSilent(() -> createEndpointsMenu(player)))
+            .build();
+    
+        MenuItem sseHelp = MenuItem.builder(Material.REPEATER)
+            .name(Component.text("SSE Events", NamedTextColor.RED, TextDecoration.BOLD))
+            .lore(
+                Component.text("Learn about real-time Server-Sent Events.", NamedTextColor.GRAY)
+            )
+            .slot(slot(1, 6))
+            .action(ClickAction.openSilent(() -> createSseEventsMenu(player)))
+            .build();
+    
+        menu.addItem(generalHelp)
+            .addItem(endpointsHelp)
+            .addItem(sseHelp)
+            .addItem(createMainMenuButton(player));
+    
+        return menu.build();
+    }
+    
+    public MenuInventory createGeneralInfoMenu(Player player) {
+        MenuInventory.Builder menu = MenuInventory.builder()
+            .title(Component.text("General & Privacy", NamedTextColor.DARK_AQUA, TextDecoration.BOLD))
+            .rows(3);
+    
+        MenuItem whatIsApi = MenuItem.builder(Material.KNOWLEDGE_BOOK)
+            .name(Component.text("What is an API?", NamedTextColor.GOLD, TextDecoration.BOLD))
+            .lore(
+                Component.text("An API (Application Programming Interface) allows external tools to read data.", NamedTextColor.GRAY)
+            )
+            .slot(slot(1, 2))
+            .build();
+    
+        MenuItem useCases = MenuItem.builder(Material.ARMOR_STAND)
+            .name(Component.text("Use Cases", NamedTextColor.YELLOW, TextDecoration.BOLD))
+            .lore(
+                Component.text("The API can be used for Discord bots, maps, and more.", NamedTextColor.GRAY)
+            )
+            .slot(slot(1, 4))
+            .build();
+    
+        MenuItem privacy = MenuItem.builder(Material.SHIELD)
+            .name(Component.text("Privacy", NamedTextColor.GREEN, TextDecoration.BOLD))
+            .lore(
+                Component.text("Learn how your data is handled and what information may be exposed.", NamedTextColor.GRAY),
+                Component.text("", NamedTextColor.GRAY),
+                Component.text("Click to read the Privacy Policy!", NamedTextColor.YELLOW)
+            )
+            .slot(slot(1, 6))
+            .action(click -> {
+                player.closeInventory();
+                player.sendMessage(
+                    Component.text("Privacy Policy: ", NamedTextColor.GRAY)
+                        .append(
+                            Component.text(
+                                "https://earthmc.net/privacy",
+                                NamedTextColor.AQUA,
+                                TextDecoration.UNDERLINED
+                            ).clickEvent(ClickEvent.openUrl("https://earthmc.net/privacy"))
                         )
-                    )
-            );
-            player.playSound(
-                player.getLocation(),
-                org.bukkit.Sound.UI_BUTTON_CLICK,
-                1.0f,
-                1.0f
-            );
-        })
-        .build();
-
-    menu.addItem(whatIsApi)
-        .addItem(useCases)
-        .addItem(privacy)
-        .addItem(createReturnToHelpMenuButton(player));
-
-    return menu.build();
-}
-
-public MenuInventory createEndpointsMenu(Player player) {
-    MenuInventory.Builder menu = MenuInventory.builder()
-        .title(Component.text("API Endpoints", NamedTextColor.DARK_AQUA, TextDecoration.BOLD))
-        .rows(3);
-
-    MenuItem players = MenuItem.builder(Material.PLAYER_HEAD)
-        .name(Component.text("Players Endpoint", NamedTextColor.AQUA, TextDecoration.BOLD))
-        .lore(
-            Component.text("Provides information about", NamedTextColor.GRAY),
-            Component.text("residents, similar to /res.", NamedTextColor.GRAY),
-            Component.text("", NamedTextColor.GRAY),
-            Component.text("Click to open documentation!", NamedTextColor.YELLOW)
-        )
-        .slot(slot(1, 1))
-        .action(click -> {
-            player.closeInventory();
-            player.sendMessage(
-                Component.text("Players API Docs: ", NamedTextColor.GRAY)
-                    .append(
-                        Component.text(
-                            "https://earthmc.net/docs/api#players",
-                            NamedTextColor.AQUA,
-                            TextDecoration.UNDERLINED
-                        ).clickEvent(
-                            net.kyori.adventure.text.event.ClickEvent.openUrl(
-                                "https://earthmc.net/docs/api#players"
-                            )
+                );
+            })
+            .build();
+    
+        menu.addItem(whatIsApi)
+            .addItem(useCases)
+            .addItem(privacy)
+            .addItem(createReturnToHelpMenuButton(player));
+    
+        return menu.build();
+    }
+    
+    public MenuInventory createEndpointsMenu(Player player) {
+        MenuInventory.Builder menu = MenuInventory.builder()
+            .title(Component.text("API Endpoints", NamedTextColor.DARK_AQUA, TextDecoration.BOLD))
+            .rows(3);
+    
+        MenuItem players = MenuItem.builder(Material.PLAYER_HEAD)
+            .name(Component.text("Players Endpoint", NamedTextColor.AQUA, TextDecoration.BOLD))
+            .lore(
+                Component.text("Provides information about residents, similar to /res.", NamedTextColor.GRAY),
+                Component.text("", NamedTextColor.GRAY),
+                Component.text("Click to open documentation!", NamedTextColor.YELLOW)
+            )
+            .slot(slot(1, 1))
+            .action(click -> {
+                player.closeInventory();
+                player.sendMessage(
+                    Component.text("Players API Docs: ", NamedTextColor.GRAY)
+                        .append(
+                            Component.text(
+                                "https://earthmc.net/docs/api#players",
+                                NamedTextColor.AQUA,
+                                TextDecoration.UNDERLINED
+                            ).clickEvent(ClickEvent.openUrl("https://earthmc.net/docs/api#players"))
                         )
-                    )
-            );
-            player.playSound(
-                player.getLocation(),
-                org.bukkit.Sound.UI_BUTTON_CLICK,
-                1.0f,
-                1.0f
-            );
-        })
-        .build();
-
-    MenuItem townsNations = MenuItem.builder(Material.FILLED_MAP)
-        .name(Component.text("Towns & Nations", NamedTextColor.GREEN, TextDecoration.BOLD))
-        .lore(
-            Component.text("Provides detailed information", NamedTextColor.GRAY),
-            Component.text("about towns and nations.", NamedTextColor.GRAY),
-            Component.text("", NamedTextColor.GRAY),
-            Component.text("Click to open documentation!", NamedTextColor.YELLOW)
-        )
-        .slot(slot(1, 3))
-        .action(click -> {
-            player.closeInventory();
-            player.sendMessage(
-                Component.text("Towns & Nations Docs: ", NamedTextColor.GRAY)
-                    .append(
-                        Component.text(
-                            "https://earthmc.net/docs/api",
-                            NamedTextColor.AQUA,
-                            TextDecoration.UNDERLINED
-                        ).clickEvent(
-                            net.kyori.adventure.text.event.ClickEvent.openUrl(
-                                "https://earthmc.net/docs/api"
-                            )
+                );
+            })
+            .build();
+    
+        MenuItem townsNations = MenuItem.builder(Material.FILLED_MAP)
+            .name(Component.text("Towns & Nations", NamedTextColor.GREEN, TextDecoration.BOLD))
+            .lore(
+                Component.text("Provides detailed information about towns and nations.", NamedTextColor.GRAY),
+                Component.text("", NamedTextColor.GRAY),
+                Component.text("Click to open documentation!", NamedTextColor.YELLOW)
+            )
+            .slot(slot(1, 3))
+            .action(click -> {
+                player.closeInventory();
+                player.sendMessage(
+                    Component.text("Towns & Nations Docs: ", NamedTextColor.GRAY)
+                        .append(
+                            Component.text(
+                                "https://earthmc.net/docs/api",
+                                NamedTextColor.AQUA,
+                                TextDecoration.UNDERLINED
+                            ).clickEvent(ClickEvent.openUrl("https://earthmc.net/docs/api"))
                         )
-                    )
-            );
-            player.playSound(
-                player.getLocation(),
-                org.bukkit.Sound.UI_BUTTON_CLICK,
-                1.0f,
-                1.0f
-            );
-        })
-        .build();
-
-    MenuItem shops = MenuItem.builder(Material.CHEST)
-        .name(Component.text("Shop Endpoint", NamedTextColor.GOLD, TextDecoration.BOLD))
-        .lore(
-            Component.text("Provides information about", NamedTextColor.GRAY),
-            Component.text("player-owned QuickShops.", NamedTextColor.GRAY),
-            Component.text("", NamedTextColor.GRAY),
-            Component.text("Click to open documentation!", NamedTextColor.YELLOW)
-        )
-        .slot(slot(1, 5))
-        .action(click -> {
-            player.closeInventory();
-            player.sendMessage(
-                Component.text("Shop API Docs: ", NamedTextColor.GRAY)
-                    .append(
-                        Component.text(
-                            "https://earthmc.net/docs/api#quickshops",
-                            NamedTextColor.AQUA,
-                            TextDecoration.UNDERLINED
-                        ).clickEvent(
-                            net.kyori.adventure.text.event.ClickEvent.openUrl(
-                                "https://earthmc.net/docs/api#quickshops"
-                            )
+                );
+            })
+            .build();
+    
+        MenuItem shops = MenuItem.builder(Material.CHEST)
+            .name(Component.text("Shop Endpoint", NamedTextColor.GOLD, TextDecoration.BOLD))
+            .lore(
+                Component.text("Provides information about player-owned QuickShops.", NamedTextColor.GRAY),
+                Component.text("", NamedTextColor.GRAY),
+                Component.text("Click to open documentation!", NamedTextColor.YELLOW)
+            )
+            .slot(slot(1, 5))
+            .action(click -> {
+                player.closeInventory();
+                player.sendMessage(
+                    Component.text("Shop API Docs: ", NamedTextColor.GRAY)
+                        .append(
+                            Component.text(
+                                "https://earthmc.net/docs/api#quickshops",
+                                NamedTextColor.AQUA,
+                                TextDecoration.UNDERLINED
+                            ).clickEvent(ClickEvent.openUrl("https://earthmc.net/docs/api#quickshops"))
                         )
-                    )
-            );
-            player.playSound(
-                player.getLocation(),
-                org.bukkit.Sound.UI_BUTTON_CLICK,
-                1.0f,
-                1.0f
-            );
-        })
-        .build();
-
-    MenuItem other = MenuItem.builder(Material.WRITTEN_BOOK)
-        .name(Component.text("Other Endpoints", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
-        .lore(
-            Component.text("Explore additional endpoints", NamedTextColor.GRAY),
-            Component.text("such as Location and mcMMO.", NamedTextColor.GRAY),
-            Component.text("", NamedTextColor.GRAY),
-            Component.text("Click to open documentation!", NamedTextColor.YELLOW)
-        )
-        .slot(slot(1, 7))
-        .action(click -> {
-            player.closeInventory();
-            player.sendMessage(
-                Component.text("Full API Documentation: ", NamedTextColor.GRAY)
-                    .append(
-                        Component.text(
-                            "https://earthmc.net/docs/api",
-                            NamedTextColor.AQUA,
-                            TextDecoration.UNDERLINED
-                        ).clickEvent(
-                            net.kyori.adventure.text.event.ClickEvent.openUrl(
-                                "https://earthmc.net/docs/api"
-                            )
+                );
+            })
+            .build();
+    
+        MenuItem other = MenuItem.builder(Material.WRITTEN_BOOK)
+            .name(Component.text("Other Endpoints", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
+            .lore(
+                Component.text("Explore additional endpoints such as Location and mcMMO.", NamedTextColor.GRAY),
+                Component.text("", NamedTextColor.GRAY),
+                Component.text("Click to open documentation!", NamedTextColor.YELLOW)
+            )
+            .slot(slot(1, 7))
+            .action(click -> {
+                player.closeInventory();
+                player.sendMessage(
+                    Component.text("Full API Documentation: ", NamedTextColor.GRAY)
+                        .append(
+                            Component.text(
+                                "https://earthmc.net/docs/api",
+                                NamedTextColor.AQUA,
+                                TextDecoration.UNDERLINED
+                            ).clickEvent(ClickEvent.openUrl("https://earthmc.net/docs/api"))
                         )
-                    )
-            );
-            player.playSound(
-                player.getLocation(),
-                org.bukkit.Sound.UI_BUTTON_CLICK,
-                1.0f,
-                1.0f
-            );
-        })
-        .build();
-
-    menu.addItem(players)
-        .addItem(townsNations)
-        .addItem(shops)
-        .addItem(other)
-        .addItem(createReturnToHelpMenuButton(player));
-
-    return menu.build();
-}
-
-public MenuInventory createSseEventsMenu(Player player) {
-    MenuInventory.Builder menu = MenuInventory.builder()
-        .title(Component.text("SSE Events", NamedTextColor.DARK_AQUA, TextDecoration.BOLD))
-        .rows(3);
-
-    MenuItem aboutSse = MenuItem.builder(Material.COMPARATOR)
-        .name(Component.text("What are SSE Events?", NamedTextColor.GOLD, TextDecoration.BOLD))
-        .lore(
-            Component.text("Server-Sent Events (SSE) allow", NamedTextColor.GRAY),
-            Component.text("the server to send real-time updates.", NamedTextColor.GRAY),
-            Component.text("", NamedTextColor.GRAY),
-            Component.text("Useful for receiving events", NamedTextColor.GRAY),
-            Component.text("without repeatedly polling the API.", NamedTextColor.GRAY)
-        )
-        .slot(slot(1, 3))
-        .build();
-
-    MenuItem sseDocs = MenuItem.builder(Material.PAPER)
-        .name(Component.text("SSE Documentation", NamedTextColor.AQUA, TextDecoration.BOLD))
-        .lore(
-            Component.text("Learn how to connect to SSE", NamedTextColor.GRAY),
-            Component.text("and listen for specific events.", NamedTextColor.GRAY),
-            Component.text("", NamedTextColor.GRAY),
-            Component.text("Click to open documentation!", NamedTextColor.YELLOW)
-        )
-        .slot(slot(1, 5))
-        .action(click -> {
-            player.closeInventory();
-            player.sendMessage(
-                Component.text("SSE API Docs: ", NamedTextColor.GRAY)
-                    .append(
-                        Component.text(
-                            "https://earthmc.net/docs/api#server-sent-events-sse",
-                            NamedTextColor.AQUA,
-                            TextDecoration.UNDERLINED
-                        ).clickEvent(
-                            net.kyori.adventure.text.event.ClickEvent.openUrl(
-                                "https://earthmc.net/docs/api#server-sent-events-sse"
-                            )
+                );
+            })
+            .build();
+    
+        menu.addItem(players)
+            .addItem(townsNations)
+            .addItem(shops)
+            .addItem(other)
+            .addItem(createReturnToHelpMenuButton(player));
+    
+        return menu.build();
+    }
+    
+    public MenuInventory createSseEventsMenu(Player player) {
+        MenuInventory.Builder menu = MenuInventory.builder()
+            .title(Component.text("SSE Events", NamedTextColor.DARK_AQUA, TextDecoration.BOLD))
+            .rows(3);
+    
+        MenuItem aboutSse = MenuItem.builder(Material.COMPARATOR)
+            .name(Component.text("What are SSE Events?", NamedTextColor.GOLD, TextDecoration.BOLD))
+            .lore(
+                Component.text("Server-Sent Events (SSE) allow the server to send real-time updates.", NamedTextColor.GRAY),
+                Component.text("", NamedTextColor.GRAY),
+                Component.text("Useful for receiving events without repeatedly polling the API.", NamedTextColor.GRAY)
+            )
+            .slot(slot(1, 3))
+            .build();
+    
+        MenuItem sseDocs = MenuItem.builder(Material.PAPER)
+            .name(Component.text("SSE Documentation", NamedTextColor.AQUA, TextDecoration.BOLD))
+            .lore(
+                Component.text("Learn how to connect to SSE and listen for specific events.", NamedTextColor.GRAY),
+                Component.text("", NamedTextColor.GRAY),
+                Component.text("Click to open documentation!", NamedTextColor.YELLOW)
+            )
+            .slot(slot(1, 5))
+            .action(click -> {
+                player.closeInventory();
+                player.sendMessage(
+                    Component.text("SSE API Docs: ", NamedTextColor.GRAY)
+                        .append(
+                            Component.text(
+                                "https://earthmc.net/docs/api#server-sent-events-sse",
+                                NamedTextColor.AQUA,
+                                TextDecoration.UNDERLINED
+                            ).clickEvent(ClickEvent.openUrl("https://earthmc.net/docs/api#server-sent-events-sse"))
                         )
-                    )
-            );
-            player.playSound(
-                player.getLocation(),
-                org.bukkit.Sound.UI_BUTTON_CLICK,
-                1.0f,
-                1.0f
-            );
-        })
-        .build();
-
-    menu.addItem(aboutSse)
-        .addItem(sseDocs)
-        .addItem(createReturnToHelpMenuButton(player));
-
-    return menu.build();
-}
-
-private MenuItem createReturnToHelpMenuButton(Player player) {
-    return MenuItem.builder(Material.ARROW)
-        .name(Component.text("Back to API Guide", NamedTextColor.RED, TextDecoration.BOLD))
-        .lore(
-            Component.text("Return to the API Guide menu.", NamedTextColor.GRAY)
-        )
-        .slot(slot(2, 4))
-        .action(ClickAction.openSilent(() -> createHelpMenu(player)))
-        .build();
-}
-
+                );
+            })
+            .build();
+    
+        menu.addItem(aboutSse)
+            .addItem(sseDocs)
+            .addItem(createReturnToHelpMenuButton(player));
+    
+        return menu.build();
+    }
+    
+    private MenuItem createReturnToHelpMenuButton(Player player) {
+        return MenuItem.builder(Material.ARROW)
+            .name(Component.text("Back to API Guide", NamedTextColor.RED, TextDecoration.BOLD))
+            .lore(
+                Component.text("Return to the API Guide menu.", NamedTextColor.GRAY)
+            )
+            .slot(slot(2, 4))
+            .action(ClickAction.openSilent(() -> createHelpMenu(player)))
+            .build();
+    }
+    
     private MenuItem createMainMenuButton(Player player) {
         return MenuItem.builder(Material.BARRIER)
             .name(Component.text("Main Menu", NamedTextColor.GREEN, TextDecoration.BOLD))
@@ -559,7 +487,7 @@ private MenuItem createReturnToHelpMenuButton(Player player) {
             .slot(SlotAnchor.bottomRight())
             .build();
     }
-
+    
     private MenuItem createBackButton(Supplier<MenuInventory> supplier) {
         return MenuItem.builder(Material.BARRIER)
             .name(Component.text("Back", NamedTextColor.RED, TextDecoration.BOLD))
