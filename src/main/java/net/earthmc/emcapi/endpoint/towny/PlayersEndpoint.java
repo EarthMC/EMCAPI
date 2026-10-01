@@ -22,6 +22,7 @@ import net.earthmc.emcapi.object.optout.OptOutType;
 import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -120,7 +121,9 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
         playerObject.add("timestamps", timestampsObject);
 
         JsonObject statusObject = new JsonObject();
-        statusObject.addProperty("isOnline", resident.isOnline() && !plugin.getOptOut().playerOptedOut(resident.getUUID(), OptOutType.ONLINE_STATUS));
+        Player player = resident.getPlayer();
+        boolean isOnline = player != null && player.isOnline() && player.isVisibleByDefault();
+        statusObject.addProperty("isOnline", isOnline && !plugin.getOptOut().playerOptedOut(resident.getUUID(), OptOutType.ONLINE_STATUS));
         statusObject.addProperty("isNPC", resident.isNPC());
         statusObject.addProperty("isMayor", resident.isMayor());
         statusObject.addProperty("isKing", resident.isKing());
