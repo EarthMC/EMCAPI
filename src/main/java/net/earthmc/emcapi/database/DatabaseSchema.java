@@ -60,7 +60,8 @@ public class DatabaseSchema {
     private static List<String> getAuthorisedColumns() {
         return List.of(
             "`shop_sse` TEXT DEFAULT ''",
-            "`shop_query` TEXT DEFAULT ''"
+            "`shop_query` TEXT DEFAULT ''",
+            "`res_query` TEXT DEFAULT ''"
         );
     }
 }

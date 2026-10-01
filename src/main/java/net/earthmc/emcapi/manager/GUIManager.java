@@ -198,7 +198,7 @@ public class GUIManager implements Listener {
             .slot(slot(1, 4))
             .build();
 
-        MenuItem sse = MenuItem.builder(Material.GOAT_HORN)
+        MenuItem shopSse = MenuItem.builder(Material.GOAT_HORN)
             .name(Component.text("Shop SSE", NamedTextColor.GREEN))
             .lore(Component.text("• Players authorised here will be able to connect to the server's /sse endpoint", NamedTextColor.GREEN))
             .lore(Component.text("and receive events fired by your QuickShops", NamedTextColor.GREEN))
@@ -210,17 +210,28 @@ public class GUIManager implements Listener {
             .mutateItem(item -> item.setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay().addHiddenComponents(DataComponentTypes.INSTRUMENT).build()))
             .build();
 
-        MenuItem query = MenuItem.builder(Material.BARREL)
+        MenuItem shopQuery = MenuItem.builder(Material.BARREL)
             .name(Component.text("Shop Query", NamedTextColor.DARK_GREEN, TextDecoration.BOLD))
             .lore(Component.text("• Players authorised here will be able to query all your shops in the /shop endpoint", NamedTextColor.DARK_GREEN))
             .lore(Component.text("• This bypasses your shop data not being public in your opt out settings", NamedTextColor.DARK_GREEN))
             .lore(Component.text("Click to add or remove players", NamedTextColor.WHITE))
             .action(ClickAction.openSilent(() -> editAuthorisedMenu(player, settings, AuthSettings.Type.SHOP_QUERY)))
+            .slot(slot(3, 4))
+            .withGlint()
+            .build();
+
+        MenuItem resQuery = MenuItem.builder(Material.PLAYER_HEAD)
+            .skullOwner(player.getUniqueId())
+            .name(Component.text("Resident Query", NamedTextColor.DARK_AQUA, TextDecoration.BOLD))
+            .lore(Component.text("• Players authorised here will be able to query your resident data in the /players endpoint", NamedTextColor.RED))
+            .lore(Component.text("• This bypasses your resident data not being public in your opt out settings", NamedTextColor.RED))
+            .lore(Component.text("Click to add or remove players", NamedTextColor.WHITE))
+            .action(ClickAction.openSilent(() -> editAuthorisedMenu(player, settings, AuthSettings.Type.RES_QUERY)))
             .slot(slot(3, 6))
             .withGlint()
             .build();
 
-        menu.addItem(main).addItem(sse).addItem(query).addItem(createMainMenuButton(player));
+        menu.addItem(main).addItem(shopSse).addItem(shopQuery).addItem(resQuery).addItem(createMainMenuButton(player));
         return menu.build();
     }
 
