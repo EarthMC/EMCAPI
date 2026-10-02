@@ -142,6 +142,7 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         statsObject.addProperty("bonusBlocks", town.getBonusBlocks());
         statsObject.addProperty("nationBonus", nation == null ? 0 : TownySettings.getNationBonusBlocks(nation));
         statsObject.addProperty("numResidents", EndpointUtils.getActiveResidentCount(town.getResidents()));
+        statsObject.addProperty("numInactive", EndpointUtils.getInactiveResidentCount(town.getResidents()));
         statsObject.addProperty("numTrusted", EndpointUtils.getActiveResidentCount(town.getTrustedResidents()));
         statsObject.addProperty("numOutlaws", EndpointUtils.getActiveResidentCount(town.getOutlaws()));
         statsObject.addProperty("balance", TownyEconomyHandler.isActive() ? town.getAccount().getCachedBalance() : 0);
