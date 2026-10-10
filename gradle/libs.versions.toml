@@ -3,7 +3,7 @@ paper = "1.21.11-R0.1-SNAPSHOT"
 javalin = "7.2.2"
 discordsrv = "1.27.0"
 quarters = "e9ed8a133a"
-towny = "0.103.2.0"
+towny = "0.103.2.1"
 mysterymaster-api = "1.0.0"
 superbvote = "0.6.0"
 quickshop = "6.2.0.11"
@@ -42,3 +42,4 @@ javalin-swagger-webjar = { group = "org.webjars", name = "swagger-ui", version.r
 conventions-java = { id = "net.earthmc.conventions.java", version.ref = "conventions" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 blossom = { id = "net.kyori.blossom", version = "2.2.0" }
+run-task = { id = "xyz.jpenilla.run-paper", version = "3.1.0" }

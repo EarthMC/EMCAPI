@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.conventions.java)
     alias(libs.plugins.shadow)
     alias(libs.plugins.blossom)
+    alias(libs.plugins.run.task)
 }
 
 repositories {
@@ -81,6 +82,16 @@ tasks {
             attributes["paperweight-mappings-namespace"] = "mojang"
         }
     }
+
+    runServer {
+        minecraftVersion(libs.paper.get().version!!.substringBefore("-"))
+
+        downloadPlugins {
+            libs.versions.towny.get().let {
+                github("TownyAdvanced", "Towny", it, "towny-${it}.jar")
+            }
+        }
+    }
 }
 
 sourceSets.main {
@@ -101,4 +112,12 @@ sourceSets.main {
             property("swagger_version", libs.versions.swagger.webjar)
         }
     }
+}
+
+tasks.withType(xyz.jpenilla.runtask.task.AbstractRun::class) {
+    javaLauncher = javaToolchains.launcherFor {
+        vendor = JvmVendorSpec.JETBRAINS
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+    jvmArgs("-XX:+AllowEnhancedClassRedefinition")
 }
