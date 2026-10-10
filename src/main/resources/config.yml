@@ -7,9 +7,6 @@ networking:
   # Port the API will listen on
   port: 8080
 
-  # The version number for endpoints
-  api_version: 4
-
 behaviour:
   # The maximum entries a player can enter when looking up objects by name
   max_lookup_size: 100

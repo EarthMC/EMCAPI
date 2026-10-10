@@ -35,6 +35,8 @@ import java.util.concurrent.TimeUnit;
 
 public final class EMCAPI extends JavaPlugin {
 
+    private static final String CURRENT_VERSION = "4";
+
     public static EMCAPI instance;
     private Javalin javalin;
     private final SSEManager sseManager = new SSEManager(this);
@@ -190,7 +192,7 @@ public final class EMCAPI extends JavaPlugin {
     }
 
     public String getApiVersion() {
-        return getConfig().getString("networking.api_version");
+        return CURRENT_VERSION;
     }
 
     public APIDatabase getDatabase() {
