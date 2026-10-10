@@ -10,6 +10,7 @@ import io.javalin.util.JavalinLogger;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.earthmc.emcapi.database.APIDatabase;
 import net.earthmc.emcapi.database.DatabaseSchema;
+import net.earthmc.emcapi.endpoint.map.MapEndpointManager;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.Authorisation;
 import net.earthmc.emcapi.manager.EndpointManager;
@@ -44,6 +45,7 @@ public final class EMCAPI extends JavaPlugin {
     private final OptOut optOut = new OptOut(this);
     private final Authorisation auth = new Authorisation(this);
     private final GUIManager guiManager = new GUIManager(this);
+    private final MapEndpointManager mapEndpointManager = new MapEndpointManager(this);
 
     @Override
     public void onLoad() {
@@ -135,6 +137,7 @@ public final class EMCAPI extends JavaPlugin {
 
             new EndpointManager(this).loadEndpoints(config.routes);
             sseManager.loadSSE(config.routes);
+            mapEndpointManager.register(config.routes);
         });
     }
 

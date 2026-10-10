@@ -1,5 +1,6 @@
 package net.earthmc.emcapi.util;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -9,6 +10,7 @@ import com.google.gson.JsonPrimitive;
 import io.javalin.http.BadRequestResponse;
 
 public class JSONUtil {
+    public static final Gson GSON = new Gson();
 
     public static JsonObject getJsonObjectFromString(String string) {
         try {
