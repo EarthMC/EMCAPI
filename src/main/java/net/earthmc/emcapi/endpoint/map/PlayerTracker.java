@@ -12,6 +12,7 @@ public class PlayerTracker {
     private final UUID uuid;
     private final String uuidString;
     private final String displayName;
+    private final boolean premium;
 
     private World lastWorld;
 
@@ -21,6 +22,7 @@ public class PlayerTracker {
         this.uuid = player.getUniqueId();
         this.uuidString = uuid.toString().replace("-", "");
         this.displayName = player.getName();
+        this.premium = player.hasPermission("group.premium");
         update(player);
     }
 
@@ -56,6 +58,10 @@ public class PlayerTracker {
 
     public String displayName() {
         return this.displayName;
+    }
+
+    public boolean isPremium() {
+        return this.premium;
     }
 
     public LocationDataSnapshot locationDataSnapshot() {

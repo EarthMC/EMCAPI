@@ -58,6 +58,10 @@ public class MapEndpointManager implements Listener {
             playerObject.addProperty("z", location.z());
             playerObject.addProperty("uuid", tracker.uuidString());
             playerObject.addProperty("yaw", location.yaw());
+            if (tracker.isPremium()) {
+                playerObject.addProperty("premium", true);
+            }
+
             playerArray.add(playerObject);
         }
 
