@@ -92,7 +92,7 @@ import java.util.concurrent.TimeUnit;
     }
 )
 public class McMMOTopEndpoint extends PostEndpoint<McMMOTopEndpoint.McMMOLeaderboard> {
-    private static final Map<String, List<PlayerStat>> CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, McMMOLeaderboard> CACHE = new ConcurrentHashMap<>();
     private static final long COOLDOWN_SECONDS = 120;
     private Long lastUpdated;
 
@@ -102,18 +102,21 @@ public class McMMOTopEndpoint extends PostEndpoint<McMMOTopEndpoint.McMMOLeaderb
             plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, t -> {
                 for (PrimarySkillType skill : PrimarySkillType.values()) {
                     if (SkillTools.isChildSkill(skill)) continue;
-                    loadSkill(skill);
+                    cacheSkillLeaderboard(skill);
                 }
-                loadSkill(null); // Main power
+                cacheSkillLeaderboard(null); // Main power
                 lastUpdated = Instant.now().getEpochSecond();
             }, 1, 15, TimeUnit.MINUTES);
         }
     }
 
-    private static List<PlayerStat> loadSkill(@Nullable PrimarySkillType skill) {
-        List<PlayerStat> data = mcMMO.getDatabaseManager().readLeaderboard(skill, 1, 25);
-        CACHE.put(skillName(skill), data);
-        return data;
+    private static void cacheSkillLeaderboard(@Nullable PrimarySkillType skill) {
+        List<PlayerStat> data = readLeaderboard(skill);
+        CACHE.put(skillName(skill), new McMMOLeaderboard(skill, data));
+    }
+
+    private static List<PlayerStat> readLeaderboard(final @Nullable PrimarySkillType skill) {
+        return mcMMO.getDatabaseManager().readLeaderboard(skill, 1, 25);
     }
 
     @Override
@@ -142,11 +145,7 @@ public class McMMOTopEndpoint extends PostEndpoint<McMMOTopEndpoint.McMMOLeaderb
         CooldownUtil.checkAndAddCooldownOrThrow("mcmmo-top", keyOwner.toString(), COOLDOWN_SECONDS);
 
         String skillName = skillName(skill);
-        if (CACHE.containsKey(skillName)) {
-            return new McMMOLeaderboard(skill, CACHE.get(skillName));
-        }
-
-        return new McMMOLeaderboard(skill, loadSkill(skill));
+        return CACHE.computeIfAbsent(skillName, k -> new McMMOLeaderboard(skill, readLeaderboard(skill)));
     }
 
     @Override

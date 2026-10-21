@@ -1,20 +1,19 @@
 package net.earthmc.emcapi.object.optout;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public record AuthSettings(Map<Type, Set<UUID>> authorised) {
 
     public static AuthSettings getNew() {
-        return new AuthSettings(new HashMap<>());
+        return new AuthSettings(new ConcurrentHashMap<>());
     }
 
     public static AuthSettings parse(Map<Type, String> map) {
-        AuthSettings settings = new AuthSettings(new HashMap<>());
+        AuthSettings settings = new AuthSettings(new ConcurrentHashMap<>());
         for (Map.Entry<Type, String> entry : map.entrySet()) {
             Set<UUID> uuids = parseUUIDs(entry.getValue());
             if (uuids.isEmpty()) continue;
@@ -25,8 +24,10 @@ public record AuthSettings(Map<Type, Set<UUID>> authorised) {
     }
 
     private static Set<UUID> parseUUIDs(String string) {
-        Set<UUID> uuids = new HashSet<>();
-        for (String str : string.split(",")) {
+        final String[] split = string.split(",");
+
+        Set<UUID> uuids = ConcurrentHashMap.newKeySet(split.length);
+        for (String str : split) {
             try {
                 uuids.add(UUID.fromString(str));
             } catch (IllegalArgumentException ignored) {}
@@ -35,11 +36,12 @@ public record AuthSettings(Map<Type, Set<UUID>> authorised) {
     }
 
     public boolean authorize(Type type, UUID uuid) {
-        return authorised.containsKey(type) && authorised.get(type).contains(uuid);
+        final Set<UUID> uuids = authorised.get(type);
+        return uuids != null && uuids.contains(uuid);
     }
 
     public AuthSettings add(Type type, UUID uuid) {
-        authorised.computeIfAbsent(type, k -> new HashSet<>()).add(uuid);
+        authorised.computeIfAbsent(type, k -> ConcurrentHashMap.newKeySet()).add(uuid);
         return this;
     }
 
@@ -57,7 +59,8 @@ public record AuthSettings(Map<Type, Set<UUID>> authorised) {
     }
 
     public int size(Type type) {
-        return authorised.containsKey(type) ? authorised.get(type).size() : 0;
+        final Set<UUID> set = authorised.get(type);
+        return set == null ? 0 : set.size();
     }
 
     public boolean isRedundant() {
@@ -67,9 +70,14 @@ public record AuthSettings(Map<Type, Set<UUID>> authorised) {
     public Set<UUID> getAuthorizedForType(Type type) {
         return authorised.getOrDefault(type, Set.of());
     }
-    
+
     public String getStringForType(Type type) {
-        return authorised.containsKey(type) ? authorised.get(type).stream().map(UUID::toString).collect(Collectors.joining(",")) : "";
+        final Set<UUID> uuids = authorised.get(type);
+        if (uuids == null) {
+            return "";
+        }
+
+        return uuids.stream().map(UUID::toString).collect(Collectors.joining(","));
     }
 
     public enum Type {

@@ -31,6 +31,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -185,7 +186,7 @@ public class GUIManager implements Listener {
 
     @SuppressWarnings("UnstableApiUsage")
     public MenuInventory createAuthMenu(Player player) {
-        AuthSettings settings = auth.authMap.containsKey(player.getUniqueId()) ? auth.authMap.get(player.getUniqueId()) : AuthSettings.getNew();
+        AuthSettings settings = Objects.requireNonNullElseGet(auth.authMap.get(player.getUniqueId()), AuthSettings::getNew);
         MenuInventory.Builder menu = MenuInventory.builder()
             .title(Component.text("Manage authorisation", NamedTextColor.DARK_AQUA, TextDecoration.BOLD))
             .rows(5);

@@ -22,7 +22,12 @@ public class OptOut {
     }
 
     public boolean playerOptedOut(UUID uuid, OptOutType type) {
-        return opted.containsKey(uuid) && opted.get(uuid).optedOut(type);
+        final OptOutSettings settings = opted.get(uuid);
+        if (settings == null) {
+            return false;
+        }
+
+        return settings.optedOut(type);
     }
 
     public @Nullable OptOutSettings getPlayerSettings(UUID uuid) {
