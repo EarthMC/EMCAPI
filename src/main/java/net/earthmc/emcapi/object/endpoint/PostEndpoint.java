@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.javalin.http.NotFoundResponse;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.util.HttpExceptions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,11 +26,11 @@ public abstract class PostEndpoint<T> {
 
         T object = getObjectOrNull(element, key);
         if (object == null) {
-            throw new NotFoundResponse();
+            throw HttpExceptions.NOT_FOUND;
         }
         JsonElement formatted = getTemplateJsonElement(object, template, key);
         if (formatted == null) {
-            throw new NotFoundResponse();
+            throw HttpExceptions.NOT_FOUND;
         }
         JsonArray jsonArray = new JsonArray();
         jsonArray.add(formatted);

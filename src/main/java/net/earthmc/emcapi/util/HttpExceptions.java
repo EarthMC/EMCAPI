@@ -2,10 +2,12 @@ package net.earthmc.emcapi.util;
 
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.ForbiddenResponse;
+import io.javalin.http.NotFoundResponse;
 import io.javalin.http.ServiceUnavailableResponse;
 import io.javalin.http.UnauthorizedResponse;
 
 public class HttpExceptions {
+    public static final NotFoundResponse NOT_FOUND = new NotFoundResponse();
     public static final ServiceUnavailableResponse MISSING_PLUGIN = new ServiceUnavailableResponse("This endpoint is unavailable due to a missing plugin dependency.");
     public static final UnauthorizedResponse MISSING_API_KEY = new UnauthorizedResponse("Could not find an owner for this API key");
     public static final ForbiddenResponse FORBIDDEN = new ForbiddenResponse("This API key is not owned by the player queried");
