@@ -80,10 +80,12 @@ public class PlayersEndpoint extends PostEndpoint<Resident> {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw HttpExceptions.NOT_A_STRING;;
 
-        Resident resident;
-        try {
-            resident = TownyAPI.getInstance().getResident(UUID.fromString(string));
-        } catch (IllegalArgumentException e) {
+        Resident resident = null;
+        if (string.length() == 36) {
+            try {
+                resident = TownyAPI.getInstance().getResident(UUID.fromString(string));
+            } catch (IllegalArgumentException ignored) {}
+        } else {
             resident = TownyAPI.getInstance().getResident(string);
         }
         if (resident == null && DISCORD_ID_PATTERN.matcher(string).find()) {

@@ -90,10 +90,12 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw HttpExceptions.NOT_A_STRING;;
 
-        Town town;
-        try {
-            town = TownyAPI.getInstance().getTown(UUID.fromString(string));
-        } catch (IllegalArgumentException e) {
+        Town town = null;
+        if (string.length() == 36) {
+            try {
+                town = TownyAPI.getInstance().getTown(UUID.fromString(string));
+            } catch (IllegalArgumentException ignored) {}
+        } else {
             town = TownyAPI.getInstance().getTown(string);
         }
 

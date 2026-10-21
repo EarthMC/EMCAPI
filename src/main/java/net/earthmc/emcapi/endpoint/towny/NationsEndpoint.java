@@ -82,10 +82,12 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
         String string = JSONUtil.getJsonElementAsStringOrNull(element);
         if (string == null) throw HttpExceptions.NOT_A_STRING;
 
-        Nation nation;
-        try {
-            nation = TownyAPI.getInstance().getNation(UUID.fromString(string));
-        } catch (IllegalArgumentException e) {
+        Nation nation = null;
+        if (string.length() == 36) {
+            try {
+                nation = TownyAPI.getInstance().getNation(UUID.fromString(string));
+            } catch (IllegalArgumentException ignored) {}
+        } else {
             nation = TownyAPI.getInstance().getNation(string);
         }
 
