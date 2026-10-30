@@ -292,6 +292,17 @@ public class EndpointUtils {
         return filterActiveResidents(residents).size();
     }
 
+    public static List<Resident> filterInactiveResidents(Collection<Resident> residents) {
+        long cutoff = System.currentTimeMillis() - (TownySettings.getDeleteTime() * 1000L);
+
+        return residents.stream().filter(res -> !isResidentActive(res, cutoff)).toList();
+    }
+
+    public static int getInactiveResidentCount(Collection<Resident> residents) {
+        return filterInactiveResidents(residents).size();
+    }
+
+
     private static boolean isResidentActive(Resident resident, long cutoff) {
         if (resident == null || resident.isNPC() || resident.isOnline() || resident.isMayor()) {
             return true;
