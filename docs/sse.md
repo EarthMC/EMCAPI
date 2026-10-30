@@ -17,7 +17,8 @@ These are the current events available:
 "TownSetForSale", "TownSetNotForSale",
 "TownJoinedNation", "TownLeftNation",
 "ResidentJoinedTown", "ResidentLeftTown",
-"ShopSoldItem", "ShopBoughtItem", "ShopOutOfStock", "ShopOutOfSpace", "ShopOutOfGold", "ShopCreated", "ShopDeleted"
+"ShopSoldItem", "ShopBoughtItem", "ShopOutOfStock", "ShopOutOfSpace", "ShopOutOfGold", "ShopCreated", "ShopDeleted",
+"PlayerDeathEvent"
 ```
 Clients must specify which events to listen to by specifying a `?listen=` query parameter in the URL.
 Example: `https://api.earthmc.net/v4/events?listen=NewDay,TownDeleted,NationRenamed`. This would make it so only these events are sent to the client.

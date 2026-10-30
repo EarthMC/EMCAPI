@@ -71,7 +71,8 @@ public class SSEManager {
         "TownSetForSale", "TownSetNotForSale",
         "TownJoinedNation", "TownLeftNation",
         "ResidentJoinedTown", "ResidentLeftTown",
-        "ShopSoldItem", "ShopBoughtItem", "ShopOutOfStock", "ShopOutOfSpace", "ShopOutOfGold", "ShopCreated", "ShopDeleted"
+        "ShopSoldItem", "ShopBoughtItem", "ShopOutOfStock", "ShopOutOfSpace", "ShopOutOfGold", "ShopCreated", "ShopDeleted",
+        "PlayerDeathEvent"
     );
 
     public SSEManager(EMCAPI plugin) {
