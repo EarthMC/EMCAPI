@@ -1,9 +1,9 @@
 package net.earthmc.emcapi.manager;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import io.javalin.config.RoutesConfig;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.endpoint.AuthGetEndpoint;
+import net.earthmc.emcapi.endpoint.AuthPostEndpoint;
 import net.earthmc.emcapi.endpoint.LocationEndpoint;
 import net.earthmc.emcapi.endpoint.MysteryMasterEndpoint;
 import net.earthmc.emcapi.endpoint.NearbyEndpoint;
@@ -23,9 +23,7 @@ import net.earthmc.emcapi.endpoint.towny.list.PlayersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.QuartersListEndpoint;
 import net.earthmc.emcapi.endpoint.towny.list.TownsListEndpoint;
 import net.earthmc.emcapi.integration.*;
-import net.earthmc.emcapi.util.HttpExceptions;
-import net.earthmc.emcapi.util.JSONUtil;
-import org.jetbrains.annotations.Nullable;
+import net.earthmc.emcapi.util.EndpointUtils;
 
 public class EndpointManager {
 
@@ -41,8 +39,9 @@ public class EndpointManager {
         new SuperbVoteIntegration().register(); // Register integrations for usage in ServerEndpoint
         new QuartersIntegration().register();
         ServerEndpoint serverEndpoint = new ServerEndpoint(plugin);
-        routes.get(URLPath, ctx -> ctx.json(serverEndpoint.lookup()));
+        routes.get(URLPath, ctx -> ctx.json(serverEndpoint.lookup(ctx)));
 
+        loadAuthTestEndpoints(routes);
         loadPlayersEndpoint(routes);
         loadTownsEndpoint(routes);
         loadNationsEndpoint(routes);
@@ -57,56 +56,48 @@ public class EndpointManager {
         loadAdvancementsEndpoint(routes);
     }
 
-    private QueryBody parseBody(String body) {
-        JsonObject jsonObject = JSONUtil.getJsonObjectFromString(body);
+    private void loadAuthTestEndpoints(RoutesConfig routes) {
+        AuthGetEndpoint authGet = new AuthGetEndpoint();
+        routes.get(URLPath + "/authtest", ctx -> ctx.json(authGet.lookup(ctx)));
 
-        JsonElement queryElement = jsonObject.get("query");
-        if (queryElement == null) throw HttpExceptions.NO_QUERY;
-        JsonElement templateElement = jsonObject.get("template");
-        JsonObject templateObject = templateElement != null && templateElement.isJsonObject() ? templateElement.getAsJsonObject() : null;
-
-        JsonElement keyElement = jsonObject.get("key");
-        String key = keyElement != null && keyElement.isJsonPrimitive() ? keyElement.getAsString() : null;
-
-        return new QueryBody(queryElement, templateObject, key);
+        AuthPostEndpoint authPost = new AuthPostEndpoint(plugin);
+        routes.post(URLPath + "/authtest", ctx -> {
+            EndpointUtils.verifyKey(ctx);
+            ctx.json(authPost.lookup(ctx));
+        });
     }
-
-    private record QueryBody(JsonElement query, @Nullable JsonObject template, @Nullable String key) {}
 
     private void loadPlayersEndpoint(RoutesConfig routes) {
         PlayersListEndpoint ple = new PlayersListEndpoint();
-        routes.get(URLPath + "/players", ctx -> ctx.json(ple.lookup()));
+        routes.get(URLPath + "/players", ctx -> ctx.json(ple.lookup(ctx)));
 
         new DiscordIntegration().register(); // Load the discord integration to check if DiscordSRV is enabled - checked when including discord for player
         PlayersEndpoint playersEndpoint = new PlayersEndpoint(plugin);
         routes.post(URLPath + "/players", ctx -> {
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(playersEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            ctx.json(playersEndpoint.lookup(ctx));
         });
     }
 
     private void loadTownsEndpoint(RoutesConfig routes) {
         TownsListEndpoint tle = new TownsListEndpoint();
-        routes.get(URLPath + "/towns", ctx -> ctx.json(tle.lookup()));
+        routes.get(URLPath + "/towns", ctx -> ctx.json(tle.lookup(ctx)));
 
         new WarpsIntegration().register();
         TownsEndpoint townsEndpoint = new TownsEndpoint(plugin);
         routes.post(URLPath + "/towns", ctx -> {
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(townsEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            ctx.json(townsEndpoint.lookup(ctx));
         });
     }
 
     private void loadNationsEndpoint(RoutesConfig routes) {
         NationsListEndpoint nle = new NationsListEndpoint();
-        routes.get(URLPath + "/nations", ctx -> ctx.json(nle.lookup()));
+        routes.get(URLPath + "/nations", ctx -> ctx.json(nle.lookup(ctx)));
 
         new EmbargoesIntegration().register();
         new PactsIntegration().register();
         NationsEndpoint nationsEndpoint = new NationsEndpoint(plugin);
         routes.post(URLPath + "/nations", ctx -> {
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(nationsEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            ctx.json(nationsEndpoint.lookup(ctx));
         });
     }
 
@@ -116,36 +107,33 @@ public class EndpointManager {
 
         routes.get(URLPath + "/quarters", ctx -> {
             quartersIntegration.throwIfDisabled();
-            ctx.json(qle.lookup());
+            ctx.json(qle.lookup(ctx));
         });
 
         QuartersEndpoint quartersEndpoint = new QuartersEndpoint(plugin);
         routes.post(URLPath + "/quarters", ctx -> {
             quartersIntegration.throwIfDisabled();
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(quartersEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            ctx.json(quartersEndpoint.lookup(ctx));
         });
     }
 
     private void loadLocationEndpoint(RoutesConfig routes) {
         LocationEndpoint locationEndpoint = new LocationEndpoint(plugin);
         routes.post(URLPath + "/location", ctx -> {
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(locationEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            ctx.json(locationEndpoint.lookup(ctx));
         });
     }
 
     private void loadNearbyEndpoint(RoutesConfig routes) {
         NearbyEndpoint nearbyEndpoint = new NearbyEndpoint(plugin);
         routes.post(URLPath + "/nearby", ctx -> {
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(nearbyEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            ctx.json(nearbyEndpoint.lookup(ctx));
         });
     }
 
     private void loadOnlinePlayersEndpoint(RoutesConfig routes) {
         OnlineEndpoint onlineEndpoint = new OnlineEndpoint();
-        routes.get(URLPath + "/online", ctx -> ctx.json(onlineEndpoint.lookup()));
+        routes.get(URLPath + "/online", ctx -> ctx.json(onlineEndpoint.lookup(ctx)));
     }
 
     private void loadMysteryMasterEndpoint(RoutesConfig routes) {
@@ -154,8 +142,7 @@ public class EndpointManager {
         MysteryMasterEndpoint mysteryMasterEndpoint = new MysteryMasterEndpoint(plugin);
         routes.get(URLPath + "/mm", ctx -> {
             mysteryMasterIntegration.throwIfDisabled();
-
-            ctx.json(mysteryMasterEndpoint.lookup());
+            ctx.json(mysteryMasterEndpoint.lookup(ctx));
         });
     }
 
@@ -165,9 +152,7 @@ public class EndpointManager {
         ShopEndpoint shopEndpoint = new ShopEndpoint(plugin);
         routes.post(URLPath + "/shop", ctx -> {
             quickShopIntegration.throwIfDisabled();
-
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(shopEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            ctx.json(shopEndpoint.lookup(ctx));
         });
     }
 
@@ -177,17 +162,13 @@ public class EndpointManager {
         McMMOEndpoint mcMMOEndpoint = new McMMOEndpoint(plugin);
         routes.post(URLPath + "/mcmmo", ctx -> {
            mcMMOIntegration.throwIfDisabled();
-
-           QueryBody parsedBody = parseBody(ctx.body());
-           ctx.json(mcMMOEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+           ctx.json(mcMMOEndpoint.lookup(ctx));
         });
 
         McMMOTopEndpoint mcMMOTopEndpoint = new McMMOTopEndpoint(plugin);
         routes.post(URLPath + "/mcmmo-top", ctx -> {
             mcMMOIntegration.throwIfDisabled();
-
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(mcMMOTopEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            ctx.json(mcMMOTopEndpoint.lookup(ctx));
         });
     }
 
@@ -197,9 +178,7 @@ public class EndpointManager {
         PursuitsEndpoint pursuitsEndpoint = new PursuitsEndpoint(plugin);
         routes.post(URLPath + "/pursuits", ctx -> {
             pursuitsIntegration.throwIfDisabled();
-
-            QueryBody parsedBody = parseBody(ctx.body());
-            ctx.json(pursuitsEndpoint.lookup(parsedBody.query, parsedBody.template, parsedBody.key));
+            ctx.json(pursuitsEndpoint.lookup(ctx));
         });
     }
 
@@ -209,8 +188,7 @@ public class EndpointManager {
         AdvancementsEndpoint advancementsEndpoint = new AdvancementsEndpoint();
         routes.get(URLPath + "/advancements", ctx -> {
             advancementsIntegration.throwIfDisabled();
-
-            ctx.json(advancementsEndpoint.lookup());
+            ctx.json(advancementsEndpoint.lookup(ctx));
         });
     }
 }

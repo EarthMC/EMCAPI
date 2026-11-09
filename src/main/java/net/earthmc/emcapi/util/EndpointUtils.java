@@ -3,6 +3,7 @@ package net.earthmc.emcapi.util;
 import com.ghostchu.quickshop.api.shop.Shop;
 import com.ghostchu.quickshop.menu.browse.MarketUtils;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Nation;
@@ -10,8 +11,11 @@ import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.TownyPermission;
 import com.palmergames.bukkit.towny.object.Government;
 import com.palmergames.bukkit.towny.object.economy.BankTransaction;
+import io.javalin.http.Context;
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import kotlin.Pair;
 import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.optout.OptOutType;
 import net.earthmc.lynchpin.api.towny.pacts.Pact;
 import net.earthmc.lynchpin.api.towny.warps.Warp;
@@ -19,6 +23,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -297,5 +302,39 @@ public class EndpointUtils {
             return true;
         }
         return resident.getLastOnline() > cutoff;
+    }
+
+    public static @NotNull String verifyKey(Context ctx) {
+        String auth = ctx.header("Authorization");
+        if (auth == null || !auth.startsWith("Bearer ")) {
+            throw HttpExceptions.MISSING_API_KEY;
+        }
+
+        String key = auth.substring("Bearer ".length());
+        UUID owner = KeyManager.getKeyOwner(key);
+        if (owner == null) {
+            throw HttpExceptions.INVALID_API_KEY;
+        }
+        return key;
+    }
+
+    public static Pair<JsonElement, JsonObject> parseBody(String body) {
+        JsonObject jsonObject = JSONUtil.getJsonObjectFromString(body);
+
+        JsonElement queryElement = jsonObject.get("query");
+        if (queryElement == null) throw HttpExceptions.NO_QUERY;
+        JsonElement templateElement = jsonObject.get("template");
+        JsonObject templateObject = templateElement != null && templateElement.isJsonObject() ? templateElement.getAsJsonObject() : null;
+
+        return new Pair<>(queryElement, templateObject);
+    }
+
+    // TODO: Remove once all endpoints require authentication
+    public static String getKey(String body) {
+        JsonElement keyElement = JSONUtil.getJsonObjectFromString(body).get("key");
+        if (keyElement == null || !keyElement.isJsonPrimitive()) {
+            return null;
+        }
+        return keyElement.getAsString();
     }
 }
