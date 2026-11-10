@@ -54,7 +54,7 @@ public class ContentTypes {
                              boolean isOverclaimed, boolean isRuined, boolean isForSale, boolean hasNation,
                              boolean canOutsiderSpawn, boolean canPassiveMobsSpawn,
                              boolean hasSnowAccumulation, boolean hasFriendlyFire) {}
-    public record TownStats(int numTownBlocks, int maxTownBlocks, int numResidents, int numTrusted, int numOutlaws,
+    public record TownStats(int numTownBlocks, int maxTownBlocks, int numResidents, int numInactive, int numTrusted, int numOutlaws,
                             double balance, @OpenApiNullable Double forSalePrice) {}
     public record BankHistory(long time, String type, int amount, int balance, String reason) {}
     public record TownCoordinates(SpawnCoordinates spawn, int[] homeBlock, int[][] townBlocks, Map<String, TownCoordinatesWorldEntry> worlds) {}
