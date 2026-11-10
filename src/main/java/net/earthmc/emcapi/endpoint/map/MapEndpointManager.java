@@ -35,6 +35,11 @@ public class MapEndpointManager implements Listener {
             ctx.json(formattedPlayers);
         });
 
+        TownMapEndpoint towns = new TownMapEndpoint();
+        routes.get("map/v" + MAP_ENDPOINT_VERSION + "/towns", ctx -> {
+            ctx.json(towns.lookup(ctx));
+        });
+
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, task -> formatPlayers(), UPDATE_INTERVAL, UPDATE_INTERVAL, TimeUnit.SECONDS);
     }
