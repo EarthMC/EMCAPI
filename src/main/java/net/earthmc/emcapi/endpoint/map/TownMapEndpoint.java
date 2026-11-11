@@ -15,8 +15,7 @@ import java.util.Collection;
 
 public class TownMapEndpoint {
 
-    public String lookup(Context ctx) {
-        String townName = ctx.queryParam("query");
+    public String lookup(String townName) {
         if (townName == null || townName.isEmpty()) {
             throw HttpExceptions.NOT_FOUND;
         }
