@@ -6,7 +6,6 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
-import io.javalin.http.Context;
 import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.util.HttpExceptions;
 import org.bukkit.Location;
@@ -34,10 +33,6 @@ public class TownMapEndpoint {
         json.addProperty("mayor", town.getMayor().getName());
         Nation nation = town.getNationOrNull();
         json.addProperty("nation", nation != null ? nation.getName() : null);
-        Location spawn;
-        if (nation != null && nation.isCapital(town) && (spawn = nation.getSpawnOrNull()) != null) {
-            json.add("spawn", formatSpawn(spawn));
-        }
         json.addProperty("board", town.getBoard());
         json.addProperty("discord", TownMetadataManager.getDiscordURL(town));
         json.addProperty("wiki", TownMetadataManager.getWikiURL(town));
