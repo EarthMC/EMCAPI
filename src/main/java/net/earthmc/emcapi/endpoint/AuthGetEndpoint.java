@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import io.javalin.http.Context;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
-import net.earthmc.emcapi.util.EndpointUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class AuthGetEndpoint extends GetEndpoint {
