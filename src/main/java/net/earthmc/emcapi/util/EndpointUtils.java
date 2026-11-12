@@ -328,13 +328,4 @@ public class EndpointUtils {
 
         return new Pair<>(queryElement, templateObject);
     }
-
-    // TODO: Remove once all endpoints require authentication
-    public static String getKey(String body) {
-        JsonElement keyElement = JSONUtil.getJsonObjectFromString(body).get("key");
-        if (keyElement == null || !keyElement.isJsonPrimitive()) {
-            return null;
-        }
-        return keyElement.getAsString();
-    }
 }

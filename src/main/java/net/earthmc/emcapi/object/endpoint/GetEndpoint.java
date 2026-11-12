@@ -3,14 +3,14 @@ package net.earthmc.emcapi.object.endpoint;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import io.javalin.http.Context;
+import net.earthmc.emcapi.util.EndpointUtils;
 import org.jetbrains.annotations.NotNull;
 
-// TODO: Make #lookup final again, remove #getJsonElement
-// Once all endpoints require authentication
 public abstract class GetEndpoint {
 
     public String lookup(Context ctx) {
-        return getJsonElement().toString();
+        String key = EndpointUtils.verifyKey(ctx);
+        return getJsonElement(key).toString();
     }
 
     public JsonElement getJsonElement() {

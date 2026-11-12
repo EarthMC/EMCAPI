@@ -5,16 +5,15 @@ import com.google.gson.JsonObject;
 import io.javalin.http.Context;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
-import net.earthmc.emcapi.util.EndpointUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class AuthGetEndpoint extends GetEndpoint {
 
     @Override
     public String lookup(Context ctx) {
-        String key = EndpointUtils.verifyKey(ctx);
+        String value = super.lookup(ctx);
         ctx.header("Cache-Control", "private, max-age=30");
-        return getJsonElement(key).toString();
+        return value;
     }
 
     @Override
