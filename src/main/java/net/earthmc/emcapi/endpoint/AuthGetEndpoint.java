@@ -12,9 +12,9 @@ public class AuthGetEndpoint extends GetEndpoint {
 
     @Override
     public String lookup(Context ctx) {
-        String key = EndpointUtils.verifyKey(ctx);
+        String value = super.lookup(ctx);
         ctx.header("Cache-Control", "private, max-age=30");
-        return getJsonElement(key).toString();
+        return value;
     }
 
     @Override
