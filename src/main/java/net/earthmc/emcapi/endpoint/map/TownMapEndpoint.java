@@ -3,12 +3,12 @@ package net.earthmc.emcapi.endpoint.map;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.util.HttpExceptions;
-import org.bukkit.Location;
 
 import java.util.Collection;
 
@@ -41,6 +41,7 @@ public class TownMapEndpoint {
         json.add("councillors", formatResidents(town.getRank("Councillor")));
         json.addProperty("founded", town.getRegistered());
         json.addProperty("claims", town.getNumTownBlocks());
+        json.addProperty("balance", TownyEconomyHandler.isActive() ? town.getAccount().getCachedBalance() : 0);
         json.addProperty("pvp", town.isPVP());
         json.addProperty("public", town.isPublic());
 
@@ -53,15 +54,5 @@ public class TownMapEndpoint {
             array.add(resident.getName());
         }
         return array;
-    }
-
-    private JsonObject formatSpawn(Location spawn) {
-        JsonObject json = new JsonObject();
-        json.addProperty("world", spawn.getWorld().getName());
-        json.addProperty("x", spawn.getBlockX());
-        json.addProperty("y", spawn.getBlockY());
-        json.addProperty("z", spawn.getBlockZ());
-
-        return json;
     }
 }
