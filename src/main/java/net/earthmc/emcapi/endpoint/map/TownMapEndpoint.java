@@ -4,19 +4,30 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
+import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import net.earthmc.emcapi.manager.NationMetadataManager;
 import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.util.HttpExceptions;
+import org.bukkit.NamespacedKey;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class TownMapEndpoint {
+    private int maxNameLength = TownySettings.getMaxNameLength();
+
+    public TownMapEndpoint() {
+        final NamespacedKey key = Objects.requireNonNull(NamespacedKey.fromString("emcapi:max_name_length"));
+
+        TownySettings.removeReloadListener(key);
+        TownySettings.addReloadListener(key, () -> this.maxNameLength = TownySettings.getMaxNameLength());
+    }
 
     public String lookup(String townName) {
-        if (townName == null || townName.isEmpty()) {
+        if (townName == null || townName.isEmpty() || townName.length() > this.maxNameLength) {
             throw HttpExceptions.NOT_FOUND;
         }
 
