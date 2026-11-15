@@ -31,7 +31,9 @@ public class TownMapEndpoint {
     private JsonObject formatTown(Town town) {
         JsonObject json = new JsonObject();
         json.addProperty("name", town.getName());
-        json.addProperty("mayor", town.getMayor().getName());
+
+        final Resident mayor = town.getMayor();
+        json.addProperty("mayor", mayor != null ? mayor.getName() : "");
         Nation nation = town.getNationOrNull();
         if (nation == null) {
             json.add("nation", null);
