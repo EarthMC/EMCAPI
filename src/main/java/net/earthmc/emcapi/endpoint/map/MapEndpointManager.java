@@ -19,6 +19,7 @@ public class MapEndpointManager implements Listener {
     static final String MAP_ENDPOINT_VERSION = "1";
     private static final long UPDATE_INTERVAL = 1L;
     private static final long PLAYER_UPDATE_INTERVAL = UPDATE_INTERVAL * 20;
+    private static final int MAX_AGE = 180;
 
     private final Map<UUID, PlayerTracker> PLAYER_TRACKERS = new ConcurrentHashMap<>();
     private final EMCAPI plugin;
@@ -33,6 +34,12 @@ public class MapEndpointManager implements Listener {
     public void register(final RoutesConfig routes) {
         routes.get("map/v" + MAP_ENDPOINT_VERSION + "/players", ctx -> {
             ctx.json(formattedPlayers);
+        });
+
+        TownMapEndpoint towns = new TownMapEndpoint();
+        routes.get("map/v" + MAP_ENDPOINT_VERSION + "/town/{query}", ctx -> {
+            ctx.header("Cache-Control", "max-age=" + MAX_AGE);
+            ctx.json(towns.lookup(ctx.pathParam("query")));
         });
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
