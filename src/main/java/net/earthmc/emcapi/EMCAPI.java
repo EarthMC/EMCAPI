@@ -18,6 +18,7 @@ import net.earthmc.emcapi.manager.GUIManager;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.manager.OptOut;
 import net.earthmc.emcapi.sse.SSEManager;
+import net.earthmc.emcapi.sse.listeners.PlayerSSEListener;
 import net.earthmc.emcapi.sse.listeners.ShopSSEListener;
 import net.earthmc.emcapi.sse.listeners.TownySSEListener;
 import net.earthmc.emcapi.command.ApiCommand;
@@ -82,6 +83,7 @@ public final class EMCAPI extends JavaPlugin {
         if (pm.isPluginEnabled("QuickShop-Hikari")) {
             pm.registerEvents(new ShopSSEListener(sseManager), this);
         }
+        pm.registerEvents(new PlayerSSEListener(sseManager), this);
         pm.registerEvents(guiManager, this);
 
         getServer().getAsyncScheduler().runAtFixedRate(this, t -> CooldownUtil.refresh(), 5, 5, TimeUnit.MINUTES);
