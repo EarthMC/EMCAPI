@@ -23,11 +23,11 @@ public abstract class PostEndpoint<T> {
     }
 
     public final String lookup(Context ctx) {
+        String key = EndpointUtils.verifyKey(ctx);
         Pair<JsonElement, JsonObject> pair = EndpointUtils.parseBody(ctx.body());
         JsonElement element = pair.getFirst();
         JsonObject template = pair.getSecond();
 
-        String key = EndpointUtils.verifyKey(ctx);
         if (element.isJsonArray()) {
             return lookup(element.getAsJsonArray(), template, key);
         }
