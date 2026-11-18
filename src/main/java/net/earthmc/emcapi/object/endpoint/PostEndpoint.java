@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
-import io.javalin.http.UnauthorizedResponse;
 import kotlin.Pair;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.util.EndpointUtils;
@@ -24,16 +23,10 @@ public abstract class PostEndpoint<T> {
     }
 
     public final String lookup(Context ctx) {
+        String key = EndpointUtils.verifyKey(ctx);
         Pair<JsonElement, JsonObject> pair = EndpointUtils.parseBody(ctx.body());
         JsonElement element = pair.getFirst();
         JsonObject template = pair.getSecond();
-        // TODO: Remove try/catch when all endpoints require authentication
-        String key;
-        try {
-            key = EndpointUtils.verifyKey(ctx);
-        } catch (UnauthorizedResponse ignored) {
-            key = EndpointUtils.getKey(ctx.body()); // Support keys specified in payload
-        }
 
         if (element.isJsonArray()) {
             return lookup(element.getAsJsonArray(), template, key);
