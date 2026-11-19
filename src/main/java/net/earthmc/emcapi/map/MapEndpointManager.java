@@ -30,7 +30,7 @@ public class MapEndpointManager implements Listener {
     private final Map<UUID, PlayerTracker> PLAYER_TRACKERS = new ConcurrentHashMap<>();
     private final EMCAPI plugin;
 
-    private int maxNameLength = TownySettings.getMaxNameLength();
+    private int maxNameLength = 16;
 
     private String formattedPlayers;
 
@@ -45,6 +45,8 @@ public class MapEndpointManager implements Listener {
     }
 
     public void register(final RoutesConfig routes) {
+        this.maxNameLength = TownySettings.getMaxNameLength();
+
         routes.get("map/v" + MAP_ENDPOINT_VERSION + "/players", ctx -> {
             ctx.header(Headers.CACHE_CONTROL, "public, max-age=1, must-revalidate");
             ctx.json(formattedPlayers);
