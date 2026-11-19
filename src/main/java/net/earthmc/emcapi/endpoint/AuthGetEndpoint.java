@@ -17,7 +17,7 @@ public class AuthGetEndpoint extends GetEndpoint {
     }
 
     @Override
-    public JsonElement getJsonElement(@NotNull String key) {
+    public JsonElement getJsonElement(Context ctx, @NotNull String key) {
         JsonObject json = new JsonObject();
         json.addProperty("authorized", String.valueOf(KeyManager.getKeyOwner(key)));
         return json;

@@ -1,4 +1,4 @@
-package net.earthmc.emcapi.endpoint.map;
+package net.earthmc.emcapi.map;
 
 import org.bukkit.GameMode;
 import org.bukkit.World;

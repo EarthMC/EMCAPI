@@ -1,45 +1,41 @@
-package net.earthmc.emcapi.endpoint.map;
+package net.earthmc.emcapi.map.endpoint;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
-import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
+import io.javalin.http.Context;
 import net.earthmc.emcapi.manager.NationMetadataManager;
 import net.earthmc.emcapi.manager.TownMetadataManager;
+import net.earthmc.emcapi.map.MapEndpointManager;
 import net.earthmc.emcapi.util.HttpExceptions;
-import org.bukkit.NamespacedKey;
 
 import java.util.Collection;
-import java.util.Objects;
 
-public class TownMapEndpoint {
-    private int maxNameLength = TownySettings.getMaxNameLength();
+public class TownMapEndpoint extends MapGetEndpoint {
+    private final MapEndpointManager manager;
 
-    public TownMapEndpoint() {
-        final NamespacedKey key = Objects.requireNonNull(NamespacedKey.fromString("emcapi:max_name_length"));
-
-        TownySettings.removeReloadListener(key);
-        TownySettings.addReloadListener(key, () -> this.maxNameLength = TownySettings.getMaxNameLength());
+    public TownMapEndpoint(final MapEndpointManager manager) {
+        this.manager = manager;
     }
 
-    public String lookup(String townName) {
-        if (townName == null || townName.isEmpty() || townName.length() > this.maxNameLength) {
+    @Override
+    public JsonElement getJsonElement(Context ctx, String key) {
+        final String townName = ctx.pathParam("town");
+
+        if (townName.isEmpty() || townName.length() > manager.maxTownyNameLength()) {
             throw HttpExceptions.NOT_FOUND;
         }
 
-        Town town = TownyAPI.getInstance().getTown(townName);
+        final Town town = TownyAPI.getInstance().getTown(townName);
         if (town == null) {
             throw HttpExceptions.NOT_FOUND;
         }
 
-        return formatTown(town).toString();
-    }
-
-    private JsonObject formatTown(Town town) {
         JsonObject json = new JsonObject();
         json.addProperty("name", town.getName());
 
