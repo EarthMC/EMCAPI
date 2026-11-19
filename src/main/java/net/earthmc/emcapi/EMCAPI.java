@@ -10,7 +10,7 @@ import io.javalin.util.JavalinLogger;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.earthmc.emcapi.database.APIDatabase;
 import net.earthmc.emcapi.database.DatabaseSchema;
-import net.earthmc.emcapi.endpoint.map.MapEndpointManager;
+import net.earthmc.emcapi.map.MapEndpointManager;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.Authorisation;
 import net.earthmc.emcapi.manager.EndpointManager;
@@ -23,6 +23,7 @@ import net.earthmc.emcapi.sse.listeners.ShopSSEListener;
 import net.earthmc.emcapi.sse.listeners.TownySSEListener;
 import net.earthmc.emcapi.command.ApiCommand;
 import net.earthmc.emcapi.util.CooldownUtil;
+import net.earthmc.emcapi.util.Headers;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.http.HttpStatus;
@@ -132,6 +133,11 @@ public final class EMCAPI extends JavaPlugin {
 
                 ctx.status(HttpStatus.TOO_MANY_REQUESTS_429);
                 ctx.result(e.getMessage()); // sending a json object may be nicer in the future
+            });
+
+            config.routes.exception(Exception.class, (_, ctx) -> {
+                // don't cache exceptional responses, i.e. missing an api key.
+                ctx.header(Headers.CACHE_CONTROL, "no-store");
             });
 
             config.jetty.host = getConfig().getString("networking.host");
