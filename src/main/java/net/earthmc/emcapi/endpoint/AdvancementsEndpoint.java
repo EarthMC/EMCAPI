@@ -14,6 +14,7 @@ import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.lynchpin.api.advancements.AdvancementEntry;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 @OpenApi(
     path = "/v4/advancements",
@@ -40,7 +41,6 @@ import java.text.SimpleDateFormat;
 )
 public class AdvancementsEndpoint extends GetEndpoint {
     private final AdvancementsIntegration integration;
-    private final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
     public AdvancementsEndpoint() {
         integration = Integrations.getIntegration("lynchpin-advancements");
@@ -49,6 +49,8 @@ public class AdvancementsEndpoint extends GetEndpoint {
     @Override
     public JsonElement getJsonElement() {
         JsonObject outer = new JsonObject();
+        final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+
         for (AdvancementEntry entry : integration.getAdvancements()) {
             JsonObject json = new JsonObject();
             json.addProperty("player", entry.player().toString());
