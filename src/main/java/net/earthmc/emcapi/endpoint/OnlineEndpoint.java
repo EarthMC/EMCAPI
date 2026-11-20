@@ -1,17 +1,23 @@
 package net.earthmc.emcapi.endpoint;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.javalin.openapi.ContentType;
 import io.javalin.openapi.HttpMethod;
 import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiResponse;
+import net.earthmc.emcapi.EMCAPI;
+import net.earthmc.emcapi.object.optout.OptOutType;
 import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @OpenApi(
     path = "/v4/online",
@@ -36,6 +42,23 @@ public class OnlineEndpoint extends GetEndpoint {
 
     @Override
     public JsonElement getJsonElement() {
-        return EndpointUtils.getOnlinePlayerArray(new ArrayList<>(Bukkit.getOnlinePlayers()));
+        final List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+
+        JsonObject jsonObject = new JsonObject();
+        JsonArray jsonArray = new JsonArray(players.size());
+
+        for (Player player : players) {
+            if (EMCAPI.instance.getOptOut().playerOptedOut(player.getUniqueId(), OptOutType.ONLINE_STATUS)) {
+                continue;
+            }
+
+            jsonArray.add(EndpointUtils.generateNameUUIDJsonObject(player.getName(), player.getUniqueId()));
+        }
+
+        jsonObject.addProperty("max", Bukkit.getMaxPlayers());
+        jsonObject.addProperty("count", players.size());
+        jsonObject.add("players", jsonArray);
+
+        return jsonObject;
     }
 }

@@ -5,8 +5,9 @@ import com.ghostchu.quickshop.menu.browse.MarketUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.TownyEconomyHandler;
 import com.palmergames.bukkit.towny.TownySettings;
-import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.TownyPermission;
 import com.palmergames.bukkit.towny.object.Government;
@@ -14,23 +15,22 @@ import com.palmergames.bukkit.towny.object.economy.BankTransaction;
 import io.javalin.http.Context;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import kotlin.Pair;
-import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.manager.KeyManager;
-import net.earthmc.emcapi.object.optout.OptOutType;
 import net.earthmc.lynchpin.api.towny.pacts.Pact;
-import net.earthmc.lynchpin.api.towny.warps.Warp;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class EndpointUtils {
     private static final JsonObject NULL_UUID_NAME = Make.make(new JsonObject(), object -> {
@@ -83,18 +83,34 @@ public class EndpointUtils {
         return coordinatesObject;
     }
 
-    public static List<Resident> getNationRank(Nation nation, String rank) {
-        List<Resident> residentsWithRank = new ArrayList<>();
+    public static JsonObject formatGovernmentRanks(final Government government, final List<String> ranks, final Function<Resident, List<String>> rankGetter) {
+        // the previous implementation would do a lot of unnecessary iterations due to Resident#hasTown/NationRank iterating over all ranks to match ranks case insensitively
 
-        for (Resident resident : nation.getResidents()) {
-            if (resident.hasNationRank(rank))
-                residentsWithRank.add(resident);
+        final Map<String, Collection<Resident>> residentsByRank = new HashMap<>();
+
+        for (final Resident resident : government.getResidents()) {
+            final List<String> residentRanks = rankGetter.apply(resident);
+
+            for (final String residentRank : residentRanks) {
+                residentsByRank.computeIfAbsent(residentRank, k -> new ArrayList<>()).add(resident);
+            }
         }
 
-        return Collections.unmodifiableList(residentsWithRank);
+        final JsonObject ranksObject = new JsonObject();
+
+        // iterate over ranks instead of the map in order to
+        // 1. keep the order the same based on ranks
+        // 2. include ranks that don't have anyone as empty arrays
+        for (final String rank : ranks) {
+            final Collection<Resident> residents = residentsByRank.get(rank);
+
+            ranksObject.add(rank, residents != null ? getResidentArray(residents) : new JsonArray(0));
+        }
+
+        return ranksObject;
     }
 
-    public static JsonArray getResidentArray(List<Resident> residents) {
+    public static JsonArray getResidentArray(Collection<Resident> residents) {
         JsonArray jsonArray = new JsonArray();
 
         for (Resident resident : filterActiveResidents(residents)) {
@@ -148,32 +164,6 @@ public class EndpointUtils {
         return jsonObject;
     }
 
-    public static JsonObject getOnlinePlayerArray(List<Player> players) {
-        JsonObject jsonObject = new JsonObject();
-        JsonArray jsonArray = new JsonArray();
-
-        for (Player player : players) {
-            if (EMCAPI.instance.getOptOut().playerOptedOut(player.getUniqueId(), OptOutType.ONLINE_STATUS)) {
-                continue;
-            }
-
-            jsonArray.add(getOnlinePlayerObject(player));
-        }
-        jsonObject.addProperty("count", players.size());
-        jsonObject.add("players", jsonArray);
-
-        return jsonObject;
-    }
-
-    public static JsonObject getOnlinePlayerObject(Player player) {
-        JsonObject jsonObject = new JsonObject();
-
-        jsonObject.addProperty("name", player.getName());
-        jsonObject.addProperty("uuid", player.getUniqueId().toString());
-
-        return jsonObject;
-    }
-
     public static JsonObject generateNameUUIDJsonObject(String name, UUID uuid) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("name", name);
@@ -211,14 +201,8 @@ public class EndpointUtils {
         }
 
         jsonObject.addProperty("stock", stock);
+        jsonObject.add("location", formatLocation(shop.getLocation()));
 
-        Location location = shop.getLocation();
-        JsonObject locationObject = new JsonObject();
-        locationObject.addProperty("x", location.getBlockX());
-        locationObject.addProperty("y", location.getBlockY());
-        locationObject.addProperty("z", location.getBlockZ());
-
-        jsonObject.add("location", locationObject);
         return jsonObject;
     }
 
@@ -238,30 +222,38 @@ public class EndpointUtils {
         return json;
     }
 
-    public static JsonObject getWarpObject(Warp warp) {
-        JsonObject json = new JsonObject();
-
-        json.addProperty("name", warp.getName());
-        json.addProperty("uuid", warp.getUUID().toString());
-        json.addProperty("createdAt", warp.getCreatedAt());
-        json.addProperty("createdBy", warp.getCreatedBy());
-        json.addProperty("access", warp.getAccesslevel().name());
-
+    public static JsonObject formatLocation(final Location location) {
+        JsonObject locationObject = new JsonObject();
         try {
-            Location location = warp.getLocation();
-            JsonObject locationObject = new JsonObject();
-            locationObject.addProperty("x", location.getBlockX());
-            locationObject.addProperty("y", location.getBlockY());
-            locationObject.addProperty("z", location.getBlockZ());
+            locationObject.addProperty("world", location.getWorld().getKey().toString());
+        } catch (IllegalArgumentException e) {
+            locationObject.addProperty("world", "earthmc:unloaded");
+        }
 
-            json.add("location", locationObject);
-        } catch (Throwable ignored) {} // getLocation() may throw an exception if the world couldn't be fetched
+        locationObject.addProperty("x", location.getBlockX());
+        locationObject.addProperty("y", location.getBlockY());
+        locationObject.addProperty("z", location.getBlockZ());
 
-        return json;
+        return locationObject;
     }
 
-    public static JsonArray getBankHistoryArray(Government government) {
+    public static JsonArray getBankHistoryArray(final Government government, final @Nullable String apiKey, final Predicate<Resident> isAllowedToView) {
         JsonArray json = new JsonArray();
+
+        if (!TownyEconomyHandler.isActive()) {
+            return json;
+        }
+
+        UUID keyOwner = KeyManager.getKeyOwner(apiKey);
+        if (keyOwner == null) {
+            return json;
+        }
+
+        Resident res = TownyAPI.getInstance().getResident(keyOwner);
+        if (res == null || !isAllowedToView.test(res)) {
+            return json;
+        }
+
         List<BankTransaction> history = government.getAccount().getAuditor().getTransactions();
         if (history.isEmpty()) {
             return json;

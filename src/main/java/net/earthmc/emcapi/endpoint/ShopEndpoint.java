@@ -65,10 +65,17 @@ import java.util.concurrent.ExecutionException;
                           "1": {
                             "id": 120,
                             "item": "COPPER_BLOCK",
+                            "item_name": "Copper Block",
                             "price": 2,
                             "amount": 4,
                             "type": "selling",
-                            "stock": 5
+                            "stock": 5,
+                            "location": {
+                                "world": "minecraft:overworld",
+                                "x": 0,
+                                "y": 0,
+                                "z": 0,
+                            }
                           }
                         }]
                         """

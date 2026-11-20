@@ -59,8 +59,8 @@ public class ContentTypes {
     public record BankHistory(long time, String type, int amount, int balance, String reason) {}
     public record TownCoordinates(SpawnCoordinates spawn, int[] homeBlock, int[][] townBlocks, Map<String, TownCoordinatesWorldEntry> worlds) {}
     public record TownCoordinatesWorldEntry(@OpenApiNullable @OpenApiName("townblocks") int[][] townBlocks) {}
-    public record TownWarp(String name, UUID uuid, long createdAt, String createdBy, String access, WarpLocation location) {}
-    public record WarpLocation(int x, int y, int z) {}
+    public record TownWarp(String name, UUID uuid, long createdAt, String createdBy, String access, BukkitLocation location) {}
+    public record BukkitLocation(@OpenApiDescription("The namespaced key ") String world, int x, int y, int z) {}
 
     public record SpawnCoordinates(String world, double x, double y, double z, float yaw, float pitch) {}
 
@@ -106,7 +106,7 @@ public class ContentTypes {
 
     public record MysteryMasterEntry(String name, UUID uuid, String change) {}
 
-    public record Online(int count, List<NameUUID> players) {}
+    public record Online(int max, int count, List<NameUUID> players) {}
 
     public record Pursuits(@OpenApiName("PLAYER") PlayerPursuitLeaderboard player,
                            @OpenApiName("TOWN") TownPursuitLeaderboard town,
@@ -127,5 +127,5 @@ public class ContentTypes {
     public record VoteParty(int target, int numRemaining) {}
 
     public record Shops(@OpenApiName("1") Shop one, @OpenApiName("2") Shop two, @OpenApiName("3") Shop three) {}
-    public record Shop(int id, String item, int price, int amount, String type, int stock) {}
+    public record Shop(int id, String item, int price, int amount, String type, int stock, Location) {}
 }

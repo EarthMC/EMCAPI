@@ -19,7 +19,6 @@ import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.EmbargoesIntegration;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.PactsIntegration;
-import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.manager.NationMetadataManager;
 import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
@@ -139,15 +138,11 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
         nationObject.add("enemies", EndpointUtils.getGovernmentArray(nation.getEnemies()));
         nationObject.add("sanctioned", EndpointUtils.getGovernmentArray(nation.getSanctionedTowns()));
 
-        JsonObject ranksObject = new JsonObject();
-        for (String rank : TownyPerms.getNationRanks()) {
-            ranksObject.add(rank, EndpointUtils.getResidentArray(EndpointUtils.getNationRank(nation, rank)));
-        }
-        nationObject.add("ranks", ranksObject);
+        nationObject.add("ranks", EndpointUtils.formatGovernmentRanks(nation, TownyPerms.getNationRanks(), Resident::getNationRanks));
 
         nationObject.add("embargoes", getEmbargoesObject(nation));
         nationObject.add("pacts", getPactsObject(nation));
-        nationObject.add("bankhistory", getBankHistory(nation, key));
+        nationObject.add("bankhistory", EndpointUtils.getBankHistoryArray(nation, key, resident -> nation.equals(resident.getNationOrNull()) && (nation.isKing(resident) || resident.getNationRanks().stream().anyMatch(rank -> rank.equals("Chancellor") || rank.equals("Treasurer")))));
 
         return nationObject;
     }
@@ -198,22 +193,5 @@ public class NationsEndpoint extends PostEndpoint<Nation> {
         json.add("pending", pending);
 
         return json;
-    }
-
-    private JsonArray getBankHistory(Nation nation, @Nullable String key) {
-        JsonArray empty = new JsonArray();
-        if (!TownyEconomyHandler.isActive()) {
-            return empty;
-        }
-        UUID keyOwner = KeyManager.getKeyOwner(key);
-        if (keyOwner == null) {
-            return empty;
-        }
-        Resident res = TownyAPI.getInstance().getResident(keyOwner);
-        if (res == null || !nation.equals(res.getNationOrNull()) || !(nation.isKing(res) || res.hasNationRank("Chancellor") || res.hasNationRank("Treasurer"))) {
-            return empty;
-        }
-
-        return EndpointUtils.getBankHistoryArray(nation);
     }
 }

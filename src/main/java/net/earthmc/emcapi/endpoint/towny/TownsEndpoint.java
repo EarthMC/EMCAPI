@@ -22,7 +22,6 @@ import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuartersIntegration;
 import net.earthmc.emcapi.integration.WarpsIntegration;
-import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
@@ -30,6 +29,7 @@ import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 import net.earthmc.emcapi.util.JSONUtil;
 import net.earthmc.lynchpin.api.towny.warps.Warp;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -208,14 +208,10 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         JsonArray quartersArray = quartersIntegration.isEnabled() ? quartersIntegration.getQuartersArrayForTown(town) : new JsonArray();
         townObject.add("quarters", quartersArray);
 
-        JsonObject ranksObject = new JsonObject();
-        for (String rank : TownyPerms.getTownRanks()) {
-            ranksObject.add(rank, EndpointUtils.getResidentArray(town.getRank(rank)));
-        }
-        townObject.add("ranks", ranksObject);
+        townObject.add("ranks", EndpointUtils.formatGovernmentRanks(town, TownyPerms.getTownRanks(), Resident::getTownRanks));
 
         townObject.add("warps", getWarpsObject(town));
-        townObject.add("bankhistory", getBankHistory(town, key));
+        townObject.add("bankhistory", EndpointUtils.getBankHistoryArray(town, key, resident -> town.equals(resident.getTownOrNull()) && (town.isMayor(resident) || resident.getTownRanks().stream().anyMatch(rank -> rank.equals("Councillor") || rank.equals("Treasurer")))));
 
         return townObject;
     }
@@ -228,26 +224,24 @@ public class TownsEndpoint extends PostEndpoint<Town> {
         }
 
         for (Warp warp : integration.getWarps(town)) {
-            json.add(EndpointUtils.getWarpObject(warp));
+            json.add(getWarpObject(warp));
         }
 
         return json;
     }
 
-    private JsonArray getBankHistory(Town town, @Nullable String key) {
-        JsonArray empty = new JsonArray();
-        if (!TownyEconomyHandler.isActive()) {
-            return empty;
-        }
-        UUID keyOwner = KeyManager.getKeyOwner(key);
-        if (keyOwner == null) {
-            return empty;
-        }
-        Resident res = TownyAPI.getInstance().getResident(keyOwner);
-        if (res == null || !town.equals(res.getTownOrNull()) || !(town.isMayor(res) || res.hasTownRank("Councillor") || res.hasTownRank("Treasurer"))) {
-            return empty;
-        }
+    private JsonObject getWarpObject(Warp warp) {
+        JsonObject json = new JsonObject();
 
-        return EndpointUtils.getBankHistoryArray(town);
+        json.addProperty("name", warp.getName());
+        json.addProperty("uuid", warp.getUUID().toString());
+        json.addProperty("createdAt", warp.getCreatedAt());
+        json.addProperty("createdBy", warp.getCreatedBy());
+        json.addProperty("access", warp.getAccesslevel().name());
+
+        final Location location = warp.getLocation();
+        json.add("location", location != null ? EndpointUtils.formatLocation(location) : new JsonObject());
+
+        return json;
     }
 }
