@@ -39,6 +39,8 @@ public class NationRangeEndpoint extends MapGetEndpoint {
         for (final Town town : nation.getTowns()) {
             final JsonObject townObject = new JsonObject();
 
+            townObject.addProperty("name", town.getName());
+
             final TownBlock homeBlock = town.getHomeBlockOrNull();
             if (homeBlock != null) {
                 final JsonObject homeObject = new JsonObject();
