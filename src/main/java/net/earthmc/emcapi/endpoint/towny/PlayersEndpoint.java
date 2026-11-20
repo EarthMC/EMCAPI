@@ -12,6 +12,7 @@ import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.DiscordIntegration;
 import net.earthmc.emcapi.integration.Integrations;
@@ -34,17 +35,17 @@ import java.util.regex.Pattern;
     path = "/v4/players",
     methods = HttpMethod.POST,
     summary = "Query player data",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     requestBody = @OpenApiRequestBody(
-        description = "Specify a player name or UUID to query, optionally include API key",
+        description = "Specify a player name or UUID to query",
         required = true,
         content = {
             @OpenApiContent(
-                from = ContentTypes.UUIDKey.class,
+                from = ContentTypes.UUIDQuery.class,
                 mimeType = ContentType.JSON,
                 example = """
                     {
-                      "query": "Veyronity",
-                      "key": "<key>"
+                      "query": "Veyronity"
                     }
                     """
             )

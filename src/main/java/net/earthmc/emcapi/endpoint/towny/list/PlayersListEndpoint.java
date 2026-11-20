@@ -7,6 +7,7 @@ import io.javalin.openapi.HttpMethod;
 import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 import net.earthmc.emcapi.util.EndpointUtils;
@@ -17,6 +18,7 @@ import java.util.List;
     path = "/v4/players",
     methods = HttpMethod.GET,
     summary = "Get a list of all players and their UUIDs",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     responses = {
         @OpenApiResponse(
             status = "200",

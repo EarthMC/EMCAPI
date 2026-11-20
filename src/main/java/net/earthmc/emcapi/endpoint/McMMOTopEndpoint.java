@@ -13,6 +13,7 @@ import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.manager.KeyManager;
@@ -35,8 +36,9 @@ import java.util.concurrent.TimeUnit;
     path = "/v4/mcmmo-top",
     methods = HttpMethod.POST,
     summary = "Query mcMMO leaderboard data. Note that the information is cached for 15 minutes",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     requestBody = @OpenApiRequestBody(
-        description = "Specify a player UUID to query and include a valid API key",
+        description = "Specify an mcMMO skill name to query.",
         required = true,
         content = {
             @OpenApiContent(
@@ -44,8 +46,7 @@ import java.util.concurrent.TimeUnit;
                 mimeType = ContentType.JSON,
                 example = """
                     {
-                      "query": "MINING",
-                      "key": "<key>"
+                      "query": "MINING"
                     }
                     """
             )
@@ -134,7 +135,7 @@ public class McMMOTopEndpoint extends PostEndpoint<McMMOTopEndpoint.McMMOLeaderb
             skill = null;
         } else {
             try {
-                skill = PrimarySkillType.valueOf(string.toUpperCase());
+                skill = PrimarySkillType.valueOf(string.toUpperCase(Locale.ROOT));
             } catch (IllegalArgumentException ignored) {
                 throw new BadRequestResponse("Invalid skill name queried.");
             }

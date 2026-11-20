@@ -8,6 +8,7 @@ import io.javalin.openapi.HttpMethod;
 import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
@@ -21,6 +22,7 @@ import java.util.List;
     path = "/v4/mm",
     methods = HttpMethod.GET,
     summary = "Query Mystery Master leaderboard data",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     responses = {
         @OpenApiResponse(
             status = "200",

@@ -7,6 +7,7 @@ import io.javalin.openapi.HttpMethod;
 import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.integration.AdvancementsIntegration;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
@@ -20,6 +21,7 @@ import java.util.Locale;
     path = "/v4/advancements",
     methods = HttpMethod.GET,
     summary = "Get a list of advancements completed on the server, along with the date it was completed on and the player that did it",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     responses = {
         @OpenApiResponse(
             status = "200",

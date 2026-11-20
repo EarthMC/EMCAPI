@@ -15,6 +15,7 @@ import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.EmbargoesIntegration;
 import net.earthmc.emcapi.integration.Integrations;
@@ -37,17 +38,17 @@ import java.util.UUID;
     path = "/v4/nations",
     methods = HttpMethod.POST,
     summary = "Query nation data",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     requestBody = @OpenApiRequestBody(
         description = "Specify a nation name or UUID to query, optionally include API key",
         required = true,
         content = {
             @OpenApiContent(
-                from = ContentTypes.UUIDKey.class,
+                from = ContentTypes.UUIDQuery.class,
                 mimeType = ContentType.JSON,
                 example = """
                     {
-                      "query": "Egypt",
-                      "key": "<key>"
+                      "query": "Egypt"
                     }
                     """
             )

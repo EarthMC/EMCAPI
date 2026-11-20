@@ -9,6 +9,7 @@ import io.javalin.openapi.HttpMethod;
 import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuartersIntegration;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
     path = "/v4",
     methods = HttpMethod.GET,
     summary = "Get live information about the server",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     responses = {
         @OpenApiResponse(
             status = "200",

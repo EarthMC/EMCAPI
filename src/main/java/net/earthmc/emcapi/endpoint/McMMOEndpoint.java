@@ -11,6 +11,7 @@ import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.McMMOIntegration;
@@ -28,19 +29,19 @@ import java.util.UUID;
 
 @OpenApi(
     path = "/v4/mcmmo",
-    methods = HttpMethod.POST,
+    methods = { HttpMethod.POST, HttpMethod.GET },
     summary = "Query mcMMO data",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     requestBody = @OpenApiRequestBody(
         description = "Specify a player UUID to query and include a valid API key",
         required = true,
         content = {
             @OpenApiContent(
-                from = ContentTypes.UUIDKey.class,
+                from = ContentTypes.UUIDQuery.class,
                 mimeType = ContentType.JSON,
                 example = """
                     {
-                      "query": "5b8274bf-b162-4336-85a0-48f9d5380a78",
-                      "key": "<key>"
+                      "query": "5b8274bf-b162-4336-85a0-48f9d5380a78"
                     }
                     """
             )

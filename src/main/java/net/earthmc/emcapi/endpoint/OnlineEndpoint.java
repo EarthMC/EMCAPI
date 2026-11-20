@@ -8,6 +8,7 @@ import io.javalin.openapi.HttpMethod;
 import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.optout.OptOutType;
 import net.earthmc.emcapi.util.ContentTypes;
@@ -23,6 +24,7 @@ import java.util.List;
     path = "/v4/online",
     methods = HttpMethod.GET,
     summary = "Get a count & list of online players, excluding those who have opted out",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     responses = {
         @OpenApiResponse(
             status = "200",

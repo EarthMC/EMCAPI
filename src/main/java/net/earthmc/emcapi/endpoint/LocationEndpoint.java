@@ -12,6 +12,7 @@ import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import kotlin.Pair;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
     path = "/v4/location",
     methods = HttpMethod.POST,
     summary = "Query location data",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     requestBody = @OpenApiRequestBody(
         description = "Specify a pair of x & z coordinates",
         required = true,

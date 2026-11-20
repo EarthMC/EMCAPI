@@ -17,6 +17,7 @@ import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import kotlin.Pair;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.util.ContentTypes;
@@ -38,6 +39,7 @@ import java.util.Objects;
     path = "/v4/location",
     methods = HttpMethod.POST,
     summary = "Query location data",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     requestBody = @OpenApiRequestBody(
         required = true,
         description = "Target and type, search type, radius",

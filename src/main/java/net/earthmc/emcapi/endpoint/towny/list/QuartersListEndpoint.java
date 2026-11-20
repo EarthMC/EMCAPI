@@ -5,6 +5,7 @@ import io.javalin.openapi.HttpMethod;
 import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.integration.QuartersIntegration;
 import net.earthmc.emcapi.util.ContentTypes;
 import net.earthmc.emcapi.object.endpoint.GetEndpoint;
@@ -13,6 +14,7 @@ import net.earthmc.emcapi.object.endpoint.GetEndpoint;
     path = "/v4/quarters",
     methods = HttpMethod.GET,
     summary = "Get a list of all quarters and their UUIDs",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     responses = {
         @OpenApiResponse(
             status = "200",

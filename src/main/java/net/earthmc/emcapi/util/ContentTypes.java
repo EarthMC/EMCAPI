@@ -13,8 +13,8 @@ public class ContentTypes {
     public record NameUUID(String name, UUID uuid) {}
 
     // Queries
-    public record UUIDKey(String query, String key) {}
-    public record StringKey(String query, String key) {}
+    public record UUIDQuery(UUID query) {}
+    public record StringQuery(String query) {}
 
     public record Advancements(@OpenApiName("minecraft:advancement/path") AdvancementData data) {}
     public record AdvancementData(UUID player, String date) {}

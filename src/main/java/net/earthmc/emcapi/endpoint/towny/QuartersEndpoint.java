@@ -12,6 +12,7 @@ import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.object.endpoint.PostEndpoint;
 import net.earthmc.emcapi.util.ContentTypes;
@@ -29,17 +30,17 @@ import java.util.UUID;
     path = "/v4/quarters",
     methods = HttpMethod.POST,
     summary = "Query quarters data",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     requestBody = @OpenApiRequestBody(
-        description = "Specify a quarter UUID to query, optionally include API key",
+        description = "Specify a quarter UUID to query",
         required = true,
         content = {
             @OpenApiContent(
-                from = ContentTypes.UUIDKey.class,
+                from = ContentTypes.UUIDQuery.class,
                 mimeType = ContentType.JSON,
                 example = """
                     {
-                      "query": "5fb3b17a-c67e-476e-b8ad-f030955ef8ea",
-                      "key": "<key>"
+                      "query": "5fb3b17a-c67e-476e-b8ad-f030955ef8ea"
                     }
                     """
             )

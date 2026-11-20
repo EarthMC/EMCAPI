@@ -115,6 +115,7 @@ public final class EMCAPI extends JavaPlugin {
                         info.contact("EarthMC", "https://earthmc.net/");
                         info.version(getApiVersion());
                     });
+                    builder.withBearerAuth();
                 });
             }));
             config.registerPlugin(new SwaggerPlugin(swagger -> {

@@ -10,6 +10,7 @@ import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.PursuitsIntegration;
@@ -37,17 +38,17 @@ import java.util.Map;
         required = true,
         content = {
             @OpenApiContent(
-                from = ContentTypes.StringKey.class,
+                from = ContentTypes.StringQuery.class,
                 mimeType = ContentType.JSON,
                 example = """
                     {
                       "query": "ALL",
-                      "key": "<key>"
                     }
                     """
             )
         }
     ),
+    security = @OpenApiSecurity(name = "BearerAuth"),
     responses = {
         @OpenApiResponse(
             status = "200",
@@ -57,10 +58,6 @@ import java.util.Map;
                     mimeType = ContentType.JSON
                 )
             }
-        ),
-        @OpenApiResponse(
-            status = "401",
-            description = "If you don't specify an API key or the key doesn't match a known player"
         ),
         @OpenApiResponse(
             status = "400",
@@ -104,7 +101,7 @@ public class PursuitsEndpoint extends PostEndpoint<PursuitsEndpoint.PursuitsLead
             specifiedType = null;
         } else {
             try {
-                specifiedType = Pursuit.Type.valueOf(string.toUpperCase());
+                specifiedType = Pursuit.Type.valueOf(string.toUpperCase(Locale.ROOT));
             } catch (IllegalArgumentException ignored) {
                 throw new BadRequestResponse("Invalid Pursuit Type specified.");
             }
@@ -149,7 +146,7 @@ public class PursuitsEndpoint extends PostEndpoint<PursuitsEndpoint.PursuitsLead
     private JsonObject formatTop(Pursuit pursuit) {
         JsonObject top = new JsonObject();
         int index = 1;
-        String typeName = pursuit.type().name().toLowerCase();
+        String typeName = pursuit.type().name().toLowerCase(Locale.ROOT);
         for (Map.Entry<UUID, Double> entry : pursuit.top(10).entrySet()) {
             JsonObject element = new JsonObject();
             element.addProperty(typeName, entry.getKey().toString());

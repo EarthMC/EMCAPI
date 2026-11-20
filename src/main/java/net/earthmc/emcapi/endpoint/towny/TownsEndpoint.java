@@ -18,6 +18,7 @@ import io.javalin.openapi.OpenApi;
 import io.javalin.openapi.OpenApiContent;
 import io.javalin.openapi.OpenApiRequestBody;
 import io.javalin.openapi.OpenApiResponse;
+import io.javalin.openapi.OpenApiSecurity;
 import net.earthmc.emcapi.EMCAPI;
 import net.earthmc.emcapi.integration.Integrations;
 import net.earthmc.emcapi.integration.QuartersIntegration;
@@ -44,17 +45,17 @@ import java.util.UUID;
     path = "/v4/towns",
     methods = HttpMethod.POST,
     summary = "Query town data",
+    security = @OpenApiSecurity(name = "BearerAuth"),
     requestBody = @OpenApiRequestBody(
-        description = "Specify a town name or UUID to query, optionally include API key",
+        description = "Specify a town name or UUID to query.",
         required = true,
         content = {
             @OpenApiContent(
-                from = ContentTypes.UUIDKey.class,
+                from = ContentTypes.UUIDQuery.class,
                 mimeType = ContentType.JSON,
                 example = """
                     {
-                      "query": "Giza",
-                      "key": "<key>"
+                      "query": "Giza"
                     }
                     """
             )
