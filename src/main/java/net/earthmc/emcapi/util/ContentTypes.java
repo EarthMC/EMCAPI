@@ -127,5 +127,5 @@ public class ContentTypes {
     public record VoteParty(int target, int numRemaining) {}
 
     public record Shops(@OpenApiName("1") Shop one, @OpenApiName("2") Shop two, @OpenApiName("3") Shop three) {}
-    public record Shop(int id, String item, int price, int amount, String type, int stock, Location) {}
+    public record Shop(int id, String item, int price, int amount, String type, int stock, BukkitLocation location) {}
 }
