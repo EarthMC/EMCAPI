@@ -81,6 +81,7 @@ Example **POST** response
       "numTownBlocks": 473, // The total number of town blocks the town has
       "maxTownBlocks": 114, // The maximum town blocks the town can claim
       "numResidents": 7, // The current number of residents in the town
+      "numInactive": 2, // Residents last online at or before Towny's deletion cutoff, excluding NPCs, online players, and the mayor
       "numTrusted": 5, // The total number of trusted residents in the town
       "numOutlaws": 3, // The total number of players that are outlawed in the town
       "balance": 51, // The town's balance as seen on /t
