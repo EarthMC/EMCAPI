@@ -67,6 +67,7 @@ dependencies {
     compileOnly(libs.javalin.swagger)
     compileOnly(libs.javalin.swagger.webjar)
     annotationProcessor(libs.javalin.openapi.annotation)
+    compileOnly(libs.squaremap)
 }
 
 tasks {

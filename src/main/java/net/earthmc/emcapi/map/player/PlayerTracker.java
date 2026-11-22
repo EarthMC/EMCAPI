@@ -1,4 +1,4 @@
-package net.earthmc.emcapi.map;
+package net.earthmc.emcapi.map.player;
 
 import org.bukkit.GameMode;
 import org.bukkit.World;
@@ -14,20 +14,26 @@ public class PlayerTracker {
     private final String displayName;
     private final boolean premium;
 
+    private final PlayerManager manager;
+
     private World lastWorld;
+
+    protected boolean spectator;
 
     private LocationDataSnapshot snapshot;
 
-    private PlayerTracker(final Player player) {
+    private PlayerTracker(final Player player, final PlayerManager manager) {
+        this.manager = manager;
         this.uuid = player.getUniqueId();
         this.uuidString = uuid.toString().replace("-", "");
         this.displayName = player.getName();
         this.premium = player.hasPermission("group.premium");
+        this.spectator = player.getGameMode() == GameMode.SPECTATOR;
         update(player);
     }
 
-    public static PlayerTracker initialize(final Player player) {
-        return new PlayerTracker(player);
+    public static PlayerTracker initialize(final Player player, final PlayerManager manager) {
+        return new PlayerTracker(player, manager);
     }
 
     public void update(final Player player) {
@@ -35,7 +41,14 @@ public class PlayerTracker {
         final double z = player.getZ();
         final World world = player.getWorld();
         final float yaw = player.getYaw();
-        final boolean hidden = player.isSneaking() || !player.getWorld().hasSkyLight() || player.getEyeLocation().getBlock().getLightFromSky() < 15 || !player.isVisibleByDefault() || player.isInvisible() || player.getGameMode() == GameMode.SPECTATOR;
+
+        final boolean hidden = player.isSneaking()
+            || !player.getWorld().hasSkyLight()
+            || player.getEyeLocation().getBlock().getLightFromSky() < 15
+            || !player.isVisibleByDefault()
+            || player.isInvisible()
+            || this.spectator
+            || this.isManuallyHidden(player);
 
         String worldName;
         if (world == lastWorld) {
@@ -46,6 +59,10 @@ public class PlayerTracker {
         }
 
         this.snapshot = new LocationDataSnapshot(floor(x), floor(z), floor(yaw), worldName, hidden);
+    }
+
+    private boolean isManuallyHidden(final Player player) {
+        return this.manager.isSquaremapHidden(player);
     }
 
     public UUID uuid() {

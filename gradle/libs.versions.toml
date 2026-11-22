@@ -12,6 +12,7 @@ mcmmo = "2.2.040"
 lynchpin-api = "1.0-SNAPSHOT"
 inventories = "1.1.5"
 swagger-webjar = "5.32.8"
+squaremap = "1.3.12"
 
 # plugins
 conventions = "1.1.3"
@@ -37,6 +38,7 @@ javalin-openapi = { group = "io.javalin.community.openapi", name = "javalin-open
 javalin-openapi-annotation = { group = "io.javalin.community.openapi", name = "openapi-annotation-processor", version.ref = "javalin" }
 javalin-swagger = { group = "io.javalin.community.openapi", name = "javalin-swagger-plugin", version.ref = "javalin" }
 javalin-swagger-webjar = { group = "org.webjars", name = "swagger-ui", version.ref = "swagger-webjar" }
+squaremap = { group = "xyz.jpenilla", name = "squaremap-api", version.ref = "squaremap"}
 
 [plugins]
 conventions-java = { id = "net.earthmc.conventions.java", version.ref = "conventions" }
