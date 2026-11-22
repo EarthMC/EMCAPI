@@ -36,6 +36,21 @@ public class TownySSEListener extends AbstractSSEListener {
         super(sse);
     }
 
+    private void sendToChancellors(Nation nation, JsonObject message, String eventName) {
+        nation.getResidents().stream()
+        .filter((r) -> r.hasNationRank("chancellor") && !r.isKing())
+        .map((r) -> r.getUUID())
+        .filter(Objects::nonNull)
+        .forEach((r) -> sse.sendEvent(eventName, message, r));
+    }
+    private void sendToCouncilors(Town town, JsonObject message, String eventName) {
+        town.getResidents().stream()
+        .filter((r) -> r.hasTownRank("councilor") && !r.isMayor())
+        .map((r) -> r.getUUID())
+        .filter(Objects::nonNull)
+        .forEach((r) -> sse.sendEvent(eventName, message, r));
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onNewDay(NewDayEvent event) {
         sse.sendEvent("NewDay", new JsonObject());
@@ -175,6 +190,7 @@ public class TownySSEListener extends AbstractSSEListener {
                 : event.getTown().getMayor().getUUID(); // NationAddTown is fired when new nations are created, before the capital is set. In this case, this town will be the capital anyway.
             sse.sendEvent("TownJoinedNation", message, Objects.requireNonNull(leader));
         } catch (NullPointerException ignored) {}
+        sendToChancellors(nation, message, "TownJoinedNation");
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -188,6 +204,7 @@ public class TownySSEListener extends AbstractSSEListener {
         message.add("nation", EndpointUtils.getNameAndIdObject(nation));
         message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
         sse.sendEvent("TownLeftNation", message, nation.getKing().getUUID());
+        sendToChancellors(nation, message, "TownLeftNation");
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -201,6 +218,7 @@ public class TownySSEListener extends AbstractSSEListener {
         message.add("town", EndpointUtils.getNameAndIdObject(town));
         message.add("resident", EndpointUtils.getResidentJsonObject(event.getResident()));
         sse.sendEvent("ResidentJoinedTown", message, town.getMayor().getUUID());
+        sendToCouncilors(town, message, "ResidentJoinedTown");
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -214,5 +232,6 @@ public class TownySSEListener extends AbstractSSEListener {
         message.add("town", EndpointUtils.getNameAndIdObject(town));
         message.add("resident", EndpointUtils.getResidentJsonObject(event.getResident()));
         sse.sendEvent("ResidentLeftTown", message, town.getMayor().getUUID());
+        sendToCouncilors(town, message, "ResidentLeftTown");
     }
 }
