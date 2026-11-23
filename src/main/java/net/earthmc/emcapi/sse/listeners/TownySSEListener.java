@@ -12,6 +12,9 @@ import com.palmergames.bukkit.towny.event.RenameNationEvent;
 import com.palmergames.bukkit.towny.event.RenameTownEvent;
 import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
 import com.palmergames.bukkit.towny.event.TownRemoveResidentEvent;
+import com.palmergames.bukkit.towny.event.economy.BankTransactionEvent;
+import com.palmergames.bukkit.towny.event.economy.NationTransactionEvent;
+import com.palmergames.bukkit.towny.event.economy.TownTransactionEvent;
 import com.palmergames.bukkit.towny.event.nation.NationKingChangeEvent;
 import com.palmergames.bukkit.towny.event.nation.NationMergeEvent;
 import com.palmergames.bukkit.towny.event.town.TownMayorChangedEvent;
@@ -21,13 +24,19 @@ import com.palmergames.bukkit.towny.event.town.TownReclaimedEvent;
 import com.palmergames.bukkit.towny.event.town.TownSetForSaleEvent;
 import com.palmergames.bukkit.towny.event.town.TownSetNotForSaleEvent;
 import com.palmergames.bukkit.towny.object.Nation;
+import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.economy.Account;
+import com.palmergames.bukkit.towny.object.economy.transaction.Transaction;
 import net.earthmc.emcapi.sse.SSEManager;
 import net.earthmc.emcapi.util.EndpointUtils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public class TownySSEListener extends AbstractSSEListener {
@@ -214,5 +223,61 @@ public class TownySSEListener extends AbstractSSEListener {
         message.add("town", EndpointUtils.getNameAndIdObject(town));
         message.add("resident", EndpointUtils.getResidentJsonObject(event.getResident()));
         sse.sendEvent("ResidentLeftTown", message, town.getMayor().getUUID());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTownTransaction(TownTransactionEvent event) {
+        List<UUID> notify = findResidentsToNotify(event.getTown());
+        if (notify.isEmpty()) {
+            return;
+        }
+        JsonObject message = new JsonObject();
+        message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
+        formatTransaction(message, event);
+        sse.sendEvent("TownTransactionEvent", message, notify);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onNationTransaction(NationTransactionEvent event) {
+        List<UUID> notify = findResidentsToNotify(event.getNation());
+        if (notify.isEmpty()) {
+            return;
+        }
+        JsonObject message = new JsonObject();
+        message.add("nation", EndpointUtils.getNameAndIdObject(event.getNation()));
+        formatTransaction(message, event);
+        sse.sendEvent("NationTransactionEvent", message, notify);
+    }
+
+    private void formatTransaction(JsonObject message, BankTransactionEvent event) {
+        Transaction transaction = event.getTransaction();
+        message.addProperty("type", transaction.getType().name());
+        message.addProperty("amount", transaction.getAmount());
+        message.addProperty("sender", Optional.ofNullable(transaction.getSendingAccount()).map(Account::getName).orElse(null));
+        message.addProperty("receiver", Optional.ofNullable(transaction.getReceivingAccount()).map(Account::getName).orElse(null));
+    }
+
+    private List<UUID> findResidentsToNotify(Town town) {
+        List<UUID> list = new ArrayList<>();
+        list.add(town.getMayor().getUUID());
+        list.addAll(getUUIDs(town.getRank("Councillor")));
+        list.addAll(getUUIDs(town.getRank("Treasurer")));
+        return list;
+    }
+
+    private List<UUID> findResidentsToNotify(Nation nation) {
+        List<UUID> list = new ArrayList<>();
+        list.add(nation.getKing().getUUID());
+
+        for (Resident resident : nation.getResidents()) {
+            if (resident.hasNationRank("Chancellor") || resident.hasNationRank("Treasurer")) {
+                list.add(resident.getUUID());
+            }
+        }
+        return list;
+    }
+
+    private List<UUID> getUUIDs(List<Resident> residents) {
+        return residents.stream().map(Resident::getUUID).toList();
     }
 }

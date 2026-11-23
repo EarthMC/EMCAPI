@@ -16,6 +16,7 @@ These are the current events available:
 "TownCreated", "TownDeleted", "TownRenamed", "TownMayorChanged", "TownMerged", "TownRuined", "TownReclaimed",
 "TownSetForSale", "TownSetNotForSale",
 "TownJoinedNation", "TownLeftNation",
+"TownTransactionEvent", "NationTransactionEvent",
 "ResidentJoinedTown", "ResidentLeftTown",
 "ShopSoldItem", "ShopBoughtItem", "ShopOutOfStock", "ShopOutOfSpace", "ShopOutOfGold", "ShopCreated", "ShopDeleted",
 "PlayerDeathEvent"
@@ -27,6 +28,7 @@ Most Town events include a `town` field with the name & UUID of the town. The sa
 ### Authorized player events
 Some events are only sent to the relevant player. These are:
 - TownJoinedNation, TownLeftNation - Sent to the leader of the nation
+- TownTransactionEvent, NationTransactionEvent - Sent to the mayor/leader, Councillor/Chancellor, and Treasurer(s) of the town or nation respectively
 - ResidentJoinedTown, ResidentLeftTown - Sent to the mayor of the town
 - ShopSoldItem, ShopBoughtItem, ShopOutOfStock, ShopOutOfSpace, ShopOutOfGold, ShopCreated, ShopDeleted - Sent to the shop owner
 

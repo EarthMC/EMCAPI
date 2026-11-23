@@ -16,10 +16,12 @@ import net.earthmc.emcapi.object.optout.AuthSettings;
 import net.earthmc.emcapi.manager.Authorisation;
 import net.earthmc.emcapi.manager.KeyManager;
 import net.earthmc.emcapi.util.JSONUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -70,6 +72,7 @@ public class SSEManager {
         "TownCreated", "TownDeleted", "TownRenamed", "TownMayorChanged", "TownMerged", "TownRuined", "TownReclaimed",
         "TownSetForSale", "TownSetNotForSale",
         "TownJoinedNation", "TownLeftNation",
+        "TownTransactionEvent", "NationTransactionEvent",
         "ResidentJoinedTown", "ResidentLeftTown",
         "ShopSoldItem", "ShopBoughtItem", "ShopOutOfStock", "ShopOutOfSpace", "ShopOutOfGold", "ShopCreated", "ShopDeleted",
         "PlayerDeathEvent"
@@ -205,6 +208,19 @@ public class SSEManager {
                         listeningClients.add(authorizedClient);
                     }
                 }
+            }
+        }
+
+        sendEvent(event, data, listeningClients);
+    }
+
+    public void sendEvent(String event, JsonObject data, @NotNull Collection<UUID> targetPlayers) {
+        Set<ClientData> listeningClients = ConcurrentHashMap.newKeySet();
+
+        for (UUID target : targetPlayers) {
+            ClientData targetClient = CLIENTS_BY_UUID.get(target);
+            if (targetClient != null && targetClient.events.contains(event)) {
+                listeningClients.add(targetClient);
             }
         }
 
