@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyEconomyHandler;
+import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
@@ -12,9 +13,12 @@ import io.javalin.http.Context;
 import net.earthmc.emcapi.manager.NationMetadataManager;
 import net.earthmc.emcapi.manager.TownMetadataManager;
 import net.earthmc.emcapi.map.MapEndpointManager;
+import net.earthmc.emcapi.util.EndpointUtils;
 import net.earthmc.emcapi.util.HttpExceptions;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class TownMapEndpoint extends MapGetEndpoint {
     private final MapEndpointManager manager;
@@ -57,7 +61,18 @@ public class TownMapEndpoint extends MapGetEndpoint {
         links.addProperty("wiki", TownMetadataManager.getWikiURL(town));
         json.add("links", links);
 
-        json.add("residents", formatResidents(town.getResidents()));
+        final long inactivityCutoff = System.currentTimeMillis() - (TownySettings.getDeleteTime() * 1000L);
+        final List<Resident> inactiveResidents = new ArrayList<>();
+        final List<Resident> activeResidents = new ArrayList<>();
+
+        for (final Resident resident : town.getResidents()) {
+            final boolean active = EndpointUtils.isResidentActive(resident, inactivityCutoff);
+            (active ? activeResidents : inactiveResidents).add(resident);
+        }
+
+        json.add("residents", formatResidents(activeResidents));
+        json.add("inactiveResidents", formatResidents(inactiveResidents));
+
         json.add("councillors", formatResidents(town.getRank("Councillor")));
 
         JsonObject stats = new JsonObject();

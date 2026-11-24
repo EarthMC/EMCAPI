@@ -289,7 +289,7 @@ public class EndpointUtils {
         return filterActiveResidents(residents).size();
     }
 
-    private static boolean isResidentActive(Resident resident, long cutoff) {
+    public static boolean isResidentActive(Resident resident, long cutoff) {
         if (resident == null || resident.isNPC() || resident.isOnline() || resident.isMayor()) {
             return true;
         }
