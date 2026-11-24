@@ -23,6 +23,7 @@ public class StatusEndpoint extends MapGetEndpoint {
         ctx.header("Cache-Control", "public, max-age=60");
 
         final JsonObject object = new JsonObject();
+        object.addProperty("maxPlayers", server.getMaxPlayers());
         object.addProperty("onlinePlayers", server.getOnlinePlayers().size());
         object.addProperty("numTowns", townyUniverse.getTowns().size());
 
