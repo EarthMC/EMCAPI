@@ -62,7 +62,7 @@ public class MapEndpointManager implements Listener {
 
         final StatusEndpoint status = new StatusEndpoint(this.plugin.getServer());
         routes.get("map/v" + MAP_ENDPOINT_VERSION + "/status", ctx -> {
-            ctx.header(Headers.CACHE_CONTROL, "public, max-age=120, stale-while-revalidate=60");
+            ctx.header(Headers.CACHE_CONTROL, "public, max-age=30, stale-while-revalidate=60");
             ctx.json(status.lookup(ctx));
         });
 
