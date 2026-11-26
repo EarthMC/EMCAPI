@@ -9,6 +9,6 @@ import net.earthmc.emcapi.object.endpoint.GetEndpoint;
 public abstract class MapGetEndpoint extends GetEndpoint {
     @Override
     public String lookup(Context ctx) {
-        return getJsonElement(ctx, "").getAsString();
+        return getJsonElement(ctx, "").toString();
     }
 }
