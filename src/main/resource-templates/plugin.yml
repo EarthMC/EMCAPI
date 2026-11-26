@@ -17,6 +17,8 @@ permissions:
   emcapi.key:
     default: true
     description: Allow players to create API keys
+  emcapi.command.reload:
+    default: op
 
 libraries:
   - io.javalin:javalin:{{ javalin_version }}

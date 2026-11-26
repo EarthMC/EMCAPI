@@ -48,10 +48,12 @@ public final class EMCAPI extends JavaPlugin {
     private final Authorisation auth = new Authorisation(this);
     private final GUIManager guiManager = new GUIManager(this);
     private final MapEndpointManager mapEndpointManager = new MapEndpointManager(this);
+    private boolean logWarnings;
 
     @Override
     public void onLoad() {
-        JavalinLogger.enabled = getConfig().getBoolean("behaviour.developer_mode");
+        this.logWarnings = getConfig().getBoolean("behaviour.developer_mode");
+        JavalinLogger.enabled = logWarnings;
         JavalinLogger.startupInfo = false;
     }
 
@@ -97,7 +99,9 @@ public final class EMCAPI extends JavaPlugin {
             sseManager.shutdown();
         }
 
-        javalin.stop();
+        if (javalin != null) {
+            javalin.stop();
+        }
         database.close();
     }
 
@@ -136,9 +140,14 @@ public final class EMCAPI extends JavaPlugin {
                 ctx.result(e.getMessage()); // sending a json object may be nicer in the future
             });
 
-            config.routes.exception(Exception.class, (_, ctx) -> {
+            config.routes.exception(Exception.class, (e, ctx) -> {
                 // don't cache exceptional responses, i.e. missing an api key.
                 ctx.header(Headers.CACHE_CONTROL, "no-store");
+                ctx.status(500).json("{\"status\":500,\"message\":\"Internal Server Error\"}");
+
+                if (this.logWarnings) {
+                    getSLF4JLogger().warn("An exception occurred while handling {} {}", ctx.method(), ctx.path(), e);
+                }
             });
 
             config.jetty.host = getConfig().getString("networking.host");
@@ -150,9 +159,12 @@ public final class EMCAPI extends JavaPlugin {
         });
     }
 
-    private void loadConfig() {
+    public void loadConfig() {
         saveDefaultConfig();
         reloadConfig();
+
+        this.logWarnings = getConfig().getBoolean("behaviour.developer_mode");
+        JavalinLogger.enabled = this.logWarnings;
     }
 
     private void loadDatabase() {

@@ -109,6 +109,13 @@ public class ApiCommand {
                     }))
                 .then(Commands.literal("copy")
                     .executes(ApiCommand::copyKey)))
+            .then(Commands.literal("reload")
+                .requires(source -> source.getSender().hasPermission("emcapi.command.reload"))
+                .executes(ctx -> {
+                    plugin.loadConfig();
+                    ctx.getSource().getSender().sendMessage(Component.text("EMCAPI config successfully reloaded.", NamedTextColor.GREEN));
+                    return Command.SINGLE_SUCCESS;
+                }))
             .build();
     }
 
