@@ -35,11 +35,9 @@ public class NationRangeEndpoint extends MapGetEndpoint {
         final Town capital = nation.getCapital();
         object.addProperty("capital", capital != null ? capital.getName() : null);
 
-        final JsonArray townsArray = new JsonArray(nation.getNumTowns());
+        final JsonObject townsObject = new JsonObject();
         for (final Town town : nation.getTowns()) {
             final JsonObject townObject = new JsonObject();
-
-            townObject.addProperty("name", town.getName());
 
             final TownBlock homeBlock = town.getHomeBlockOrNull();
             if (homeBlock != null) {
@@ -52,10 +50,10 @@ public class NationRangeEndpoint extends MapGetEndpoint {
                 townObject.add("home", null);
             }
 
-            townsArray.add(townObject);
+            townsObject.add(town.getName(), townObject);
         }
 
-        object.add("towns", townsArray);
+        object.add("towns", townsObject);
 
         return object;
     }
