@@ -27,8 +27,7 @@ Example: `https://api.earthmc.net/v4/events?listen=NewDay,TownDeleted,NationRena
 Most Town events include a `town` field with the name & UUID of the town. The same applies to nations with a `nation` field.
 ### Authorized player events
 Some events are only sent to the relevant player. These are:
-- TownJoinedNation, TownLeftNation - Sent to the leader of the nation
-- TownTransactionEvent, NationTransactionEvent - Sent to the mayor/leader, Councillor/Chancellor, and Treasurer(s) of the town or nation respectively
-- ResidentJoinedTown, ResidentLeftTown - Sent to the mayor of the town
+- TownJoinedNation, TownLeftNation, NationTransactionEvent - Sent to the leader of the nation and Chancellor(s); transaction event is also sent to Treasurer(s)
+- ResidentJoinedTown, ResidentLeftTown, TownTransactionEvent - Sent to the mayor of the town and Councillors(s); transaction event is also sent to Treasurer(s)
 - ShopSoldItem, ShopBoughtItem, ShopOutOfStock, ShopOutOfSpace, ShopOutOfGold, ShopCreated, ShopDeleted - Sent to the shop owner
 

@@ -179,10 +179,12 @@ public class TownySSEListener extends AbstractSSEListener {
         message.add("nation", EndpointUtils.getNameAndIdObject(nation));
         message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
         try {
-            UUID leader = nation.getCapital() != null
+            boolean isNewNation = nation.getCapital() == null;
+            UUID leader = !isNewNation
                 ? nation.getKing().getUUID()
                 : event.getTown().getMayor().getUUID(); // NationAddTown is fired when new nations are created, before the capital is set. In this case, this town will be the capital anyway.
-            sse.sendEvent("TownJoinedNation", message, Objects.requireNonNull(leader));
+            List<UUID> notify = isNewNation ? List.of(leader) : findResidentsToNotify(nation, false);
+            sse.sendEvent("TownJoinedNation", message, notify);
         } catch (NullPointerException ignored) {}
     }
 
@@ -192,11 +194,12 @@ public class TownySSEListener extends AbstractSSEListener {
         if (nation.getCapital() == null) {
             return;
         }
+        List<UUID> notify = findResidentsToNotify(nation, false);
 
         JsonObject message = new JsonObject();
         message.add("nation", EndpointUtils.getNameAndIdObject(nation));
         message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
-        sse.sendEvent("TownLeftNation", message, nation.getKing().getUUID());
+        sse.sendEvent("TownLeftNation", message, notify);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -205,11 +208,12 @@ public class TownySSEListener extends AbstractSSEListener {
         if (town.getMayor() == null) {
             return;
         }
+        List<UUID> notify = findResidentsToNotify(town, false);
 
         JsonObject message = new JsonObject();
         message.add("town", EndpointUtils.getNameAndIdObject(town));
         message.add("resident", EndpointUtils.getResidentJsonObject(event.getResident()));
-        sse.sendEvent("ResidentJoinedTown", message, town.getMayor().getUUID());
+        sse.sendEvent("ResidentJoinedTown", message, notify);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -218,19 +222,17 @@ public class TownySSEListener extends AbstractSSEListener {
         if (town.getMayor() == null) {
             return;
         }
+        List<UUID> notify = findResidentsToNotify(town, false);
 
         JsonObject message = new JsonObject();
         message.add("town", EndpointUtils.getNameAndIdObject(town));
         message.add("resident", EndpointUtils.getResidentJsonObject(event.getResident()));
-        sse.sendEvent("ResidentLeftTown", message, town.getMayor().getUUID());
+        sse.sendEvent("ResidentLeftTown", message, notify);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTownTransaction(TownTransactionEvent event) {
-        List<UUID> notify = findResidentsToNotify(event.getTown());
-        if (notify.isEmpty()) {
-            return;
-        }
+        List<UUID> notify = findResidentsToNotify(event.getTown(), true);
         JsonObject message = new JsonObject();
         message.add("town", EndpointUtils.getNameAndIdObject(event.getTown()));
         formatTransaction(message, event);
@@ -239,10 +241,7 @@ public class TownySSEListener extends AbstractSSEListener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onNationTransaction(NationTransactionEvent event) {
-        List<UUID> notify = findResidentsToNotify(event.getNation());
-        if (notify.isEmpty()) {
-            return;
-        }
+        List<UUID> notify = findResidentsToNotify(event.getNation(), true);
         JsonObject message = new JsonObject();
         message.add("nation", EndpointUtils.getNameAndIdObject(event.getNation()));
         formatTransaction(message, event);
@@ -257,20 +256,22 @@ public class TownySSEListener extends AbstractSSEListener {
         message.addProperty("receiver", Optional.ofNullable(transaction.getReceivingAccount()).map(Account::getName).orElse(null));
     }
 
-    private List<UUID> findResidentsToNotify(Town town) {
+    private List<UUID> findResidentsToNotify(Town town, boolean bankTransaction) {
         List<UUID> list = new ArrayList<>();
         list.add(town.getMayor().getUUID());
         list.addAll(getUUIDs(town.getRank("Councillor")));
-        list.addAll(getUUIDs(town.getRank("Treasurer")));
+        if (bankTransaction) {
+            list.addAll(getUUIDs(town.getRank("Treasurer")));
+        }
         return list;
     }
 
-    private List<UUID> findResidentsToNotify(Nation nation) {
+    private List<UUID> findResidentsToNotify(Nation nation, boolean bankTransaction) {
         List<UUID> list = new ArrayList<>();
         list.add(nation.getKing().getUUID());
 
         for (Resident resident : nation.getResidents()) {
-            if (resident.hasNationRank("Chancellor") || resident.hasNationRank("Treasurer")) {
+            if (resident.hasNationRank("Chancellor") || (bankTransaction && resident.hasNationRank("Treasurer"))) {
                 list.add(resident.getUUID());
             }
         }
