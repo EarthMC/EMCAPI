@@ -6,6 +6,7 @@ import com.ghostchu.quickshop.api.event.management.ShopCreateEvent;
 import com.ghostchu.quickshop.api.event.management.ShopDeleteEvent;
 import com.ghostchu.quickshop.api.obj.QUser;
 import com.ghostchu.quickshop.api.shop.Shop;
+import com.ghostchu.quickshop.api.shop.permission.BuiltInShopPermissionGroup;
 import com.google.gson.JsonObject;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Resident;
@@ -14,12 +15,27 @@ import net.earthmc.emcapi.util.EndpointUtils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public class ShopSSEListener extends AbstractSSEListener {
 
     public ShopSSEListener(SSEManager sseManager) {
         super(sseManager);
+    }
+
+    private void sendShopEvent(String eventName, JsonObject message, Shop shop) {
+        UUID owner = shop.getOwner().getUniqueId();
+        if (owner != null) {
+            sse.sendEvent(eventName, message, owner);
+        }
+        shop.getPermissionAudiences().entrySet().stream()
+                .filter((e) -> e.getValue().equals(BuiltInShopPermissionGroup.STAFF.getNamespacedNode()))
+                .map(Map.Entry::getKey)
+                .filter(Objects::nonNull)
+                .filter((uuid) -> !uuid.equals(owner))
+                .forEach((uuid) -> sse.sendEvent(eventName, message, uuid));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -37,13 +53,13 @@ public class ShopSSEListener extends AbstractSSEListener {
         saleMessage.addProperty("amount", event.getAmount());
         if (isSelling) {
             saleMessage.addProperty("buyer", purchaser);
-            sse.sendEvent("ShopSoldItem", saleMessage, owner);
+            sendShopEvent("ShopSoldItem", saleMessage, shop);
         } else {
             saleMessage.addProperty("seller", purchaser);
-            sse.sendEvent("ShopBoughtItem", saleMessage, owner);
+            sendShopEvent("ShopBoughtItem", saleMessage, shop);
         }
 
-        checkOwnerBalance(owner);
+        checkOwnerBalance(owner, shop);
         checkShopOut(shop);
     }
 
@@ -85,11 +101,11 @@ public class ShopSSEListener extends AbstractSSEListener {
         sse.sendEvent("ShopDeleted", message, owner);
     }
 
-    private void checkOwnerBalance(UUID owner) {
+    private void checkOwnerBalance(UUID owner, Shop shop) {
         Resident res = TownyAPI.getInstance().getResident(owner);
         if (res == null || res.getAccount().getHoldingBalance() > 0) return;
 
-        sse.sendEvent("ShopOutOfGold", new JsonObject(), owner);
+        sendShopEvent("ShopOutOfGold", new JsonObject(), shop);
     }
 
     private void checkShopOut(Shop shop) {
@@ -100,7 +116,7 @@ public class ShopSSEListener extends AbstractSSEListener {
         JsonObject alertMessage = new JsonObject();
         alertMessage.addProperty("action", isSelling ? "out_of_stock" : "out_of_space");
         alertMessage.add("shop", EndpointUtils.getShopObject(shop));
-        sse.sendEvent("ShopOutOf" + (isSelling ? "Stock" : "Space"), alertMessage, shop.getOwner().getUniqueId());
+        sendShopEvent("ShopOutOf" + (isSelling ? "Stock" : "Space"), alertMessage, shop);
     }
 
     private String getPlayerName(QUser user) {
