@@ -51,14 +51,23 @@ public class TownMapEndpoint extends MapGetEndpoint {
         } else {
             JsonObject nationObject = new JsonObject();
             nationObject.addProperty("name", nation.getName());
-            nationObject.addProperty("wiki", NationMetadataManager.getWikiURL(nation));
+            final String nationWiki = NationMetadataManager.getWikiURL(nation);
+            if (nationWiki != null) {
+                nationObject.addProperty("wiki", nationWiki);
+            }
             json.add("nation", nationObject);
         }
 
         JsonObject links = new JsonObject();
         links.addProperty("board", town.getBoard());
-        links.addProperty("discord", TownMetadataManager.getDiscordURL(town));
-        links.addProperty("wiki", TownMetadataManager.getWikiURL(town));
+        final String discord = TownMetadataManager.getDiscordURL(town);
+        if (discord != null) {
+            links.addProperty("discord", discord);
+        }
+        final String townWiki = TownMetadataManager.getWikiURL(town);
+        if (townWiki != null) {
+            links.addProperty("wiki", townWiki);
+        }
         json.add("links", links);
 
         final long inactivityCutoff = System.currentTimeMillis() - (TownySettings.getDeleteTime() * 1000L);
